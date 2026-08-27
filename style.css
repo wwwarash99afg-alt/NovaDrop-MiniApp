@@ -1,0 +1,60 @@
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #050816;
+  color: white;
+}
+
+.app {
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  padding: 25px;
+}
+
+.logo {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+}
+
+h1 {
+  color: #00eaff;
+  font-size: 32px;
+}
+
+.card {
+  background: #111827;
+  border: 1px solid #00eaff;
+  border-radius: 18px;
+  padding: 20px;
+  margin-top: 15px;
+  box-shadow: 0 0 15px #00eaff;
+}
+
+.task {
+  background: #1f2937;
+  padding: 15px;
+  border-radius: 12px;
+  margin: 10px 0;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 12px;
+  background: #00eaff;
+  color: #000;
+  font-size: 16px;
+  font-weight: bold;
+}
