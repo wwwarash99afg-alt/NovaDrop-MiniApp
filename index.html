@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaDrop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <header class="header">
+        <img src="logo.png" class="logo" alt="NovaDrop Logo">
+        <h1>NovaDrop</h1>
+        <p>Complete tasks, earn points and unlock rewards!</p>
+    </header>
+
+
+    <div class="points-card">
+        <h3>Your Points</h3>
+        <div class="points">
+            ⭐ <span id="points">0</span> Points
+        </div>
+    </div>
+
+
+    <h2>🔥 Tasks</h2>
+
+
+    <div class="task-card">
+        <div>
+            <h3>Join NovaDrop Channel</h3>
+            <p>Join our official channel</p>
+            <b>+100 Points</b>
+        </div>
+        <button onclick="joinChannel()">Join</button>
+    </div>
+
+
+    <div class="task-card">
+        <div>
+            <h3>Invite Friends</h3>
+            <p>Invite friends and earn more points</p>
+            <b>+50 Points</b>
+        </div>
+        <button onclick="inviteFriends()">Invite</button>
+    </div>
+
+
+    <div class="task-card">
+        <div>
+            <h3>Daily Check-in</h3>
+            <p>Check in every day</p>
+            <b>+10 Points</b>
+        </div>
+        <button onclick="dailyReward()">Claim</button>
+    </div>
+
+
+    <div class="task-card">
+        <div>
+            <h3>Connect TON Wallet</h3>
+            <p>Connect your TON wallet</p>
+            <b>+100 Points</b>
+        </div>
+        <button onclick="connectWallet()">Connect</button>
+    </div>
+
+
+    <nav class="menu">
+        <button>🏠<br>Home</button>
+        <button>📋<br>Tasks</button>
+        <button>🏆<br>Leaderboard</button>
+        <button>👤<br>Profile</button>
+    </nav>
+
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
