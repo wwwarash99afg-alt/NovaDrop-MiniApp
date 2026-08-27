@@ -1,86 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NovaDrop</title>
-<link rel="stylesheet" href="style.css">    <link rel=href="style.css">
-</head>
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
 
-<body>
+body {
+  margin: 0;
+  background: #050816;
+  color: #ffffff;
+  min-height: 100vh;
+}
 
-<div class="app">
+.app {
+  width: 100%;
+  max-width: 430px;
+  margin: auto;
+  padding: 18px;
+  padding-bottom: 95px;
+}
 
-    <header class="header">
-        <img src="logo.png" class="logo" alt="NovaDrop Logo">
-        <h1>NovaDrop</h1>
-        <p>Complete tasks, earn points and unlock rewards!</p>
-    </header>
+/* Header */
 
+.header {
+  text-align: center;
+  padding: 25px 10px 20px;
+}
 
-    <div class="points-card">
-        <h3>Your Points</h3>
-        <div class="points">
-            ⭐ <span id="points">0</span> Points
-        </div>
-    </div>
+.logo {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 12px;
+}
 
+.header h1 {
+  margin: 5px 0 10px;
+  color: #00eaff;
+  font-size: 34px;
+  font-weight: 800;
+}
 
-    <h2>🔥 Tasks</h2>
+.header p {
+  margin: 0;
+  color: #d7d9e0;
+  font-size: 17px;
+  line-height: 1.5;
+}
 
+/* Points */
 
-    <div class="task-card">
-        <div>
-            <h3>Join NovaDrop Channel</h3>
-            <p>Join our official channel</p>
-            <b>+100 Points</b>
-        </div>
-        <button onclick="joinChannel()">Join</button>
-    </div>
+.points-card {
+  background: #111827;
+  border: 1px solid rgba(0, 234, 255, 0.35);
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin: 10px 0 25px;
+  box-shadow: 0 0 18px rgba(0, 234, 255, 0.12);
+}
 
+.points-card h3 {
+  margin: 0 0 12px;
+  font-size: 21px;
+}
 
-    <div class="task-card">
-        <div>
-            <h3>Invite Friends</h3>
-            <p>Invite friends and earn more points</p>
-            <b>+50 Points</b>
-        </div>
-        <button onclick="inviteFriends()">Invite</button>
-    </div>
+.points {
+  font-size: 22px;
+  font-weight: bold;
+}
 
+#points {
+  color: #00eaff;
+  font-size: 27px;
+}
 
-    <div class="task-card">
-        <div>
-            <h3>Daily Check-in</h3>
-            <p>Check in every day</p>
-            <b>+10 Points</b>
-        </div>
-        <button onclick="dailyReward()">Claim</button>
-    </div>
+/* Tasks title */
 
+.app > h2 {
+  margin: 10px 0 15px;
+  font-size: 27px;
+}
 
-    <div class="task-card">
-        <div>
-            <h3>Connect TON Wallet</h3>
-            <p>Connect your TON wallet</p>
-            <b>+100 Points</b>
-        </div>
-        <button onclick="connectWallet()">Connect</button>
-    </div>
+/* Task cards */
 
+.task-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
 
-    <nav class="menu">
-        <button>🏠<br>Home</button>
-        <button>📋<br>Tasks</button>
-        <button>🏆<br>Leaderboard</button>
-        <button>👤<br>Profile</button>
-    </nav>
+  background: #111827;
+  border: 1px solid #202b3d;
+  border-radius: 18px;
 
+  padding: 18px;
+  margin: 14px 0;
 
-</div>
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.2);
+}
 
+.task-card > div {
+  flex: 1;
+}
 
-<script src="app.js"></script>
+.task-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
 
-</body>
-</html>
+.task-card p {
+  margin: 0 0 12px;
+  color: #b9c0cc;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.task-card b {
+  color: #00eaff;
+  font-size: 16px;
+}
+
+.task-card button {
+  width: 95px;
+  min-width: 95px;
+  padding: 12px 10px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #00eaff;
+  color: #001014;
+
+  font-size: 15px;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.task-card button:active {
+  transform: scale(0.95);
+}
+
+.task-card button:hover {
+  box-shadow: 0 0 15px rgba(0, 234, 255, 0.5);
+}
+
+/* Bottom menu */
+
+.menu {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 100%;
+  max-width: 430px;
+
+  display: flex;
+  justify-content: space-around;
+  gap: 5px;
+
+  padding: 10px 8px;
+
+  background: #0b1020;
+  border-top: 1px solid #202b3d;
+
+  z-index: 100;
+}
+
+.menu button {
+  width: 25%;
+  margin: 0;
+  padding: 8px 2px;
+
+  background: transparent;
+  color: #aeb6c5;
+
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.menu button:first-child {
+  color: #00eaff;
+}
+
+/* Mobile */
+
+@media (max-width: 380px) {
+  .app {
+    padding: 14px;
+  }
+
+  .task-card {
+    padding: 14px;
+  }
+
+  .task-card h3 {
+    font-size: 16px;
+  }
+
+  .task-card button {
+    width: 80px;
+    min-width: 80px;
+  }
+}
