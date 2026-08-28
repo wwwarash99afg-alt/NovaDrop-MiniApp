@@ -9,7 +9,7 @@ const SUPABASE_URL =
   "https://amtabsacamnfzikwmfxr.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_i-DXZ0D1j1kn1PxnCggsRA_TjWRDeuP";
+  "sb_publishable_i-DXZ0D1j1kn1PxnCggsRA_TjWrDeuP";
 
 const supabaseClient =
   window.supabase.createClient(
@@ -42,13 +42,12 @@ const telegramUser =
 
 
 /* =========================================
-   BOT / REFERRAL
+   REFERRAL
 ========================================= */
 
 const BOT_USERNAME = "NovaDropCoinBot";
 
 function getStartParameter() {
-
   if (!tg) return null;
 
   return tg.initDataUnsafe.start_param || null;
@@ -70,11 +69,10 @@ function getReferralLink() {
 
 
 /* =========================================
-   DEFAULT DATA
+   DATA
 ========================================= */
 
 const DEFAULT_DATA = {
-
   coins: 0,
   xp: 0,
   level: 1,
@@ -83,15 +81,12 @@ const DEFAULT_DATA = {
   lastStreakDate: null,
 
   completedTasks: [],
-
   purchases: [],
 
   walletAddress: null,
 
   referralCount: 0,
   referredBy: null,
-
-  /* New */
 
   tokenBalance: 0,
   usdtBalance: 0,
@@ -100,29 +95,29 @@ const DEFAULT_DATA = {
   lastDailySpinDate: null,
 
   premium: false
-
 };
 
-
-/* =========================================
-   LOAD DATA
-========================================= */
 
 let data;
 
 try {
 
-  data =
-    JSON.parse(
-      localStorage.getItem(
-        "novadrop_data"
-      )
-    ) ||
-    {
-      ...DEFAULT_DATA
-    };
+  const saved =
+    localStorage.getItem(
+      "novadrop_data"
+    );
 
-} catch {
+  data =
+    saved
+      ? JSON.parse(saved)
+      : { ...DEFAULT_DATA };
+
+} catch (error) {
+
+  console.error(
+    "Data loading error:",
+    error
+  );
 
   data = {
     ...DEFAULT_DATA
@@ -132,8 +127,33 @@ try {
 
 
 /* =========================================
-   DATA REPAIR
+   REPAIR DATA
 ========================================= */
+
+data.coins =
+  Number(data.coins) || 0;
+
+data.xp =
+  Number(data.xp) || 0;
+
+data.level =
+  Number(data.level) || 1;
+
+data.streak =
+  Number(data.streak) || 0;
+
+data.referralCount =
+  Number(data.referralCount) || 0;
+
+data.tokenBalance =
+  Number(data.tokenBalance) || 0;
+
+data.usdtBalance =
+  Number(data.usdtBalance) || 0;
+
+data.spinCount =
+  Number(data.spinCount) || 0;
+
 
 if (!Array.isArray(data.completedTasks)) {
   data.completedTasks = [];
@@ -141,26 +161,6 @@ if (!Array.isArray(data.completedTasks)) {
 
 if (!Array.isArray(data.purchases)) {
   data.purchases = [];
-}
-
-if (typeof data.referralCount !== "number") {
-  data.referralCount = 0;
-}
-
-if (typeof data.tokenBalance !== "number") {
-  data.tokenBalance = 0;
-}
-
-if (typeof data.usdtBalance !== "number") {
-  data.usdtBalance = 0;
-}
-
-if (typeof data.spinCount !== "number") {
-  data.spinCount = 1;
-}
-
-if (typeof data.premium !== "boolean") {
-  data.premium = false;
 }
 
 
@@ -187,7 +187,6 @@ function calculateLevel(
 ) {
 
   let level = 1;
-
   let remainingXP =
     Number(xp) || 0;
 
@@ -210,6 +209,19 @@ function calculateLevel(
     currentXP: remainingXP,
     neededXP
   };
+
+}
+
+
+/* =========================================
+   FORMAT
+========================================= */
+
+function formatNumber(number) {
+
+  return Number(number || 0)
+    .toLocaleString("en-US");
+
 }
 
 
@@ -282,7 +294,6 @@ function updateUI() {
       " / " +
       levelData.neededXP +
       " XP"
-
   };
 
 
@@ -302,8 +313,6 @@ function updateUI() {
     });
 
 
-  /* XP progress */
-
   const progress =
     document.getElementById(
       "levelProgress"
@@ -319,10 +328,9 @@ function updateUI() {
           levelData.neededXP
         ) * 100
       ) + "%";
+
   }
 
-
-  /* Referral */
 
   const referralLink =
     document.getElementById(
@@ -336,8 +344,6 @@ function updateUI() {
 
   }
 
-
-  /* Wallet */
 
   const walletStatus =
     document.getElementById(
@@ -387,8 +393,6 @@ function updateUI() {
   }
 
 
-  /* Premium */
-
   const premiumStatus =
     document.getElementById(
       "premiumStatus"
@@ -437,19 +441,6 @@ function updateUI() {
 
 
 /* =========================================
-   FORMAT NUMBER
-========================================= */
-
-function formatNumber(number) {
-
-  return Number(number || 0)
-    .toLocaleString(
-      "en-US"
-    );
-}
-
-
-/* =========================================
    TASKS
 ========================================= */
 
@@ -483,7 +474,7 @@ const TASKS = {
 
 
 /* =========================================
-   TASK RENDER
+   RENDER TASKS
 ========================================= */
 
 function renderTasks() {
@@ -521,6 +512,7 @@ function renderTasks() {
 
           button.disabled =
             true;
+
         }
 
       }
@@ -582,6 +574,7 @@ function completeTask(taskId) {
       );
 
       return;
+
     }
 
   }
@@ -594,6 +587,8 @@ function completeTask(taskId) {
   data.completedTasks.push(
     taskId
   );
+
+  save();
 
   updateUI();
 
@@ -622,6 +617,7 @@ function claimStreak() {
     );
 
     return;
+
   }
 
 
@@ -672,8 +668,11 @@ function claimStreak() {
     );
 
 
-  data.coins += reward;
+  data.coins +=
+    reward;
 
+
+  save();
 
   updateUI();
 
@@ -693,20 +692,43 @@ function claimStreak() {
    🎡 DAILY SPIN
 ========================================= */
 
-function getToday() {
-
-  return new Date()
-    .toISOString()
-    .slice(0, 10);
-
-}
-
-
-function checkDailySpin() {
+function prepareDailySpin() {
 
   const today =
-    getToday();
+    new Date()
+      .toISOString()
+      .slice(0, 10);
 
+
+  /*
+   * First time:
+   * Give one free spin.
+   */
+
+  if (
+    data.lastDailySpinDate === null ||
+    data.lastDailySpinDate === undefined
+  ) {
+
+    data.spinCount =
+      Math.max(
+        data.spinCount,
+        1
+      );
+
+    data.lastDailySpinDate =
+      today;
+
+    save();
+
+    return;
+  }
+
+
+  /*
+   * New day:
+   * Give one additional free spin.
+   */
 
   if (
     data.lastDailySpinDate !==
@@ -764,22 +786,38 @@ function updateSpinButton() {
 
 function spinWheel() {
 
-  checkDailySpin();
+  console.log(
+    "🎡 Spin clicked"
+  );
+
+
+  /*
+   * Make sure daily spin
+   * has been prepared.
+   */
+
+  prepareDailySpin();
 
 
   if (
-    data.spinCount <= 0
+    Number(data.spinCount) <= 0
   ) {
 
     alert(
-      "No spins available.\nInvite friends to earn more spins."
+      "❌ No spins available.\n\n" +
+      "Come back tomorrow or invite a friend."
     );
 
     return;
+
   }
 
 
   data.spinCount--;
+
+  save();
+
+  updateSpinButton();
 
 
   const rewards = [
@@ -865,16 +903,16 @@ function spinWheel() {
   }
 
 
-  setTimeout(() => {
+  setTimeout(
+    function () {
 
-    applySpinReward(
-      reward
-    );
+      applySpinReward(
+        reward
+      );
 
-  }, 1800);
-
-
-  updateUI();
+    },
+    1800
+  );
 
 }
 
@@ -950,7 +988,7 @@ function applySpinReward(
 
 
 /* =========================================
-   REFERRAL
+   REFERRAL COPY
 ========================================= */
 
 function copyReferralLink() {
@@ -966,48 +1004,65 @@ function copyReferralLink() {
     );
 
     return;
+
   }
 
 
-  navigator.clipboard
-    .writeText(link)
-    .then(() => {
+  if (
+    navigator.clipboard &&
+    navigator.clipboard.writeText
+  ) {
 
-      alert(
-        "✅ Referral link copied!"
-      );
-
-    })
-    .catch(() => {
-
-      const input =
-        document.getElementById(
-          "referralLink"
-        );
-
-      if (input) {
-
-        input.focus();
-
-        input.select();
-
-        document.execCommand(
-          "copy"
-        );
+    navigator.clipboard
+      .writeText(link)
+      .then(() => {
 
         alert(
           "✅ Referral link copied!"
         );
 
-      }
+      })
+      .catch(() => {
 
-    });
+        fallbackCopy(link);
+
+      });
+
+  } else {
+
+    fallbackCopy(link);
+
+  }
+
+}
+
+
+function fallbackCopy(text) {
+
+  const input =
+    document.getElementById(
+      "referralLink"
+    );
+
+  if (!input) return;
+
+  input.focus();
+
+  input.select();
+
+  document.execCommand(
+    "copy"
+  );
+
+  alert(
+    "✅ Referral link copied!"
+  );
 
 }
 
 
 /* =========================================
-   SHARE
+   SHARE REFERRAL
 ========================================= */
 
 function shareReferral() {
@@ -1023,6 +1078,7 @@ function shareReferral() {
     );
 
     return;
+
   }
 
 
@@ -1074,7 +1130,7 @@ function activateDemoPremium() {
 
   alert(
     "⭐ Premium Demo activated!\n\n" +
-    "This is a demo and does not charge TON."
+    "Demo only — no TON payment was made."
   );
 
 }
@@ -1098,10 +1154,12 @@ function buyItem(
     );
 
     return;
+
   }
 
 
-  data.coins -= price;
+  data.coins -=
+    price;
 
 
   data.purchases.push({
@@ -1115,6 +1173,8 @@ function buyItem(
 
   });
 
+
+  save();
 
   updateUI();
 
@@ -1146,6 +1206,7 @@ function initTONConnect() {
     );
 
     return;
+
   }
 
 
@@ -1213,6 +1274,7 @@ async function onWalletConnected(
 ) {
 
   const address =
+    wallet &&
     wallet.account &&
     wallet.account.address
       ? wallet.account.address
@@ -1245,6 +1307,7 @@ async function onWalletConnected(
       "wallet"
     );
 
+
     alert(
       "💎 TON Wallet Connected!\n\n" +
       "+100 XP\n" +
@@ -1253,6 +1316,8 @@ async function onWalletConnected(
 
   }
 
+
+  save();
 
   updateUI();
 
@@ -1267,6 +1332,8 @@ function onWalletDisconnected() {
 
   data.walletAddress =
     null;
+
+  save();
 
   updateUI();
 
@@ -1297,7 +1364,7 @@ function shortenAddress(
 
 
 /* =========================================
-   REFERRAL SERVER SYNC
+   REFERRAL SERVER
 ========================================= */
 
 async function processReferral() {
@@ -1308,6 +1375,7 @@ async function processReferral() {
   ) {
 
     return;
+
   }
 
 
@@ -1317,10 +1385,7 @@ async function processReferral() {
       getStartParameter();
 
 
-    const {
-      data: result,
-      error
-    } =
+    const response =
       await supabaseClient
         .functions
         .invoke(
@@ -1340,6 +1405,13 @@ async function processReferral() {
         );
 
 
+    const result =
+      response.data;
+
+    const error =
+      response.error;
+
+
     if (error) {
 
       console.error(
@@ -1348,6 +1420,7 @@ async function processReferral() {
       );
 
       return;
+
     }
 
 
@@ -1389,27 +1462,19 @@ async function processReferral() {
           profile.referral_count
         ) || data.referralCount;
 
-
-      data.referredBy =
-        profile.referred_by_telegram_id ||
-        data.referredBy;
-
     }
 
+
+    /*
+     * Every successful referral
+     * gives one additional spin.
+     */
 
     if (
       result.referralRewarded
     ) {
 
-      /*
-       * Successful referral:
-       * +1 Spin
-       */
-
       data.spinCount += 1;
-
-      data.referralCount += 1;
-
 
       alert(
         "🎉 Successful Referral!\n\n" +
@@ -1427,7 +1492,7 @@ async function processReferral() {
   } catch (error) {
 
     console.error(
-      "Referral error:",
+      "Referral exception:",
       error
     );
 
@@ -1452,14 +1517,16 @@ function scrollToTop() {
 
 function scrollToWallet() {
 
-  const cards =
-    document.querySelectorAll(
-      ".card"
+  const wallet =
+    document.querySelector(
+      ".wallet-balance"
     );
 
-  if (cards[1]) {
+  if (wallet) {
 
-    cards[1].scrollIntoView({
+    wallet.closest(
+      ".card"
+    ).scrollIntoView({
       behavior: "smooth"
     });
 
@@ -1506,14 +1573,14 @@ function scrollToPremium() {
 
 function scrollToProfile() {
 
-  const sections =
+  const cards =
     document.querySelectorAll(
       ".card"
     );
 
   const last =
-    sections[
-      sections.length - 1
+    cards[
+      cards.length - 1
     ];
 
   if (last) {
@@ -1533,20 +1600,25 @@ function scrollToProfile() {
 
 function resetProgress() {
 
-  const confirmReset =
+  const confirmed =
     confirm(
       "Reset all NovaDrop progress?"
     );
 
 
-  if (!confirmReset) {
-    return;
-  }
+  if (!confirmed) return;
 
 
   data = {
     ...DEFAULT_DATA
   };
+
+
+  /*
+   * Give first free spin again.
+   */
+
+  data.spinCount = 1;
 
 
   save();
@@ -1567,21 +1639,37 @@ function resetProgress() {
 
 document.addEventListener(
   "DOMContentLoaded",
-  async () => {
+  async function () {
+
+    console.log(
+      "🚀 NovaDrop starting..."
+    );
+
 
     /*
-     * Give the user today's free spin.
+     * Prepare today's free spin.
      */
 
-    checkDailySpin();
+    prepareDailySpin();
+
 
     updateUI();
+
 
     initTONConnect();
 
+
+    /*
+     * Referral is optional.
+     * If Supabase function fails,
+     * the app continues working.
+     */
+
     await processReferral();
 
+
     updateUI();
+
 
     console.log(
       "🚀 NovaDrop ready!"
