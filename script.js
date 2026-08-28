@@ -1,7 +1,8 @@
 /* =========================================
    🚀 NOVADROP
    Telegram Mini App
-   Referral + TON Wallet + Tasks
+   Real Referral System
+   TON Connect
 ========================================= */
 
 const SUPABASE_URL =
@@ -27,6 +28,7 @@ const tg =
     ? window.Telegram.WebApp
     : null;
 
+
 if (tg) {
   tg.ready();
   tg.expand();
@@ -35,14 +37,16 @@ if (tg) {
 
 const telegramUser =
   tg &&
-  tg.initDataUnsafe
+  tg.initDataUnsafe &&
+  tg.initDataUnsafe.user
     ? tg.initDataUnsafe.user
     : null;
 
 
 console.log(
-  "🚀 NovaDrop Telegram version loaded!"
+  "🚀 NovaDrop JavaScript loaded!"
 );
+
 
 if (telegramUser) {
 
@@ -53,7 +57,9 @@ if (telegramUser) {
 
   console.log(
     "Telegram Username:",
-    telegramUser.username || "No username"
+    telegramUser.username ||
+    telegramUser.first_name ||
+    "NovaPlayer"
   );
 
 }
@@ -66,32 +72,10 @@ if (telegramUser) {
 const BOT_USERNAME =
   "NovaDropCoinBot";
 
-const REFERRAL_REWARD_XP =
-  50;
-
-const REFERRAL_REWARD_COINS =
-  50;
-
-
-function getReferralCode() {
-
-  if (!telegramUser) {
-    return null;
-  }
-
-  return String(
-    telegramUser.id
-  );
-
-}
-
 
 function getStartParameter() {
 
-  if (
-    !tg ||
-    !tg.initDataUnsafe
-  ) {
+  if (!tg) {
     return null;
   }
 
@@ -105,10 +89,7 @@ function getStartParameter() {
 
 function getReferralLink() {
 
-  const code =
-    getReferralCode();
-
-  if (!code) {
+  if (!telegramUser) {
     return "";
   }
 
@@ -116,47 +97,16 @@ function getReferralLink() {
     "https://t.me/" +
     BOT_USERNAME +
     "?start=" +
-    code
+    encodeURIComponent(
+      String(telegramUser.id)
+    )
   );
 
 }
 
 
 /* =========================================
-   TASKS
-========================================= */
-
-const TASKS = {
-
-  wallet: {
-    title: "Connect TON Wallet",
-    xp: 100,
-    coins: 100
-  },
-
-  channel: {
-    title: "Join Channel",
-    xp: 100,
-    coins: 100
-  },
-
-  invite: {
-    title: "Invite Friends",
-    xp: 50,
-    coins: 50
-  },
-
-  daily: {
-    title: "Daily Check-in",
-    xp: 10,
-    coins: 10
-  }
-
-};
-
-
-/* =========================================
-   DEFAULT DATA
+   DATA
 ========================================= */
 
 const DEFAULT_DATA = {
@@ -188,6 +138,7 @@ const DEFAULT_DATA = {
 
 let data;
 
+
 try {
 
   data =
@@ -196,27 +147,51 @@ try {
         "novadrop_data"
       )
     ) ||
-    JSON.parse(
-      JSON.stringify(
-        DEFAULT_DATA
-      )
-    );
+    {
+      ...DEFAULT_DATA
+    };
 
 } catch {
 
-  data =
-    JSON.parse(
-      JSON.stringify(
-        DEFAULT_DATA
-      )
-    );
+  data = {
+    ...DEFAULT_DATA
+  };
 
 }
 
 
-/* =========================================
-   MAKE SURE NEW FIELDS EXIST
-========================================= */
+if (
+  !Array.isArray(
+    data.completedTasks
+  )
+) {
+
+  data.completedTasks = [];
+
+}
+
+
+if (
+  !Array.isArray(
+    data.transactions
+  )
+) {
+
+  data.transactions = [];
+
+}
+
+
+if (
+  !Array.isArray(
+    data.purchases
+  )
+) {
+
+  data.purchases = [];
+
+}
+
 
 if (
   typeof data.referralCount !==
@@ -227,20 +202,9 @@ if (
 
 }
 
-if (
-  !Object.prototype.hasOwnProperty.call(
-    data,
-    "referredBy"
-  )
-) {
-
-  data.referredBy = null;
-
-}
-
 
 /* =========================================
-   SAVE
+   SAVE LOCAL
 ========================================= */
 
 function save() {
@@ -257,26 +221,29 @@ function save() {
    LEVEL
 ========================================= */
 
-function calculateLevel() {
+function calculateLevel(
+  xp = data.xp
+) {
 
   let level = 1;
 
   let remainingXP =
-    data.xp;
+    Number(xp) || 0;
 
-  let xpNeeded = 100;
+  let neededXP = 100;
 
 
   while (
-    remainingXP >= xpNeeded
+    remainingXP >=
+    neededXP
   ) {
 
     remainingXP -=
-      xpNeeded;
+      neededXP;
 
     level++;
 
-    xpNeeded =
+    neededXP =
       level * 100;
 
   }
@@ -289,8 +256,7 @@ function calculateLevel() {
     currentXP:
       remainingXP,
 
-    neededXP:
-      xpNeeded
+    neededXP
 
   };
 
@@ -298,7 +264,171 @@ function calculateLevel() {
 
 
 /* =========================================
-   UPDATE UI
+   REFERRAL SERVER SYNC
+========================================= */
+
+async function processReferral() {
+
+  if (
+    !tg ||
+    !tg.initData
+  ) {
+
+    console.log(
+      "Telegram initData unavailable."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    const startParam =
+      getStartParameter();
+
+
+    const {
+      data: result,
+      error
+    } =
+      await supabaseClient
+        .functions
+        .invoke(
+          "process-referral",
+          {
+
+            body: {
+
+              initData:
+                tg.initData,
+
+              startParam
+
+            }
+
+          }
+        );
+
+
+    if (error) {
+
+      console.error(
+        "Referral function error:",
+        error
+      );
+
+      return;
+
+    }
+
+
+    if (!result) {
+      return;
+    }
+
+
+    if (
+      result.profile
+    ) {
+
+      const profile =
+        result.profile;
+
+
+      data.coins =
+        Number(
+          profile.coins
+        ) || 0;
+
+
+      data.xp =
+        Number(
+          profile.xp
+        ) || 0;
+
+
+      data.level =
+        Number(
+          profile.level
+        ) || 1;
+
+
+      data.streak =
+        Number(
+          profile.streak
+        ) || 0;
+
+
+      data.referralCount =
+        Number(
+          profile.referral_count
+        ) || 0;
+
+
+      data.referredBy =
+        profile.referred_by_telegram_id ||
+        null;
+
+    }
+
+
+    if (
+      result.referralRewarded
+    ) {
+
+      /*
+       * Reward was already applied
+       * securely on the server.
+       */
+
+      data.transactions.unshift({
+
+        type:
+          "earn",
+
+        amount:
+          50,
+
+        description:
+          "Referral Reward",
+
+        date:
+          new Date()
+            .toLocaleString()
+
+      });
+
+
+      alert(
+        "🎉 Referral successful!\n\n" +
+        "+50 XP\n" +
+        "+50 Coins"
+      );
+
+    }
+
+
+    save();
+
+    updateUI();
+
+
+  } catch (error) {
+
+    console.error(
+      "Referral error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   UI
 ========================================= */
 
 function updateUI() {
@@ -306,11 +436,12 @@ function updateUI() {
   const levelData =
     calculateLevel();
 
+
   data.level =
     levelData.level;
 
 
-  const elements = {
+  const values = {
 
     coins:
       data.coins,
@@ -345,28 +476,29 @@ function updateUI() {
     profileStreak:
       data.streak,
 
+    referralCount:
+      data.referralCount,
+
     xpText:
       levelData.currentXP +
       " / " +
       levelData.neededXP +
-      " XP",
-
-    referralCount:
-      data.referralCount
+      " XP"
 
   };
 
 
-  Object.keys(elements)
+  Object.keys(values)
     .forEach(id => {
 
       const element =
         document.getElementById(id);
 
+
       if (element) {
 
         element.textContent =
-          elements[id];
+          values[id];
 
       }
 
@@ -384,61 +516,13 @@ function updateUI() {
     progress.style.width =
       Math.min(
         100,
+
         (
           levelData.currentXP /
           levelData.neededXP
         ) * 100
-      ) +
-      "%";
 
-  }
-
-
-  const walletStatus =
-    document.getElementById(
-      "walletStatus"
-    );
-
-
-  const connectedWallet =
-    document.getElementById(
-      "connectedWallet"
-    );
-
-
-  if (data.walletAddress) {
-
-    if (walletStatus) {
-
-      walletStatus.textContent =
-        "✅ Wallet Connected";
-
-    }
-
-    if (connectedWallet) {
-
-      connectedWallet.textContent =
-        shortenAddress(
-          data.walletAddress
-        );
-
-    }
-
-  } else {
-
-    if (walletStatus) {
-
-      walletStatus.textContent =
-        "Connect your TON wallet";
-
-    }
-
-    if (connectedWallet) {
-
-      connectedWallet.textContent =
-        "";
-
-    }
+      ) + "%";
 
   }
 
@@ -457,6 +541,42 @@ function updateUI() {
   }
 
 
+  const walletStatus =
+    document.getElementById(
+      "walletStatus"
+    );
+
+
+  const connectedWallet =
+    document.getElementById(
+      "connectedWallet"
+    );
+
+
+  if (
+    data.walletAddress
+  ) {
+
+    if (walletStatus) {
+
+      walletStatus.textContent =
+        "✅ Wallet Connected";
+
+    }
+
+
+    if (connectedWallet) {
+
+      connectedWallet.textContent =
+        shortenAddress(
+          data.walletAddress
+        );
+
+    }
+
+  }
+
+
   renderTasks();
 
   renderTransactions();
@@ -467,7 +587,7 @@ function updateUI() {
 
 
 /* =========================================
-   COPY REFERRAL LINK
+   COPY REFERRAL
 ========================================= */
 
 async function copyReferralLink() {
@@ -479,7 +599,7 @@ async function copyReferralLink() {
   if (!link) {
 
     alert(
-      "Telegram user not detected."
+      "Please open NovaDrop inside Telegram."
     );
 
     return;
@@ -489,9 +609,8 @@ async function copyReferralLink() {
 
   try {
 
-    await navigator.clipboard.writeText(
-      link
-    );
+    await navigator.clipboard
+      .writeText(link);
 
     alert(
       "✅ Referral link copied!"
@@ -504,7 +623,10 @@ async function copyReferralLink() {
         "referralLink"
       );
 
+
     if (input) {
+
+      input.focus();
 
       input.select();
 
@@ -536,7 +658,7 @@ function shareReferral() {
   if (!link) {
 
     alert(
-      "Telegram user not detected."
+      "Please open NovaDrop inside Telegram."
     );
 
     return;
@@ -548,6 +670,13 @@ function shareReferral() {
     "🚀 Join NovaDrop and earn Coins + XP!";
 
 
+  const shareUrl =
+    "https://t.me/share/url?url=" +
+    encodeURIComponent(link) +
+    "&text=" +
+    encodeURIComponent(text);
+
+
   if (
     tg &&
     typeof tg.openTelegramLink ===
@@ -555,164 +684,60 @@ function shareReferral() {
   ) {
 
     tg.openTelegramLink(
-      "https://t.me/share/url?url=" +
-      encodeURIComponent(link) +
-      "&text=" +
-      encodeURIComponent(text)
+      shareUrl
     );
 
-    return;
-
-  }
-
-
-  window.open(
-    "https://t.me/share/url?url=" +
-    encodeURIComponent(link) +
-    "&text=" +
-    encodeURIComponent(text),
-    "_blank"
-  );
-
-}
-
-
-/* =========================================
-   SHORTEN ADDRESS
-========================================= */
-
-function shortenAddress(address) {
-
-  if (!address) {
-    return "";
-  }
-
-  if (address.length < 15) {
-    return address;
-  }
-
-  return (
-    address.slice(0, 6) +
-    "..." +
-    address.slice(-6)
-  );
-
-}
-
-
-/* =========================================
-   COMPLETE TASK
-========================================= */
-
-function completeTask(taskId) {
-
-  const task =
-    TASKS[taskId];
-
-
-  if (!task) {
-    return;
-  }
-
-
-  if (
-    data.completedTasks
-      .includes(taskId)
-  ) {
-
-    alert(
-      "This task is already completed ✓"
-    );
-
-    return;
-
-  }
-
-
-  /* CHANNEL */
-
-  if (
-    taskId === "channel"
-  ) {
+  } else {
 
     window.open(
-      "https://t.me/NovaDropOfficial",
+      shareUrl,
       "_blank"
     );
 
   }
 
-
-  /* WALLET */
-
-  if (
-    taskId === "wallet"
-  ) {
-
-    if (
-      !data.walletAddress
-    ) {
-
-      alert(
-        "Please connect your TON Wallet first."
-      );
-
-      return;
-
-    }
-
-  }
-
-
-  data.xp +=
-    task.xp;
-
-  data.coins +=
-    task.coins;
-
-
-  data.completedTasks.push(
-    taskId
-  );
-
-
-  data.transactions.unshift({
-
-    type:
-      "earn",
-
-    amount:
-      task.coins,
-
-    description:
-      task.title,
-
-    date:
-      new Date()
-        .toLocaleString()
-
-  });
-
-
-  updateUI();
-
-  saveToSupabase();
-
-
-  alert(
-    task.title +
-    " completed!\n\n+" +
-    task.xp +
-    " XP\n+" +
-    task.coins +
-    " Coins"
-  );
-
 }
 
 
 /* =========================================
-   RENDER TASKS
+   TASKS
+========================================= */
+
+const TASKS = {
+
+  channel: {
+    title:
+      "Join Channel",
+    xp: 100,
+    coins: 100
+  },
+
+  invite: {
+    title:
+      "Invite Friends",
+    xp: 50,
+    coins: 50
+  },
+
+  daily: {
+    title:
+      "Daily Check-in",
+    xp: 10,
+    coins: 10
+  },
+
+  wallet: {
+    title:
+      "Connect TON Wallet",
+    xp: 100,
+    coins: 100
+  }
+
+};
+
+
+/* =========================================
+   TASK RENDER
 ========================================= */
 
 function renderTasks() {
@@ -758,27 +783,117 @@ function renderTasks() {
 
         }
 
-      } else {
-
-        element.classList.remove(
-          "completed"
-        );
-
-
-        if (button) {
-
-          button.textContent =
-            "+" +
-            TASKS[taskId].xp;
-
-          button.disabled =
-            false;
-
-        }
-
       }
 
     });
+
+}
+
+
+/* =========================================
+   COMPLETE TASK
+========================================= */
+
+function completeTask(
+  taskId
+) {
+
+  const task =
+    TASKS[taskId];
+
+
+  if (!task) {
+    return;
+  }
+
+
+  if (
+    data.completedTasks
+      .includes(taskId)
+  ) {
+
+    alert(
+      "This task is already completed ✓"
+    );
+
+    return;
+
+  }
+
+
+  if (
+    taskId === "invite"
+  ) {
+
+    shareReferral();
+
+    return;
+
+  }
+
+
+  if (
+    taskId === "channel"
+  ) {
+
+    window.open(
+      "https://t.me/NovaDropOfficial",
+      "_blank"
+    );
+
+  }
+
+
+  if (
+    taskId === "wallet"
+  ) {
+
+    if (
+      !data.walletAddress
+    ) {
+
+      alert(
+        "Connect your TON Wallet first."
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  data.xp +=
+    task.xp;
+
+  data.coins +=
+    task.coins;
+
+
+  data.completedTasks.push(
+    taskId
+  );
+
+
+  data.transactions.unshift({
+
+    type:
+      "earn",
+
+    amount:
+      task.coins,
+
+    description:
+      task.title,
+
+    date:
+      new Date()
+        .toLocaleString()
+
+  });
+
+
+  updateUI();
 
 }
 
@@ -885,8 +1000,6 @@ function claimStreak() {
 
   updateUI();
 
-  saveToSupabase();
-
 
   alert(
     "🔥 " +
@@ -958,8 +1071,6 @@ function buyItem(
 
 
   updateUI();
-
-  saveToSupabase();
 
 
   alert(
@@ -1046,214 +1157,10 @@ function renderTransactions() {
 
 
 /* =========================================
-   SUPABASE SAVE
-========================================= */
-
-async function saveToSupabase() {
-
-  try {
-
-    if (
-      !telegramUser ||
-      !telegramUser.id
-    ) {
-
-      console.log(
-        "No Telegram user."
-      );
-
-      return;
-
-    }
-
-
-    const profile = {
-
-      id:
-        String(
-          telegramUser.id
-        ),
-
-      username:
-        telegramUser.username ||
-        telegramUser.first_name ||
-        "NovaPlayer",
-
-      coins:
-        data.coins,
-
-      xp:
-        data.xp,
-
-      level:
-        data.level,
-
-      streak:
-        data.streak,
-
-      completed_tasks:
-        data.completedTasks,
-
-      updated_at:
-        new Date()
-          .toISOString()
-
-    };
-
-
-    const { error } =
-      await supabaseClient
-        .from("profiles")
-        .upsert(
-          profile
-        );
-
-
-    if (error) {
-
-      console.error(
-        "Supabase save error:",
-        error
-      );
-
-      return;
-
-    }
-
-
-    console.log(
-      "✅ Data saved to Supabase!"
-    );
-
-  } catch (error) {
-
-    console.error(
-      "Supabase error:",
-      error
-    );
-
-  }
-
-}
-
-
-/* =========================================
-   SUPABASE LOAD
-========================================= */
-
-async function loadFromSupabase() {
-
-  try {
-
-    if (
-      !telegramUser ||
-      !telegramUser.id
-    ) {
-
-      console.log(
-        "No Telegram user."
-      );
-
-      return;
-
-    }
-
-
-    const { data: profile, error } =
-      await supabaseClient
-        .from("profiles")
-        .select(
-          "coins, xp, level, streak, completed_tasks"
-        )
-        .eq(
-          "id",
-          String(
-            telegramUser.id
-          )
-        )
-        .maybeSingle();
-
-
-    if (error) {
-
-      console.error(
-        "Supabase load error:",
-        error
-      );
-
-      return;
-
-    }
-
-
-    if (!profile) {
-
-      await saveToSupabase();
-
-      return;
-
-    }
-
-
-    data.coins =
-      Number(
-        profile.coins
-      ) || 0;
-
-
-    data.xp =
-      Number(
-        profile.xp
-      ) || 0;
-
-
-    data.level =
-      Number(
-        profile.level
-      ) || 1;
-
-
-    data.streak =
-      Number(
-        profile.streak
-      ) || 0;
-
-
-    if (
-      Array.isArray(
-        profile.completed_tasks
-      )
-    ) {
-
-      data.completedTasks =
-        profile.completed_tasks;
-
-    }
-
-
-    save();
-
-    updateUI();
-
-
-  } catch (error) {
-
-    console.error(
-      "Supabase load error:",
-      error
-    );
-
-  }
-
-}
-
-
-/* =========================================
    TON CONNECT
 ========================================= */
 
-let tonConnectUI =
-  null;
+let tonConnectUI = null;
 
 
 function initTONConnect() {
@@ -1279,13 +1186,7 @@ function initTONConnect() {
 
 
   if (!button) {
-
-    console.error(
-      "TON Connect container not found."
-    );
-
     return;
-
   }
 
 
@@ -1323,11 +1224,6 @@ function initTONConnect() {
     );
 
 
-    console.log(
-      "💎 TON Connect initialized!"
-    );
-
-
   } catch (error) {
 
     console.error(
@@ -1360,7 +1256,7 @@ async function onWalletConnected(
   }
 
 
-  const wasAlreadyConnected =
+  const wasConnected =
     data.walletAddress ===
     address;
 
@@ -1369,14 +1265,10 @@ async function onWalletConnected(
     address;
 
 
-  updateUI();
-
-
   if (
-    !wasAlreadyConnected &&
-    !data.completedTasks.includes(
-      "wallet"
-    )
+    !wasConnected &&
+    !data.completedTasks
+      .includes("wallet")
   ) {
 
     data.xp += 100;
@@ -1407,11 +1299,6 @@ async function onWalletConnected(
     });
 
 
-    updateUI();
-
-    await saveToSupabase();
-
-
     alert(
       "💎 TON Wallet Connected!\n\n" +
       "+100 XP\n" +
@@ -1419,6 +1306,9 @@ async function onWalletConnected(
     );
 
   }
+
+
+  updateUI();
 
 }
 
@@ -1438,6 +1328,37 @@ function onWalletDisconnected() {
 
 
 /* =========================================
+   ADDRESS
+========================================= */
+
+function shortenAddress(
+  address
+) {
+
+  if (!address) {
+    return "";
+  }
+
+
+  if (
+    address.length <= 14
+  ) {
+
+    return address;
+
+  }
+
+
+  return (
+    address.slice(0, 6) +
+    "..." +
+    address.slice(-6)
+  );
+
+}
+
+
+/* =========================================
    START
 ========================================= */
 
@@ -1449,10 +1370,17 @@ document.addEventListener(
 
     initTONConnect();
 
-    await loadFromSupabase();
+    /*
+     * This validates the Telegram user
+     * and processes a referral.
+     */
+
+    await processReferral();
+
+    updateUI();
 
     console.log(
-      "🚀 NovaDrop JavaScript loaded!"
+      "🚀 NovaDrop ready!"
     );
 
   }
