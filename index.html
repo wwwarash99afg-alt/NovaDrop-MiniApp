@@ -8,8 +8,14 @@
 
   <link rel="stylesheet" href="style.css">
 
+  <!-- Telegram -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- TON Connect -->
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 
 <body>
@@ -74,12 +80,10 @@
       </div>
 
       <div class="progress-bar">
-
         <div
           id="levelProgress"
           class="progress-fill">
         </div>
-
       </div>
 
     </section>
@@ -199,7 +203,7 @@
     </section>
 
 
-    <!-- WALLET TASK -->
+    <!-- TON WALLET -->
     <section
       id="task-wallet"
       class="task-card">
@@ -210,7 +214,7 @@
           💎 Connect TON Wallet
         </h3>
 
-        <p>
+        <p id="walletStatus">
           Connect your TON wallet
         </p>
 
@@ -220,9 +224,7 @@
 
       </div>
 
-      <button onclick="completeTask('wallet')">
-        +100
-      </button>
+      <div id="ton-connect"></div>
 
     </section>
 
@@ -239,14 +241,16 @@
       <div class="wallet-balance">
 
         🪙
-
         <span id="walletCoins">
           0
         </span>
-
         Coins
 
       </div>
+
+      <p id="connectedWallet"
+         style="word-break:break-all;color:#8f9aaa;">
+      </p>
 
     </section>
 
@@ -263,7 +267,6 @@
       <div class="shop-balance">
 
         🪙
-
         <span id="shopCoins">
           0
         </span>
@@ -274,19 +277,11 @@
       <div class="shop-item">
 
         <div>
-
-          <strong>
-            😎 Avatar
-          </strong>
-
-          <small>
-            Special NovaDrop avatar
-          </small>
-
+          <strong>😎 Avatar</strong>
+          <small>Special NovaDrop avatar</small>
         </div>
 
-        <button
-          onclick="buyItem('Avatar', 100)">
+        <button onclick="buyItem('Avatar', 100)">
           100 🪙
         </button>
 
@@ -296,19 +291,11 @@
       <div class="shop-item">
 
         <div>
-
-          <strong>
-            🏅 Badge
-          </strong>
-
-          <small>
-            Unlock a special badge
-          </small>
-
+          <strong>🏅 Badge</strong>
+          <small>Unlock a special badge</small>
         </div>
 
-        <button
-          onclick="buyItem('Badge', 200)">
+        <button onclick="buyItem('Badge', 200)">
           200 🪙
         </button>
 
@@ -318,19 +305,11 @@
       <div class="shop-item">
 
         <div>
-
-          <strong>
-            ⚡ XP Boost
-          </strong>
-
-          <small>
-            Special XP item
-          </small>
-
+          <strong>⚡ XP Boost</strong>
+          <small>Special XP item</small>
         </div>
 
-        <button
-          onclick="buyItem('XP Boost', 300)">
+        <button onclick="buyItem('XP Boost', 300)">
           300 🪙
         </button>
 
@@ -340,19 +319,11 @@
       <div class="shop-item">
 
         <div>
-
-          <strong>
-            💎 Mystery Item
-          </strong>
-
-          <small>
-            Exclusive NovaDrop item
-          </small>
-
+          <strong>💎 Mystery Item</strong>
+          <small>Exclusive NovaDrop item</small>
         </div>
 
-        <button
-          onclick="buyItem('Mystery Item', 500)">
+        <button onclick="buyItem('Mystery Item', 500)">
           500 🪙
         </button>
 
@@ -384,9 +355,7 @@
 
       <div class="leader">
 
-        <span>
-          👤 You
-        </span>
+        <span>👤 You</span>
 
         <strong id="leaderXP">
           0 XP
@@ -428,67 +397,49 @@
   <!-- BOTTOM MENU -->
   <nav class="menu">
 
-    <button
-      onclick="window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      })">
-
+    <button onclick="window.scrollTo({
+      top:0,
+      behavior:'smooth'
+    })">
       🏠
       <span>Home</span>
-
     </button>
 
 
-    <button
-      onclick="
-        document
-          .getElementById('task-channel')
-          .scrollIntoView({
-            behavior: 'smooth'
-          })
-      ">
-
+    <button onclick="
+      document.getElementById('task-channel')
+      .scrollIntoView({
+        behavior:'smooth'
+      })">
       📋
       <span>Tasks</span>
-
     </button>
 
 
-    <button
-      onclick="
-        document
-          .getElementById('leaderXP')
-          .scrollIntoView({
-            behavior: 'smooth'
-          })
-      ">
-
+    <button onclick="
+      document.getElementById('leaderXP')
+      .scrollIntoView({
+        behavior:'smooth'
+      })">
       🏆
       <span>Leaderboard</span>
-
     </button>
 
 
-    <button
-      onclick="
-        document
-          .getElementById('profileLevel')
-          .scrollIntoView({
-            behavior: 'smooth'
-          })
-      ">
-
+    <button onclick="
+      document.getElementById('profileLevel')
+      .scrollIntoView({
+        behavior:'smooth'
+      })">
       👤
       <span>Profile</span>
-
     </button>
 
   </nav>
 
 
-  <!-- JAVASCRIPT -->
+  <!-- JavaScript -->
   <script src="script.js"></script>
 
 </body>
-            </html>
+</html>
