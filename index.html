@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>NovaDrop</title>
 
   <link rel="stylesheet" href="style.css">
 
+  <!-- Telegram -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- TON Connect -->
   <script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
 </head>
 
@@ -16,27 +23,28 @@
 
 <div class="app">
 
+  <!-- HEADER -->
   <header class="header">
-    <div class="logo">🚀</div>
+    <div class="logo">₿</div>
+
     <h1>NovaDrop</h1>
-    <p>Complete tasks, earn points and unlock rewards!</p>
+
+    <p>
+      Complete tasks, spin the wheel and earn rewards!
+    </p>
   </header>
 
-  <!-- PROGRESS -->
 
+  <!-- PROGRESS -->
   <section class="points-card">
+
     <h3>⭐ Your Progress</h3>
 
     <div class="stats">
 
       <div class="stat">
-        <span>🪙 Nova Token</span>
+        <span>🪙 Coins</span>
         <strong id="coins">0</strong>
-      </div>
-
-      <div class="stat">
-        <span>💵 USDT</span>
-        <strong id="usdtBalance">0.00</strong>
       </div>
 
       <div class="stat">
@@ -45,25 +53,38 @@
       </div>
 
       <div class="stat">
-        <span>🏆 Level</span>
-        <strong id="level">1</strong>
+        <span>🪙 Token</span>
+        <strong id="tokenBalance">0</strong>
+      </div>
+
+      <div class="stat">
+        <span>💵 USDT</span>
+        <strong id="usdtBalance">0</strong>
       </div>
 
     </div>
 
     <div class="level-info">
-      <span>Level <b id="levelLabel">1</b></span>
-      <span id="xpText">0 / 100 XP</span>
+      <span>
+        Level <b id="level">1</b>
+      </span>
+
+      <span id="xpText">
+        0 / 100 XP
+      </span>
     </div>
 
     <div class="progress-bar">
-      <div id="levelProgress" class="progress-fill"></div>
+      <div
+        id="levelProgress"
+        class="progress-fill">
+      </div>
     </div>
+
   </section>
 
 
   <!-- DAILY STREAK -->
-
   <section class="card streak-card">
 
     <h2>🔥 Daily Streak</h2>
@@ -80,108 +101,153 @@
 
 
   <!-- LUCKY SPIN -->
-
   <section class="card spin-card">
 
     <h2>🎡 Lucky Spin</h2>
 
     <p>
-      Spin and win Nova Tokens or USDT!
+      Spin once every day or earn extra spins by inviting friends.
     </p>
 
-    <div class="spin-balance">
+    <div class="spin-wheel" id="spinWheel">
 
-      <div>
-        🎟️ Spins
-        <strong id="spinCount">1</strong>
-      </div>
-
-      <div>
-        🪙 Nova
-        <strong id="spinCoins">0</strong>
-      </div>
-
-      <div>
-        💵 USDT
-        <strong id="spinUSDT">0.00</strong>
+      <div class="wheel-center">
+        🎁
       </div>
 
     </div>
 
-    <div class="wheel" id="luckyWheel">
-      🎡
+    <div class="spin-pointer">
+      ▼
     </div>
+
+    <p class="spin-count">
+      🎟️ Spins:
+      <strong id="spinCount">0</strong>
+    </p>
 
     <button
       id="spinButton"
-      onclick="spinWheel()"
-    >
+      onclick="spinWheel()">
+
       🎡 SPIN
     </button>
 
     <p id="spinResult">
-      Spin once a day or earn extra spins by inviting friends.
+      Ready to spin!
     </p>
 
   </section>
 
 
   <!-- TASKS -->
-
   <h2>🎯 Tasks</h2>
 
 
-  <div id="task-channel" class="task-card">
+  <!-- CHANNEL -->
+  <div
+    id="task-channel"
+    class="task-card">
 
     <div>
+
       <h3>📢 Join Channel</h3>
-      <p>Join NovaDrop Official.</p>
-      <b>+100 XP • +100 Nova</b>
+
+      <p>
+        Join NovaDrop Official.
+      </p>
+
+      <b>
+        +100 XP • +100 Coins
+      </b>
+
     </div>
 
-    <button onclick="completeTask('channel')">
+    <button
+      onclick="completeTask('channel')">
+
       Start
+
     </button>
 
   </div>
 
 
-  <div id="task-invite" class="task-card">
+  <!-- INVITE -->
+  <div
+    id="task-invite"
+    class="task-card">
 
     <div>
+
       <h3>👥 Invite Friends</h3>
-      <p>Invite friends to NovaDrop.</p>
-      <b>+1 Spin</b>
+
+      <p>
+        Invite friends to NovaDrop.
+      </p>
+
+      <b>
+        +50 XP • +50 Coins
+      </b>
+
     </div>
 
-    <button onclick="completeTask('invite')">
+    <button
+      onclick="completeTask('invite')">
+
       Invite
+
     </button>
 
   </div>
 
 
-  <div id="task-daily" class="task-card">
+  <!-- DAILY -->
+  <div
+    id="task-daily"
+    class="task-card">
 
     <div>
+
       <h3>📅 Daily Check-in</h3>
-      <p>Check in every day.</p>
-      <b>+10 XP • +10 Nova</b>
+
+      <p>
+        Check in every day.
+      </p>
+
+      <b>
+        +10 XP • +10 Coins
+      </b>
+
     </div>
 
-    <button onclick="completeTask('daily')">
+    <button
+      onclick="completeTask('daily')">
+
       Claim
+
     </button>
 
   </div>
 
 
-  <div id="task-wallet" class="task-card">
+  <!-- WALLET -->
+  <div
+    id="task-wallet"
+    class="task-card">
 
     <div>
+
       <h3>💎 Connect TON Wallet</h3>
-      <p>Connect your TON wallet.</p>
-      <b>+100 XP • +100 Nova</b>
+
+      <p>
+        Connect your TON wallet.
+      </p>
+
+      <b>
+        +100 XP • +100 Coins
+      </b>
+
     </div>
 
     <div id="ton-connect"></div>
@@ -190,20 +256,17 @@
 
 
   <!-- WALLET -->
-
   <section class="card">
 
     <h2>💎 Wallet</h2>
 
     <div class="wallet-balance">
 
-      <span id="walletCoins">0</span>
-      🪙 Nova
+      <span id="walletCoins">
+        0
+      </span>
 
-      <br>
-
-      <span id="walletUSDT">0.00</span>
-      💵 USDT
+      🪙
 
     </div>
 
@@ -213,14 +276,15 @@
 
     <p>
       Address:
-      <strong id="connectedWallet">—</strong>
+      <strong id="connectedWallet">
+        —
+      </strong>
     </p>
 
   </section>
 
 
   <!-- PREMIUM -->
-
   <section class="card premium-card">
 
     <h2>⭐ NovaDrop Premium</h2>
@@ -234,14 +298,21 @@
     </p>
 
     <ul>
+
       <li>🚀 2× XP Boost</li>
+
       <li>🎁 Premium Tasks</li>
+
       <li>🔥 Extra Streak Rewards</li>
+
       <li>👑 Premium Badge</li>
+
     </ul>
 
     <button onclick="activateDemoPremium()">
+
       ⭐ Try Premium Demo
+
     </button>
 
     <p id="premiumStatus">
@@ -252,25 +323,38 @@
 
 
   <!-- SHOP -->
-
   <section class="card">
 
     <h2>🛍️ Shop</h2>
 
     <div class="shop-balance">
-      <span id="shopCoins">0</span> 🪙
+
+      <span id="shopCoins">
+        0
+      </span>
+
+      🪙
+
     </div>
 
 
     <div class="shop-item">
 
       <div>
+
         <strong>🎨 Avatar</strong>
-        <small>Premium Avatar</small>
+
+        <small>
+          Premium Avatar
+        </small>
+
       </div>
 
-      <button onclick="buyItem('Avatar',100)">
+      <button
+        onclick="buyItem('Avatar',100)">
+
         100 🪙
+
       </button>
 
     </div>
@@ -279,12 +363,20 @@
     <div class="shop-item">
 
       <div>
+
         <strong>🏅 Badge</strong>
-        <small>Special Badge</small>
+
+        <small>
+          Special Badge
+        </small>
+
       </div>
 
-      <button onclick="buyItem('Badge',150)">
+      <button
+        onclick="buyItem('Badge',150)">
+
         150 🪙
+
       </button>
 
     </div>
@@ -293,12 +385,20 @@
     <div class="shop-item">
 
       <div>
+
         <strong>🚀 XP Boost</strong>
-        <small>Boost your progress</small>
+
+        <small>
+          Boost your progress
+        </small>
+
       </div>
 
-      <button onclick="buyItem('XP Boost',200)">
+      <button
+        onclick="buyItem('XP Boost',200)">
+
         200 🪙
+
       </button>
 
     </div>
@@ -307,21 +407,19 @@
 
 
   <!-- REFERRAL -->
-
   <section class="card">
 
     <h2>🤝 Referral</h2>
 
     <p>
-      Invite friends and earn extra Lucky Spins.
+      Invite friends and earn rewards.
     </p>
 
     <input
       id="referralLink"
       type="text"
       readonly
-      placeholder="Your referral link"
-    >
+      placeholder="Your referral link">
 
     <button onclick="copyReferralLink()">
       📋 Copy Link
@@ -332,27 +430,30 @@
     </button>
 
     <p>
-      Successful Referrals:
-      <strong id="referralCount">0</strong>
+      Referrals:
+      <strong id="referralCount">
+        0
+      </strong>
     </p>
 
     <p>
-      🎟️ Referral Spins:
-      <strong id="referralSpins">0</strong>
+      🎟️ Each successful referral gives
+      <strong>+1 Spin</strong>
     </p>
 
   </section>
 
 
   <!-- LEADERBOARD -->
-
   <section class="card">
 
     <h2>🏆 Leaderboard</h2>
 
     <div class="leader">
 
-      <span>Your XP</span>
+      <span>
+        Your XP
+      </span>
 
       <strong id="leaderXP">
         0 XP
@@ -364,34 +465,43 @@
 
 
   <!-- PROFILE -->
-
   <section class="card">
 
     <h2>👤 Profile</h2>
 
     <p>
       Level:
-      <strong id="profileLevel">1</strong>
+      <strong id="profileLevel">
+        1
+      </strong>
     </p>
 
     <p>
       Streak:
-      <strong id="profileStreak">0</strong>
-    </p>
-
-    <p>
-      Nova Token:
-      <strong id="profileCoins">0</strong>
-    </p>
-
-    <p>
-      USDT:
-      <strong id="profileUSDT">0.00</strong>
+      <strong id="profileStreak">
+        0
+      </strong>
     </p>
 
     <p>
       Premium:
-      <strong id="profilePremium">No</strong>
+      <strong id="profilePremium">
+        No
+      </strong>
+    </p>
+
+    <p>
+      🪙 Token:
+      <strong id="profileToken">
+        0
+      </strong>
+    </p>
+
+    <p>
+      💵 USDT:
+      <strong id="profileUSDT">
+        0
+      </strong>
     </p>
 
     <button onclick="resetProgress()">
@@ -404,7 +514,6 @@
 
 
 <!-- BOTTOM MENU -->
-
 <nav class="menu">
 
   <button onclick="scrollToTop()">
@@ -417,9 +526,9 @@
     <span>Wallet</span>
   </button>
 
-  <button onclick="scrollToPremium()">
-    ⭐
-    <span>Premium</span>
+  <button onclick="scrollToSpin()">
+    🎡
+    <span>Spin</span>
   </button>
 
   <button onclick="scrollToProfile()">
@@ -433,4 +542,4 @@
 <script src="script.js"></script>
 
 </body>
-  </html>
+        </html>
