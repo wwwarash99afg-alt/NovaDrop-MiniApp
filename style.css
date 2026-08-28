@@ -11,67 +11,79 @@ body {
   margin: 0;
   min-height: 100vh;
   color: #fff;
+  overflow-x: hidden;
+
   background:
-    radial-gradient(circle at 20% 10%, rgba(247, 147, 26, .18), transparent 28%),
-    radial-gradient(circle at 85% 30%, rgba(255, 190, 60, .12), transparent 30%),
-    radial-gradient(circle at 50% 90%, rgba(247, 147, 26, .10), transparent 35%),
-    #030303;
-  position: relative;
+    radial-gradient(circle at 15% 15%, rgba(247,147,26,.20), transparent 25%),
+    radial-gradient(circle at 85% 40%, rgba(247,147,26,.14), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(247,147,26,.12), transparent 35%),
+    #020202;
 }
 
-/* ₿ Bitcoin background symbols */
+/* BITCOIN BACKGROUND */
 
 body::before {
-  content: "₿   ₿   ₿   ₿   ₿   ₿   ₿   ₿";
+  content: "₿       ₿       ₿       ₿       ₿";
   position: fixed;
-  inset: 0;
-  z-index: -1;
+  top: -30px;
+  left: -80px;
 
-  font-size: 75px;
-  line-height: 2.2;
-  letter-spacing: 35px;
+  width: 700px;
+  height: 110vh;
 
-  color: rgba(247, 147, 26, .045);
+  font-size: 95px;
+  line-height: 180px;
+  letter-spacing: 25px;
 
-  transform: rotate(-15deg) scale(1.2);
+  color: rgba(247,147,26,.075);
+
+  transform: rotate(-18deg);
+
+  white-space: normal;
 
   pointer-events: none;
+  z-index: -2;
+
+  text-shadow:
+    0 0 25px rgba(247,147,26,.18);
 }
 
-/* Golden glow */
+/* GOLDEN LIGHT */
 
 body::after {
   content: "";
   position: fixed;
-  width: 280px;
-  height: 280px;
 
-  top: 15%;
+  width: 320px;
+  height: 320px;
+
+  top: 25%;
   left: 50%;
 
-  transform: translateX(-50%);
-
-  background: rgba(247, 147, 26, .08);
-
-  filter: blur(80px);
+  transform: translate(-50%, -50%);
 
   border-radius: 50%;
 
-  z-index: -1;
+  background: rgba(247,147,26,.10);
+
+  filter: blur(90px);
+
   pointer-events: none;
+  z-index: -1;
 }
+
+/* APP */
 
 .app {
   width: 100%;
   max-width: 430px;
   margin: auto;
+
   padding: 18px;
-  padding-bottom: 105px;
+  padding-bottom: 110px;
 }
 
-/* =========================
-   HEADER
-========================= */
+/* HEADER */
 
 .header {
   text-align: center;
@@ -79,8 +91,10 @@ body::after {
 }
 
 .logo {
-  width: 90px;
-  height: 90px;
+  width: 92px;
+  height: 92px;
+
+  margin: 0 auto 12px;
 
   border-radius: 50%;
 
@@ -88,23 +102,37 @@ body::after {
   align-items: center;
   justify-content: center;
 
-  margin: 0 auto 12px;
-
   font-size: 55px;
 
   background:
     radial-gradient(
-      circle,
-      #ffb52e,
-      #f7931a 55%,
-      #8f4d00
+      circle at 35% 30%,
+      #ffd36a,
+      #f7931a 50%,
+      #8a4700
     );
 
-  border: 2px solid #f7931a;
+  border: 3px solid #f7931a;
 
   box-shadow:
-    0 0 20px rgba(247,147,26,.6),
-    0 0 55px rgba(247,147,26,.18);
+    0 0 20px rgba(247,147,26,.65),
+    0 0 55px rgba(247,147,26,.25);
+
+  animation: bitcoinGlow 3s infinite alternate;
+}
+
+@keyframes bitcoinGlow {
+  from {
+    box-shadow:
+      0 0 15px rgba(247,147,26,.45),
+      0 0 30px rgba(247,147,26,.15);
+  }
+
+  to {
+    box-shadow:
+      0 0 30px rgba(247,147,26,.75),
+      0 0 70px rgba(247,147,26,.25);
+  }
 }
 
 .header h1 {
@@ -128,9 +156,7 @@ body::after {
   line-height: 1.5;
 }
 
-/* =========================
-   CARDS
-========================= */
+/* CARDS */
 
 .card,
 .points-card,
@@ -138,16 +164,16 @@ body::after {
   background:
     linear-gradient(
       135deg,
-      rgba(28,22,15,.88),
-      rgba(8,8,8,.82)
+      rgba(35,25,15,.88),
+      rgba(8,8,8,.86)
     );
 
-  border: 1px solid rgba(247,147,26,.25);
+  border: 1px solid rgba(247,147,26,.28);
 
   border-radius: 18px;
 
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 
   box-shadow:
     0 8px 30px rgba(0,0,0,.45),
@@ -159,9 +185,7 @@ body::after {
   margin: 15px 0;
 }
 
-/* =========================
-   POINTS
-========================= */
+/* PROGRESS */
 
 .points-card {
   padding: 18px 20px;
@@ -180,9 +204,9 @@ body::after {
 }
 
 .stat {
-  background: rgba(0,0,0,.65);
+  background: rgba(0,0,0,.72);
 
-  border: 1px solid rgba(247,147,26,.18);
+  border: 1px solid rgba(247,147,26,.20);
 
   border-radius: 14px;
 
@@ -200,15 +224,14 @@ body::after {
 
 .stat strong {
   color: #f7931a;
+
   font-size: 23px;
 
   text-shadow:
-    0 0 10px rgba(247,147,26,.5);
+    0 0 12px rgba(247,147,26,.55);
 }
 
-/* =========================
-   LEVEL
-========================= */
+/* LEVEL */
 
 .level-info {
   display: flex;
@@ -247,14 +270,12 @@ body::after {
   border-radius: 20px;
 
   box-shadow:
-    0 0 14px rgba(247,147,26,.7);
+    0 0 15px rgba(247,147,26,.75);
 
   transition: width .4s ease;
 }
 
-/* =========================
-   BUTTONS
-========================= */
+/* BUTTONS */
 
 button {
   border: none;
@@ -268,7 +289,7 @@ button {
   background:
     linear-gradient(
       135deg,
-      #ffb52e,
+      #ffd166,
       #f7931a
     );
 
@@ -284,7 +305,7 @@ button {
 
 button:hover {
   box-shadow:
-    0 0 18px rgba(247,147,26,.55);
+    0 0 20px rgba(247,147,26,.65);
 }
 
 button:active {
@@ -297,9 +318,7 @@ button:disabled {
   box-shadow: none;
 }
 
-/* =========================
-   STREAK
-========================= */
+/* STREAK */
 
 .streak-card {
   text-align: center;
@@ -314,16 +333,14 @@ button:disabled {
   margin: 18px 0;
 
   text-shadow:
-    0 0 12px rgba(247,147,26,.5);
+    0 0 15px rgba(247,147,26,.55);
 }
 
 .streak-number span {
   font-size: 42px;
 }
 
-/* =========================
-   TASKS
-========================= */
+/* TASKS */
 
 .app > h2 {
   margin: 25px 0 15px;
@@ -349,7 +366,7 @@ button:disabled {
   transform: translateY(-2px);
 
   border-color:
-    rgba(247,147,26,.5);
+    rgba(247,147,26,.55);
 }
 
 .task-card > div {
@@ -390,14 +407,11 @@ button:disabled {
   color: #aaa;
 }
 
-/* =========================
-   WALLET
-========================= */
+/* WALLET */
 
 .wallet-balance,
 .shop-balance {
   font-size: 26px;
-
   font-weight: bold;
 
   color: #f7931a;
@@ -406,30 +420,27 @@ button:disabled {
 
   padding: 15px;
 
-  background: rgba(0,0,0,.7);
+  background: rgba(0,0,0,.72);
 
   border-radius: 14px;
 
-  border: 1px solid rgba(247,147,26,.2);
+  border: 1px solid rgba(247,147,26,.22);
 
   text-shadow:
-    0 0 12px rgba(247,147,26,.5);
+    0 0 12px rgba(247,147,26,.55);
 }
 
-/* =========================
-   PREMIUM
-========================= */
+/* PREMIUM */
 
 .premium-card {
   border-color:
-    rgba(247,147,26,.35);
+    rgba(247,147,26,.40);
 }
 
 .premium-price {
   text-align: center;
 
   font-size: 30px;
-
   font-weight: bold;
 
   color: #f7931a;
@@ -437,9 +448,7 @@ button:disabled {
   margin: 15px 0;
 }
 
-/* =========================
-   SHOP
-========================= */
+/* SHOP */
 
 .shop-item {
   display: flex;
@@ -477,9 +486,7 @@ button:disabled {
   margin: 0;
 }
 
-/* =========================
-   INPUT
-========================= */
+/* INPUT */
 
 input {
   width: 100%;
@@ -493,7 +500,7 @@ input {
 
   border-radius: 12px;
 
-  background: rgba(0,0,0,.75);
+  background: rgba(0,0,0,.78);
 
   color: #fff;
 
@@ -506,12 +513,10 @@ input:focus {
   border-color: #f7931a;
 
   box-shadow:
-    0 0 10px rgba(247,147,26,.2);
+    0 0 10px rgba(247,147,26,.25);
 }
 
-/* =========================
-   LEADERBOARD
-========================= */
+/* LEADERBOARD */
 
 .leader {
   display: flex;
@@ -519,7 +524,7 @@ input:focus {
   justify-content: space-between;
   align-items: center;
 
-  background: rgba(0,0,0,.65);
+  background: rgba(0,0,0,.68);
 
   padding: 15px;
 
@@ -530,9 +535,7 @@ input:focus {
   color: #f7931a;
 }
 
-/* =========================
-   MENU
-========================= */
+/* BOTTOM MENU */
 
 .menu {
   position: fixed;
@@ -553,13 +556,13 @@ input:focus {
 
   padding: 10px 8px;
 
-  background: rgba(5,5,5,.95);
+  background: rgba(3,3,3,.96);
 
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 
   border-top:
-    1px solid rgba(247,147,26,.25);
+    1px solid rgba(247,147,26,.30);
 
   z-index: 100;
 }
@@ -591,9 +594,7 @@ input:focus {
   margin-top: 3px;
 }
 
-/* =========================
-   MOBILE
-========================= */
+/* MOBILE */
 
 @media (max-width: 380px) {
 
@@ -620,7 +621,7 @@ input:focus {
   }
 
   body::before {
-    font-size: 55px;
-    letter-spacing: 20px;
+    font-size: 60px;
+    line-height: 145px;
   }
-  }
+    }
