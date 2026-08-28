@@ -2,8 +2,8 @@
    🚀 NOVADROP
    Telegram Mini App
    Coins + XP + Level + Streak
-   Tasks + Shop + Transactions
-   Supabase
+   Tasks + Transactions + Shop
+   TON Connect Wallet
 ========================================= */
 
 
@@ -29,78 +29,51 @@ const supabaseClient =
 ========================================= */
 
 const tg =
-  window.Telegram?.WebApp || null;
+  window.Telegram &&
+  window.Telegram.WebApp
+    ? window.Telegram.WebApp
+    : null;
+
+if (tg) {
+  tg.ready();
+  tg.expand();
+}
+
+
+/* =========================================
+   TELEGRAM USER
+========================================= */
 
 let telegramUser = null;
 
-if (tg) {
-
-  tg.ready();
-  tg.expand();
-
+if (tg && tg.initDataUnsafe) {
   telegramUser =
-    tg.initDataUnsafe?.user || null;
-
+    tg.initDataUnsafe.user || null;
 }
 
+console.log(
+  "🚀 NovaDrop Telegram version loaded!"
+);
 
-/* =========================================
-   USER ID
-========================================= */
+if (telegramUser) {
 
-function getUserId() {
-
-  if (!telegramUser) {
-    return null;
-  }
-
-  /*
-    profiles.id در Supabase از نوع UUID است.
-    بنابراین Telegram ID را مستقیماً داخل id نمی‌گذاریم.
-  */
-
-  return telegramUser.id
-    ? String(telegramUser.id)
-    : null;
-}
-
-
-/* =========================================
-   DEFAULT DATA
-========================================= */
-
-const DEFAULT_DATA = {
-
-  coins: 0,
-
-  xp: 0,
-
-  level: 1,
-
-  streak: 0,
-
-  completedTasks: [],
-
-  transactions: [],
-
-  purchases: [],
-
-  lastStreakDate: null
-
-};
-
-
-let data =
-  JSON.parse(
-    localStorage.getItem(
-      "novadrop_data"
-    )
-  ) ||
-  JSON.parse(
-    JSON.stringify(
-      DEFAULT_DATA
-    )
+  console.log(
+    "Telegram User ID:",
+    telegramUser.id
   );
+
+  console.log(
+    "Telegram Username:",
+    telegramUser.username || "No username"
+  );
+
+} else {
+
+  console.log(
+    "Telegram user not detected."
+  );
+
+}
 
 
 /* =========================================
@@ -108,6 +81,12 @@ let data =
 ========================================= */
 
 const TASKS = {
+
+  wallet: {
+    title: "Connect TON Wallet",
+    xp: 100,
+    coins: 100
+  },
 
   channel: {
     title: "Join Channel",
@@ -125,15 +104,68 @@ const TASKS = {
     title: "Daily Check-in",
     xp: 10,
     coins: 10
-  },
-
-  wallet: {
-    title: "Connect TON Wallet",
-    xp: 100,
-    coins: 100
   }
 
 };
+
+
+/* =========================================
+   DEFAULT DATA
+========================================= */
+
+const DEFAULT_DATA = {
+
+  coins: 0,
+
+  xp: 0,
+
+  level: 1,
+
+  streak: 0,
+
+  lastStreakDate: null,
+
+  completedTasks: [],
+
+  transactions: [],
+
+  purchases: [],
+
+  walletAddress: null
+
+};
+
+
+/* =========================================
+   LOAD LOCAL DATA
+========================================= */
+
+let data;
+
+try {
+
+  data =
+    JSON.parse(
+      localStorage.getItem(
+        "novadrop_data"
+      )
+    ) ||
+    JSON.parse(
+      JSON.stringify(
+        DEFAULT_DATA
+      )
+    );
+
+} catch (error) {
+
+  data =
+    JSON.parse(
+      JSON.stringify(
+        DEFAULT_DATA
+      )
+    );
+
+}
 
 
 /* =========================================
@@ -151,15 +183,14 @@ function save() {
 
 
 /* =========================================
-   LEVEL
+   LEVEL SYSTEM
 ========================================= */
 
 function calculateLevel() {
 
   let level = 1;
 
-  let remainingXP =
-    Number(data.xp) || 0;
+  let remainingXP = data.xp;
 
   let xpNeeded = 100;
 
@@ -180,7 +211,7 @@ function calculateLevel() {
 
   return {
 
-    level,
+    level: level,
 
     currentXP:
       remainingXP,
@@ -275,7 +306,7 @@ function updateUI() {
 
   if (progress) {
 
-    const percentage =
+    const percent =
       (
         levelData.currentXP /
         levelData.neededXP
@@ -285,8 +316,60 @@ function updateUI() {
     progress.style.width =
       Math.min(
         100,
-        percentage
+        percent
       ) + "%";
+
+  }
+
+
+  const walletStatus =
+    document.getElementById(
+      "walletStatus"
+    );
+
+
+  const connectedWallet =
+    document.getElementById(
+      "connectedWallet"
+    );
+
+
+  if (data.walletAddress) {
+
+    if (walletStatus) {
+
+      walletStatus.textContent =
+        "✅ Wallet Connected";
+
+    }
+
+
+    if (connectedWallet) {
+
+      connectedWallet.textContent =
+        "TON: " +
+        shortenAddress(
+          data.walletAddress
+        );
+
+    }
+
+  } else {
+
+    if (walletStatus) {
+
+      walletStatus.textContent =
+        "Connect your TON wallet";
+
+    }
+
+
+    if (connectedWallet) {
+
+      connectedWallet.textContent =
+        "";
+
+    }
 
   }
 
@@ -301,10 +384,35 @@ function updateUI() {
 
 
 /* =========================================
+   SHORTEN WALLET ADDRESS
+========================================= */
+
+function shortenAddress(address) {
+
+  if (!address) {
+    return "";
+  }
+
+
+  if (address.length < 15) {
+    return address;
+  }
+
+
+  return (
+    address.slice(0, 6) +
+    "..." +
+    address.slice(-6)
+  );
+
+}
+
+
+/* =========================================
    COMPLETE TASK
 ========================================= */
 
-async function completeTask(taskId) {
+function completeTask(taskId) {
 
   const task =
     TASKS[taskId];
@@ -345,16 +453,25 @@ async function completeTask(taskId) {
 
   if (taskId === "wallet") {
 
-    alert(
-      "TON Wallet connection will be added next. 💎"
-    );
+    if (!data.walletAddress) {
+
+      alert(
+        "Please connect your TON Wallet first."
+      );
+
+      return;
+
+    }
 
   }
 
 
-  data.xp += task.xp;
+  data.xp +=
+    task.xp;
 
-  data.coins += task.coins;
+
+  data.coins +=
+    task.coins;
 
 
   data.completedTasks.push(
@@ -364,7 +481,8 @@ async function completeTask(taskId) {
 
   data.transactions.unshift({
 
-    type: "earn",
+    type:
+      "earn",
 
     amount:
       task.coins,
@@ -381,8 +499,7 @@ async function completeTask(taskId) {
 
   updateUI();
 
-
-  await saveToSupabase();
+  saveToSupabase();
 
 
   alert(
@@ -408,7 +525,8 @@ function renderTasks() {
 
       const element =
         document.getElementById(
-          "task-" + taskId
+          "task-" +
+          taskId
         );
 
 
@@ -472,7 +590,7 @@ function renderTasks() {
    DAILY STREAK
 ========================================= */
 
-async function claimStreak() {
+function claimStreak() {
 
   const today =
     new Date()
@@ -494,9 +612,7 @@ async function claimStreak() {
   }
 
 
-  if (
-    !data.lastStreakDate
-  ) {
+  if (!data.lastStreakDate) {
 
     data.streak = 1;
 
@@ -507,6 +623,7 @@ async function claimStreak() {
         data.lastStreakDate
       );
 
+
     const current =
       new Date(today);
 
@@ -516,8 +633,7 @@ async function claimStreak() {
         (
           current -
           previous
-        ) /
-        86400000
+        ) / 86400000
       );
 
 
@@ -553,7 +669,8 @@ async function claimStreak() {
 
   data.transactions.unshift({
 
-    type: "earn",
+    type:
+      "earn",
 
     amount:
       reward,
@@ -570,8 +687,7 @@ async function claimStreak() {
 
   updateUI();
 
-
-  await saveToSupabase();
+  saveToSupabase();
 
 
   alert(
@@ -589,7 +705,7 @@ async function claimStreak() {
    SHOP
 ========================================= */
 
-async function buyItem(
+function buyItem(
   name,
   price
 ) {
@@ -613,9 +729,11 @@ async function buyItem(
 
   data.purchases.push({
 
-    name,
+    name:
+      name,
 
-    price,
+    price:
+      price,
 
     date:
       new Date()
@@ -626,7 +744,8 @@ async function buyItem(
 
   data.transactions.unshift({
 
-    type: "spend",
+    type:
+      "spend",
 
     amount:
       price,
@@ -644,8 +763,7 @@ async function buyItem(
 
   updateUI();
 
-
-  await saveToSupabase();
+  saveToSupabase();
 
 
   alert(
@@ -698,11 +816,9 @@ function renderTransactions() {
 
 
         return `
-
           <div style="
             padding:10px 0;
-            border-bottom:
-              1px solid #202b3d;
+            border-bottom:1px solid #202b3d;
           ">
 
             <strong>
@@ -725,7 +841,6 @@ function renderTransactions() {
             </small>
 
           </div>
-
         `;
 
       })
@@ -735,66 +850,20 @@ function renderTransactions() {
 
 
 /* =========================================
-   SAVE TO SUPABASE
+   SUPABASE SAVE
 ========================================= */
 
 async function saveToSupabase() {
 
-  const telegramId =
-    getUserId();
-
-
-  if (!telegramId) {
-
-    console.log(
-      "⚠️ Telegram user not available."
-    );
-
-    return;
-
-  }
-
-
   try {
 
-    /*
-      چون profiles.id از نوع UUID است،
-      برای اتصال Telegram به پروفایل
-      از username استفاده می‌کنیم.
-    */
+    if (
+      !telegramUser ||
+      !telegramUser.id
+    ) {
 
-    const username =
-      telegramUser?.username ||
-      telegramUser?.first_name ||
-      "NovaPlayer";
-
-
-    /*
-      ابتدا بررسی می‌کنیم آیا
-      پروفایلی با username وجود دارد.
-    */
-
-    const {
-      data: existing,
-      error: findError
-    } =
-      await supabaseClient
-        .from("profiles")
-        .select(
-          "id"
-        )
-        .eq(
-          "username",
-          username
-        )
-        .maybeSingle();
-
-
-    if (findError) {
-
-      console.error(
-        "Supabase find error:",
-        findError
+      console.log(
+        "No Telegram user."
       );
 
       return;
@@ -802,119 +871,53 @@ async function saveToSupabase() {
     }
 
 
-    let profileId;
+    const profile = {
+
+      id:
+        String(
+          telegramUser.id
+        ),
+
+      username:
+        telegramUser.username ||
+        telegramUser.first_name ||
+        "NovaPlayer",
+
+      coins:
+        data.coins,
+
+      xp:
+        data.xp,
+
+      level:
+        data.level,
+
+      streak:
+        data.streak,
+
+      completed_tasks:
+        data.completedTasks,
+
+      updated_at:
+        new Date()
+          .toISOString()
+
+    };
 
 
-    if (existing) {
-
-      profileId =
-        existing.id;
-
-    } else {
-
-      /*
-        اگر پروفایل وجود نداشت،
-        یک UUID جدید برای آن ساخته می‌شود.
-      */
-
-      const {
-        data: created,
-        error: createError
-      } =
-        await supabaseClient
-          .from("profiles")
-          .insert({
-
-            username,
-
-            coins:
-              data.coins,
-
-            xp:
-              data.xp,
-
-            level:
-              data.level,
-
-            streak:
-              data.streak,
-
-            completed_tasks:
-              data.completedTasks,
-
-            updated_at:
-              new Date()
-                .toISOString()
-
-          })
-          .select(
-            "id"
-          )
-          .single();
-
-
-      if (createError) {
-
-        console.error(
-          "Supabase create error:",
-          createError
-        );
-
-        return;
-
-      }
-
-
-      profileId =
-        created.id;
-
-    }
-
-
-    /*
-      بروزرسانی پروفایل
-    */
-
-    const {
-      error: updateError
-    } =
+    const { error } =
       await supabaseClient
         .from("profiles")
-        .update({
-
-          username,
-
-          coins:
-            data.coins,
-
-          xp:
-            data.xp,
-
-          level:
-            data.level,
-
-          streak:
-            data.streak,
-
-          completed_tasks:
-            data.completedTasks,
-
-          updated_at:
-            new Date()
-              .toISOString()
-
-        })
-        .eq(
-          "id",
-          profileId
+        .upsert(
+          profile
         );
 
 
-    if (updateError) {
+    if (error) {
 
       console.error(
-        "Supabase update error:",
-        updateError
+        "Supabase save error:",
+        error
       );
 
       return;
@@ -923,7 +926,7 @@ async function saveToSupabase() {
 
 
     console.log(
-      "✅ NovaDrop data saved!"
+      "✅ NovaDrop data saved to Supabase!"
     );
 
   } catch (error) {
@@ -939,46 +942,38 @@ async function saveToSupabase() {
 
 
 /* =========================================
-   LOAD FROM SUPABASE
+   SUPABASE LOAD
 ========================================= */
 
 async function loadFromSupabase() {
 
-  const telegramId =
-    getUserId();
-
-
-  if (!telegramId) {
-
-    console.log(
-      "⚠️ NovaDrop must be opened inside Telegram."
-    );
-
-    return;
-
-  }
-
-
   try {
 
-    const username =
-      telegramUser?.username ||
-      telegramUser?.first_name ||
-      "NovaPlayer";
+    if (
+      !telegramUser ||
+      !telegramUser.id
+    ) {
+
+      console.log(
+        "No Telegram user."
+      );
+
+      return;
+
+    }
 
 
-    const {
-      data: profile,
-      error
-    } =
+    const { data: profile, error } =
       await supabaseClient
         .from("profiles")
         .select(
-          "id, username, coins, xp, level, streak, completed_tasks"
+          "coins, xp, level, streak, completed_tasks"
         )
         .eq(
-          "username",
-          username
+          "id",
+          String(
+            telegramUser.id
+          )
         )
         .maybeSingle();
 
@@ -996,10 +991,6 @@ async function loadFromSupabase() {
 
 
     if (!profile) {
-
-      console.log(
-        "No profile yet. Creating..."
-      );
 
       await saveToSupabase();
 
@@ -1050,7 +1041,7 @@ async function loadFromSupabase() {
 
 
     console.log(
-      "✅ NovaDrop data loaded!"
+      "✅ NovaDrop data loaded from Supabase!"
     );
 
   } catch (error) {
@@ -1066,69 +1057,273 @@ async function loadFromSupabase() {
 
 
 /* =========================================
-   RESET
+   TON CONNECT
 ========================================= */
 
-async function resetProgress() {
+let tonConnectUI = null;
+
+
+/* =========================================
+   INIT TON CONNECT
+========================================= */
+
+function initTONConnect() {
 
   if (
-    !confirm(
-      "Reset all NovaDrop progress?"
-    )
+    typeof TON_CONNECT_UI ===
+    "undefined"
   ) {
+
+    console.error(
+      "TON Connect library not loaded."
+    );
 
     return;
 
   }
 
 
-  data =
-    JSON.parse(
-      JSON.stringify(
-        DEFAULT_DATA
-      )
+  const button =
+    document.getElementById(
+      "ton-connect"
     );
 
 
-  save();
+  if (!button) {
+
+    console.error(
+      "TON Connect container not found."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    tonConnectUI =
+      new TON_CONNECT_UI.TonConnectUI({
+
+        manifestUrl:
+          window.location.origin +
+          "/tonconnect-manifest.json",
+
+        buttonRootId:
+          "ton-connect"
+
+      });
+
+
+    tonConnectUI.onStatusChange(
+      async wallet => {
+
+        if (wallet) {
+
+          await onWalletConnected(
+            wallet
+          );
+
+        } else {
+
+          onWalletDisconnected();
+
+        }
+
+      }
+    );
+
+
+    console.log(
+      "💎 TON Connect initialized!"
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "TON Connect initialization error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   WALLET CONNECTED
+========================================= */
+
+async function onWalletConnected(
+  wallet
+) {
+
+  const address =
+    wallet.account &&
+    wallet.account.address
+      ? wallet.account.address
+      : null;
+
+
+  if (!address) {
+
+    console.error(
+      "Wallet address not found."
+    );
+
+    return;
+
+  }
+
+
+  const wasAlreadyConnected =
+    data.walletAddress ===
+    address;
+
+
+  data.walletAddress =
+    address;
+
 
   updateUI();
 
-  await saveToSupabase();
+
+  /*
+     Give wallet reward
+     only once.
+  */
+
+  if (
+    !wasAlreadyConnected &&
+    !data.completedTasks.includes(
+      "wallet"
+    )
+  ) {
+
+    const task =
+      TASKS.wallet;
 
 
-  alert(
-    "NovaDrop progress reset 🔄"
+    data.xp +=
+      task.xp;
+
+
+    data.coins +=
+      task.coins;
+
+
+    data.completedTasks.push(
+      "wallet"
+    );
+
+
+    data.transactions.unshift({
+
+      type:
+        "earn",
+
+      amount:
+        task.coins,
+
+      description:
+        task.title,
+
+      date:
+        new Date()
+          .toLocaleString()
+
+    });
+
+
+    updateUI();
+
+    await saveToSupabase();
+
+
+    alert(
+      "💎 TON Wallet Connected!\n\n" +
+      "+100 XP\n" +
+      "+100 Coins"
+    );
+
+  } else {
+
+    await saveToSupabase();
+
+  }
+
+
+  console.log(
+    "💎 Connected wallet:",
+    address
   );
 
 }
 
 
 /* =========================================
-   TELEGRAM INFO
+   WALLET DISCONNECTED
 ========================================= */
 
-if (telegramUser) {
+function onWalletDisconnected() {
+
+  data.walletAddress =
+    null;
+
+
+  updateUI();
+
 
   console.log(
-    "🚀 NovaDrop Telegram version loaded!"
+    "TON Wallet disconnected."
   );
 
-  console.log(
-    "Telegram User ID:",
-    telegramUser.id
-  );
+}
 
-  console.log(
-    "Telegram Username:",
-    telegramUser.username ||
-    telegramUser.first_name
-  );
 
-} else {
+/* =========================================
+   DISCONNECT WALLET
+========================================= */
 
-  console.log(
-    "⚠️ NovaDrop must be opened inside Telegram."
+async function disconnectTONWallet() {
+
+  if (!tonConnectUI) {
+    return;
+  }
+
+
+  try {
+
+    await tonConnectUI.disconnect();
+
+  } catch (error) {
+
+    console.error(
+      "TON disconnect error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   AUTH STATE
+========================================= */
+
+if (supabaseClient) {
+
+  supabaseClient.auth.onAuthStateChange(
+    event => {
+
+      console.log(
+        "Supabase Auth event:",
+        event
+      );
+
+    }
   );
 
 }
@@ -1138,11 +1333,19 @@ if (telegramUser) {
    START
 ========================================= */
 
-updateUI();
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
 
-loadFromSupabase();
+    updateUI();
 
+    initTONConnect();
 
-console.log(
-  "🚀 NovaDrop JavaScript loaded!"
+    await loadFromSupabase();
+
+    console.log(
+      "🚀 NovaDrop JavaScript loaded!"
+    );
+
+  }
 );
