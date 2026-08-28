@@ -1,83 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NovaDrop</title>
 
-  <link
-    rel="stylesheet"
-    href="style.css"
-  >
+  <link rel="stylesheet" href="style.css">
 
-  <!-- Telegram Mini App -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- TON Connect -->
   <script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
-
 </head>
 
 <body>
 
 <div class="app">
 
-  <!-- HEADER -->
-
   <header class="header">
-
-    <div class="logo">
-      🚀
-    </div>
-
-    <h1>
-      NovaDrop
-    </h1>
-
-    <p>
-      Complete tasks, earn points and unlock rewards!
-    </p>
-
+    <div class="logo">🚀</div>
+    <h1>NovaDrop</h1>
+    <p>Complete tasks, earn points and unlock rewards!</p>
   </header>
 
-
-  <!-- PROGRESS -->
-
   <section class="points-card">
-
-    <h3>
-      ⭐ Your Progress
-    </h3>
+    <h3>⭐ Your Progress</h3>
 
     <div class="stats">
-
       <div class="stat">
-
-        <span>
-          🪙 Coins
-        </span>
-
-        <strong id="coins">
-          0
-        </strong>
-
+        <span>🪙 Coins</span>
+        <strong id="coins">0</strong>
       </div>
 
-
       <div class="stat">
+        <span>⚡ XP</span>
+        <strong id="xp">0</strong>
+      </div>
+    </div>
 
-        <span>
-          ⚡ XP
-        </span>
+    <div class="level-info">
+      <span>Level <b id="level">1</b></span>
+      <span id="xpText">0 / 100 XP</span>
+    </div>
 
-       
+    <div class="progress-bar">
+      <div id="levelProgress" class="progress-fill"></div>
+    </div>
+  </section>
+
+  <section class="card streak-card">
+    <h2>🔥 Daily Streak</h2>
+    <div class="streak-number">
+      <span id="streak">0</span> days
+    </div>
+    <button onclick="claimStreak()">Claim Daily Reward</button>
+  </section>
+
+  <h2>🎯 Tasks</h2>
+
+  <div id="task-channel" class="task-card">
+    <div>
+      <h3>📢 Join Channel</h3>
+      <p>Join NovaDrop Official.</p>
+      <b>+100 XP • +100 Coins</b>
+    </div>
+    <button onclick="completeTask('channel')">Start</button>
+  </div>
+
+  <div id="task-invite" class="task-card">
+    <div>
+      <h3>👥 Invite Friends</h3>
+      <p>Invite friends to NovaDrop.</p>
+      <b>+50 XP • +50 Coins</b>
+    </div>
+    <button onclick="completeTask('invite')">Invite</button>
+  </div>
+
+  <div id="task-daily" class="task-card">
+    <div>
+      <h3>📅 Daily Check-in</h3>
+      <p>Check in every day.</p>
+      <b>+10 XP • +10 Coins</b>
+    </div>
+    <button onclick="completeTask('daily')">Claim</button>
+  </div>
+
+  <div id="task-wallet" class="task-card">
+    <div>
+      <h3>💎 Connect TON Wallet</h3>
+      <p>Connect your TON wallet.</p>
+      <b>+100 XP • +100 Coins</b>
+    </div>
+    <div id="ton-connect"></div>
+  </div>
+
+  <!-- WALLET -->
+
+  <section class="card">
+    <h2>💎 Wallet</h2>
+
+    <div class="wallet-balance">
+      <span id="walletCoins">0</span> 🪙
+    </div>
+
+    <p id="walletStatus">Wallet not connected</p>
+
+    <p>
+      Address:
+      <strong id="connectedWallet">—</strong>
+    </p>
+  </section>
+
+  <!-- PREMIUM -->
+
+  <section class="card premium-card">
+    <h2>⭐ NovaDrop Premium</h2>
+
+    <div class="premium-price">
+      0.5 TON
+    </div>
+
+    <p>Premium access for 30 days.</p>
+
+    <ul>
+      <li>🚀 2× XP Boost</li>
+      <li>🎁 Premium Tasks</li>
+      <li>🔥 Extra Streak Rewards</li>
+      <li>👑 Premium Badge</li>
+    </ul>
+
+    <button onclick="activateDemoPremium()">
+      ⭐ Try Premium Demo
+    </button>
+
+    <p id="premiumStatus">
+      Premium inactive
+    </p>
+  </section>
+
+  <!-- SHOP -->
+
+  <section class="card">
+    <h2>🛍️ Shop</h2>
+
+    <div class="shop-balance">
+      <span id="shopCoins">0</span> 🪙
+    </div>
+
+    <div class="shop-item">
+      <div>
+        <strong>🎨 Avatar</strong>
+        <small>Premium Avatar</small>
+      </div>
+      <button onclick="buyItem('Avatar',100)">100 🪙</button>
+    </div>
+
+    <div class="shop-item">
+      <div>
+        <strong>🏅 Badge</strong>
+        <small>Special Badge</small>
+      </div>
+      <button onclick="buyItem('Badge',150)">150 🪙</button>
+    </div>
+
+    <div class="shop-item">
+      <div>
+        <strong>🚀 XP Boost</strong>
+        <small>Boost your progress</small>
+      </div>
+      <button onclick="buyItem('XP Boost',200)">200 🪙</button>
+    </div>
+  </section>
+
+  <!-- REFERRAL -->
+
+  <section class="card">
+    <h2>🤝 Referral</h2>
+
+    <p>
+      Invite friends and earn rewards.
+    </p>
+
+    <input
+      id="referralLink"
+      type="text"
+      readonly
+      placeholder="Your referral link"
+    >
+
+    <button onclick="copyReferralLink()">
+      📋 Copy Link
+    </button>
+
+    <button onclick="shareReferral()">
+      📤 Share
+    </button>
+
+    <p>
+      Referrals:
+      <strong id="referralCount">0</strong>
+    </p>
+  </section>
+
+  <!-- TRANSACTIONS -->
+
+  <section class="card">
+    <h2>📜 Transactions</h2>
+    <div id="transactions"></div>
+  </section>
+
+  <!-- LEADERBOARD -->
+
+  <section class="card">
+    <h2>🏆 Leaderboard</h2>
+
+    <div class="leader">
+      <span>Your XP</span>
+      <strong id="leaderXP">0 XP</strong>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+
+  <section class="card">
+    <h2>👤 Profile</h2>
+
+    <p>
+      Level:
+      <strong id="profileLevel">1</strong>
+    </p>
+
+    <p>
+      Streak:
+      <strong id="profileStreak">0</strong>
+    </p>
+
+    <p>
+      Premium:
+      <strong id="profilePremium">No</strong>
+    </p>
+
+    <button onclick="resetProgress()">
+      ♻️ Reset Progress
+    </button>
+  </section>
+
+</div>
+
+<nav class="menu">
+  <button onclick="scrollToTop()">🏠<span>Home</span></button>
+  <button onclick="scrollToWallet()">💎<span>Wallet</span></button>
+  <button onclick="scrollToPremium()">⭐<span>Premium</span></button>
+  <button onclick="scrollToProfile()">👤<span>Profile</span></button>
+</nav>
+
+<script src="script.js"></script>
+
+</body>
+</html>
