@@ -15,7 +15,7 @@ body {
   max-width: 430px;
   margin: auto;
   padding: 18px;
-  padding-bottom: 100px;
+  padding-bottom: 95px;
 }
 
 /* HEADER */
@@ -55,8 +55,7 @@ body {
 
 /* CARDS */
 
-.card,
-.points-card {
+.card {
   background: #111827;
   border: 1px solid #202b3d;
   border-radius: 18px;
@@ -69,10 +68,43 @@ body {
   margin-top: 0;
 }
 
+/* BUTTONS */
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 15px;
+  margin-top: 8px;
+  background: #00eaff;
+  color: #001014;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  box-shadow: 0 0 15px rgba(0, 234, 255, 0.5);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 /* POINTS */
 
 .points-card {
-  border-color: rgba(0, 234, 255, 0.35);
+  background: #111827;
+  border: 1px solid rgba(0, 234, 255, 0.35);
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin: 10px 0 25px;
   box-shadow: 0 0 18px rgba(0, 234, 255, 0.12);
 }
 
@@ -131,30 +163,6 @@ body {
   transition: width 0.4s ease;
 }
 
-/* BUTTONS */
-
-button {
-  border: none;
-  border-radius: 12px;
-  padding: 12px 15px;
-  margin-top: 8px;
-  background: #00eaff;
-  color: #001014;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-button:active {
-  transform: scale(0.96);
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 /* STREAK */
 
 .streak-card {
@@ -210,11 +218,13 @@ button:disabled {
 
 .task-card b {
   color: #00eaff;
+  font-size: 16px;
 }
 
 .task-card button {
   width: 95px;
   min-width: 95px;
+  padding: 12px 10px;
 }
 
 .task-card.completed {
@@ -225,63 +235,108 @@ button:disabled {
 
 .wallet-balance,
 .shop-balance {
-  font-size: 26px;
+  font-size: 23px;
   font-weight: bold;
   color: #00eaff;
   text-align: center;
   padding: 15px;
   background: #080d19;
   border-radius: 14px;
+  line-height: 2;
 }
 
-#walletStatus {
+/* LUCKY SPIN */
+
+.spin-card {
+  text-align: center;
+  border-color: rgba(0, 234, 255, 0.35);
+  box-shadow: 0 0 20px rgba(0, 234, 255, 0.1);
+}
+
+.spin-card h2 {
+  color: #00eaff;
+}
+
+.spin-card > p {
   color: #b9c0cc;
+}
+
+.spin-balance {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin: 15px 0;
+}
+
+.spin-balance div {
+  background: #080d19;
+  border: 1px solid #202b3d;
+  border-radius: 12px;
+  padding: 10px 4px;
+  font-size: 11px;
+  color: #aeb6c5;
+}
+
+.spin-balance strong {
+  display: block;
+  color: #00eaff;
+  font-size: 17px;
+  margin-top: 5px;
+}
+
+.wheel {
+  width: 190px;
+  height: 190px;
+  margin: 20px auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 90px;
+  background: #080d19;
+  border: 5px solid #00eaff;
+  box-shadow:
+    0 0 20px rgba(0, 234, 255, 0.35),
+    inset 0 0 25px rgba(0, 234, 255, 0.12);
+  transition: transform 3s cubic-bezier(0.15, 0.8, 0.2, 1);
+}
+
+.wheel.spinning {
+  transform: rotate(1440deg);
+}
+
+#spinButton {
+  width: 100%;
+  font-size: 18px;
+  padding: 15px;
+}
+
+#spinResult {
+  min-height: 25px;
+  color: #00eaff !important;
+  font-weight: bold;
 }
 
 /* PREMIUM */
 
 .premium-card {
-  border: 1px solid rgba(255, 215, 0, 0.45);
-  background: linear-gradient(
-    145deg,
-    #171b2e,
-    #111827
-  );
-  box-shadow:
-    0 0 25px rgba(255, 215, 0, 0.08);
-}
-
-.premium-card h2 {
-  color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.3);
 }
 
 .premium-price {
   text-align: center;
-  font-size: 32px;
+  font-size: 28px;
   font-weight: bold;
   color: #ffd700;
   background: #080d19;
+  padding: 15px;
   border-radius: 14px;
-  padding: 18px;
   margin: 15px 0;
 }
 
-.premium-card ul {
-  padding-left: 22px;
-  line-height: 2;
+.premium-card li {
+  margin: 10px 0;
   color: #d7d9e0;
-}
-
-.premium-card button {
-  width: 100%;
-  background: #ffd700;
-  color: #171000;
-}
-
-#premiumStatus {
-  text-align: center;
-  color: #aeb6c5;
-  margin-top: 15px;
 }
 
 /* SHOP */
@@ -301,6 +356,7 @@ button:disabled {
 
 .shop-item strong {
   display: block;
+  font-size: 16px;
 }
 
 .shop-item small {
@@ -309,7 +365,12 @@ button:disabled {
   margin-top: 5px;
 }
 
-/* INPUT */
+.shop-item button {
+  white-space: nowrap;
+  margin: 0;
+}
+
+/* REFERRAL */
 
 input {
   width: 100%;
@@ -321,16 +382,6 @@ input {
   color: #ffffff;
   outline: none;
   font-size: 15px;
-}
-
-/* TRANSACTIONS */
-
-#transactions {
-  color: #ffffff;
-}
-
-#transactions small {
-  font-size: 12px;
 }
 
 /* LEADERBOARD */
@@ -374,6 +425,11 @@ input {
   color: #aeb6c5;
   font-size: 12px;
   font-weight: normal;
+  box-shadow: none;
+}
+
+.menu button:first-child {
+  color: #00eaff;
 }
 
 .menu button span {
@@ -384,9 +440,10 @@ input {
 /* MOBILE */
 
 @media (max-width: 380px) {
+
   .app {
     padding: 14px;
-    padding-bottom: 100px;
+    padding-bottom: 95px;
   }
 
   .task-card {
@@ -405,4 +462,10 @@ input {
   .header h1 {
     font-size: 30px;
   }
-}
+
+  .wheel {
+    width: 165px;
+    height: 165px;
+    font-size: 75px;
+  }
+  }
