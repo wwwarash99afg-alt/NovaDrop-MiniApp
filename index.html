@@ -1,48 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>NovaDrop</title>
 
-  <link
-    rel="stylesheet"
-    href="style.css"
-  >
+  <link rel="stylesheet" href="style.css">
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Telegram Mini App -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 
 <body>
 
-
   <div class="app">
 
-
     <!-- HEADER -->
-
     <header class="header">
 
       <div class="logo">
         🚀
       </div>
 
-      <h1>
-        NovaDrop
-      </h1>
+      <h1>NovaDrop</h1>
 
       <p>
         Complete tasks, earn points and unlock rewards!
@@ -52,79 +33,38 @@
 
 
     <!-- PROGRESS -->
-
     <section class="points-card">
 
-      <h3>
-        ⭐ Your Progress
-      </h3>
-
+      <h3>⭐ Your Progress</h3>
 
       <div class="stats">
 
-
         <div class="stat">
-
-          <span>
-            🪙 Coins
-          </span>
-
-          <strong id="coins">
-            0
-          </strong>
-
+          <span>🪙 Coins</span>
+          <strong id="coins">0</strong>
         </div>
 
-
         <div class="stat">
-
-          <span>
-            ⚡ XP
-          </span>
-
-          <strong id="xp">
-            0
-          </strong>
-
+          <span>⚡ XP</span>
+          <strong id="xp">0</strong>
         </div>
 
-
         <div class="stat">
-
-          <span>
-            🏆 Level
-          </span>
-
-          <strong id="level">
-            1
-          </strong>
-
+          <span>🏆 Level</span>
+          <strong id="level">1</strong>
         </div>
 
-
         <div class="stat">
-
-          <span>
-            🔥 Streak
-          </span>
-
-          <strong id="streak">
-            0
-          </strong>
-
+          <span>🔥 Streak</span>
+          <strong id="streak">0</strong>
         </div>
-
 
       </div>
-
 
       <div class="level-info">
 
         <span>
-          Level
-          <b id="levelLabel">
-            1
-          </b>
+          Level <b id="levelLabel">1</b>
         </span>
 
         <span id="xpText">
@@ -133,32 +73,26 @@
 
       </div>
 
-
       <div class="progress-bar">
 
         <div
           id="levelProgress"
-          class="progress-fill"
-        ></div>
+          class="progress-fill">
+        </div>
 
       </div>
-
 
     </section>
 
 
     <!-- DAILY STREAK -->
-
     <section class="card streak-card">
 
-      <h2>
-        🔥 Daily Streak
-      </h2>
+      <h2>🔥 Daily Streak</h2>
 
       <p>
         Check in every day and increase your reward.
       </p>
-
 
       <div class="streak-number">
 
@@ -170,30 +104,21 @@
 
       </div>
 
-
       <button onclick="claimStreak()">
-
         🎁 Claim Daily Reward
-
       </button>
-
 
     </section>
 
 
     <!-- TASKS -->
-
-    <h2>
-      🔥 Tasks
-    </h2>
+    <h2>🔥 Tasks</h2>
 
 
-    <!-- CHANNEL TASK -->
-
+    <!-- CHANNEL -->
     <section
       id="task-channel"
-      class="task-card"
-    >
+      class="task-card">
 
       <div>
 
@@ -211,22 +136,17 @@
 
       </div>
 
-
-      <button
-        onclick="completeTask('channel')"
-      >
+      <button onclick="completeTask('channel')">
         +100
       </button>
 
     </section>
 
 
-    <!-- INVITE TASK -->
-
+    <!-- INVITE -->
     <section
       id="task-invite"
-      class="task-card"
-    >
+      class="task-card">
 
       <div>
 
@@ -244,22 +164,17 @@
 
       </div>
 
-
-      <button
-        onclick="completeTask('invite')"
-      >
+      <button onclick="completeTask('invite')">
         +50
       </button>
 
     </section>
 
 
-    <!-- DAILY TASK -->
-
+    <!-- DAILY -->
     <section
       id="task-daily"
-      class="task-card"
-    >
+      class="task-card">
 
       <div>
 
@@ -277,10 +192,7 @@
 
       </div>
 
-
-      <button
-        onclick="completeTask('daily')"
-      >
+      <button onclick="completeTask('daily')">
         +10
       </button>
 
@@ -288,11 +200,9 @@
 
 
     <!-- WALLET TASK -->
-
     <section
       id="task-wallet"
-      class="task-card"
-    >
+      class="task-card">
 
       <div>
 
@@ -310,10 +220,7 @@
 
       </div>
 
-
-      <button
-        onclick="completeTask('wallet')"
-      >
+      <button onclick="completeTask('wallet')">
         +100
       </button>
 
@@ -321,17 +228,13 @@
 
 
     <!-- WALLET -->
-
     <section class="card">
 
-      <h2>
-        💰 Wallet
-      </h2>
+      <h2>💰 Wallet</h2>
 
       <p>
         Your balance
       </p>
-
 
       <div class="wallet-balance">
 
@@ -349,17 +252,13 @@
 
 
     <!-- SHOP -->
-
     <section class="card">
 
-      <h2>
-        🛍️ Shop
-      </h2>
+      <h2>🛍️ Shop</h2>
 
       <p>
         Spend your Coins on special items.
       </p>
-
 
       <div class="shop-balance">
 
@@ -371,8 +270,6 @@
 
       </div>
 
-
-      <!-- AVATAR -->
 
       <div class="shop-item">
 
@@ -388,17 +285,13 @@
 
         </div>
 
-
         <button
-          onclick="buyItem('Avatar', 100)"
-        >
+          onclick="buyItem('Avatar', 100)">
           100 🪙
         </button>
 
       </div>
 
-
-      <!-- BADGE -->
 
       <div class="shop-item">
 
@@ -414,17 +307,13 @@
 
         </div>
 
-
         <button
-          onclick="buyItem('Badge', 200)"
-        >
+          onclick="buyItem('Badge', 200)">
           200 🪙
         </button>
 
       </div>
 
-
-      <!-- XP BOOST -->
 
       <div class="shop-item">
 
@@ -440,17 +329,13 @@
 
         </div>
 
-
         <button
-          onclick="buyItem('XP Boost', 300)"
-        >
+          onclick="buyItem('XP Boost', 300)">
           300 🪙
         </button>
 
       </div>
 
-
-      <!-- MYSTERY -->
 
       <div class="shop-item">
 
@@ -466,27 +351,20 @@
 
         </div>
 
-
         <button
-          onclick="buyItem('Mystery Item', 500)"
-        >
+          onclick="buyItem('Mystery Item', 500)">
           500 🪙
         </button>
 
       </div>
 
-
     </section>
 
 
     <!-- TRANSACTIONS -->
-
     <section class="card">
 
-      <h2>
-        📜 Transactions
-      </h2>
-
+      <h2>📜 Transactions</h2>
 
       <div id="transactions">
 
@@ -500,20 +378,15 @@
 
 
     <!-- LEADERBOARD -->
-
     <section class="card">
 
-      <h2>
-        🏆 Leaderboard
-      </h2>
-
+      <h2>🏆 Leaderboard</h2>
 
       <div class="leader">
 
         <span>
           👤 You
         </span>
-
 
         <strong id="leaderXP">
           0 XP
@@ -525,147 +398,97 @@
 
 
     <!-- PROFILE -->
-
     <section class="card">
 
-      <h2>
-        👤 Profile
-      </h2>
-
+      <h2>👤 Profile</h2>
 
       <p>
-        <strong id="profileName">
-          NovaPlayer
-        </strong>
+        NovaPlayer
       </p>
 
-
       <p>
-
         Level:
-
         <strong id="profileLevel">
           1
         </strong>
-
       </p>
 
-
       <p>
-
         Streak:
-
         <strong id="profileStreak">
           0
         </strong>
-
       </p>
 
-
     </section>
-
-
-    <!-- SETTINGS -->
-
-    <section class="card reset-card">
-
-      <h2>
-        ⚙️ Settings
-      </h2>
-
-
-      <button onclick="resetProgress()">
-
-        🔄 Reset Progress
-
-      </button>
-
-    </section>
-
 
   </div>
 
 
   <!-- BOTTOM MENU -->
-
   <nav class="menu">
-
 
     <button
       onclick="window.scrollTo({
         top: 0,
         behavior: 'smooth'
-      })"
-    >
+      })">
 
       🏠
-
-      <span>
-        Home
-      </span>
+      <span>Home</span>
 
     </button>
 
 
     <button
-      onclick="document
-        .getElementById('task-channel')
-        .scrollIntoView({
-          behavior: 'smooth'
-        })"
-    >
+      onclick="
+        document
+          .getElementById('task-channel')
+          .scrollIntoView({
+            behavior: 'smooth'
+          })
+      ">
 
       📋
-
-      <span>
-        Tasks
-      </span>
+      <span>Tasks</span>
 
     </button>
 
 
     <button
-      onclick="document
-        .getElementById('leaderXP')
-        .scrollIntoView({
-          behavior: 'smooth'
-        })"
-    >
+      onclick="
+        document
+          .getElementById('leaderXP')
+          .scrollIntoView({
+            behavior: 'smooth'
+          })
+      ">
 
       🏆
-
-      <span>
-        Leaderboard
-      </span>
+      <span>Leaderboard</span>
 
     </button>
 
 
     <button
-      onclick="document
-        .getElementById('profileLevel')
-        .scrollIntoView({
-          behavior: 'smooth'
-        })"
-    >
+      onclick="
+        document
+          .getElementById('profileLevel')
+          .scrollIntoView({
+            behavior: 'smooth'
+          })
+      ">
 
       👤
-
-      <span>
-        Profile
-      </span>
+      <span>Profile</span>
 
     </button>
-
 
   </nav>
 
 
-  <!-- MAIN JAVASCRIPT -->
-
+  <!-- JAVASCRIPT -->
   <script src="script.js"></script>
 
-
 </body>
-
-        </html>
+            </html>
