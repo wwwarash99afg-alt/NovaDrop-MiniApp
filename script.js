@@ -1,7 +1,8 @@
 /* =========================================
    🚀 NOVADROP
    Telegram Mini App
-   Referral + TON Connect + Lucky Spin
+   Spin + Token + USDT Demo
+   TON Connect + Referral
 ========================================= */
 
 const SUPABASE_URL =
@@ -41,21 +42,20 @@ const telegramUser =
 
 
 /* =========================================
-   REFERRAL
+   BOT / REFERRAL
 ========================================= */
 
 const BOT_USERNAME = "NovaDropCoinBot";
 
 function getStartParameter() {
+
   if (!tg) return null;
 
-  return (
-    tg.initDataUnsafe.start_param ||
-    null
-  );
+  return tg.initDataUnsafe.start_param || null;
 }
 
 function getReferralLink() {
+
   if (!telegramUser) return "";
 
   return (
@@ -70,21 +70,16 @@ function getReferralLink() {
 
 
 /* =========================================
-   DATA
+   DEFAULT DATA
 ========================================= */
 
 const DEFAULT_DATA = {
 
   coins: 0,
-
-  usdt: 0,
-
   xp: 0,
-
   level: 1,
 
   streak: 0,
-
   lastStreakDate: null,
 
   completedTasks: [],
@@ -94,17 +89,24 @@ const DEFAULT_DATA = {
   walletAddress: null,
 
   referralCount: 0,
-
   referredBy: null,
 
-  spins: 1,
+  /* New */
 
-  lastDailySpin: null,
+  tokenBalance: 0,
+  usdtBalance: 0,
+
+  spinCount: 1,
+  lastDailySpinDate: null,
 
   premium: false
 
 };
 
+
+/* =========================================
+   LOAD DATA
+========================================= */
 
 let data;
 
@@ -130,7 +132,7 @@ try {
 
 
 /* =========================================
-   DATA MIGRATION
+   DATA REPAIR
 ========================================= */
 
 if (!Array.isArray(data.completedTasks)) {
@@ -141,24 +143,20 @@ if (!Array.isArray(data.purchases)) {
   data.purchases = [];
 }
 
-if (typeof data.coins !== "number") {
-  data.coins = 0;
-}
-
-if (typeof data.usdt !== "number") {
-  data.usdt = 0;
-}
-
-if (typeof data.xp !== "number") {
-  data.xp = 0;
-}
-
 if (typeof data.referralCount !== "number") {
   data.referralCount = 0;
 }
 
-if (typeof data.spins !== "number") {
-  data.spins = 1;
+if (typeof data.tokenBalance !== "number") {
+  data.tokenBalance = 0;
+}
+
+if (typeof data.usdtBalance !== "number") {
+  data.usdtBalance = 0;
+}
+
+if (typeof data.spinCount !== "number") {
+  data.spinCount = 1;
 }
 
 if (typeof data.premium !== "boolean") {
@@ -205,152 +203,13 @@ function calculateLevel(
 
     neededXP =
       level * 100;
-
   }
 
   return {
-
     level,
-
-    currentXP:
-      remainingXP,
-
+    currentXP: remainingXP,
     neededXP
-
   };
-
-}
-
-
-/* =========================================
-   TASKS
-========================================= */
-
-const TASKS = {
-
-  channel: {
-    title: "Join Channel",
-    xp: 100,
-    coins: 100
-  },
-
-  daily: {
-    title: "Daily Check-in",
-    xp: 10,
-    coins: 10
-  },
-
-  wallet: {
-    title: "Connect TON Wallet",
-    xp: 100,
-    coins: 100
-  }
-
-};
-
-
-/* =========================================
-   REFERRAL SERVER
-========================================= */
-
-async function processReferral() {
-
-  if (!tg || !tg.initData) {
-    return;
-  }
-
-  try {
-
-    const startParam =
-      getStartParameter();
-
-    const {
-      data: result,
-      error
-    } =
-      await supabaseClient
-        .functions
-        .invoke(
-          "process-referral",
-          {
-            body: {
-              initData:
-                tg.initData,
-
-              startParam
-            }
-          }
-        );
-
-    if (error) {
-
-      console.error(
-        "Referral error:",
-        error
-      );
-
-      return;
-    }
-
-    if (!result) return;
-
-    if (result.profile) {
-
-      const profile =
-        result.profile;
-
-      data.coins =
-        Number(profile.coins) || 0;
-
-      data.xp =
-        Number(profile.xp) || 0;
-
-      data.level =
-        Number(profile.level) || 1;
-
-      data.streak =
-        Number(profile.streak) || 0;
-
-      data.referralCount =
-        Number(
-          profile.referral_count
-        ) || 0;
-
-      data.referredBy =
-        profile.referred_by_telegram_id ||
-        null;
-    }
-
-
-    /*
-     * Successful referral:
-     * give one extra spin.
-     */
-
-    if (result.referralRewarded) {
-
-      data.spins += 1;
-
-      alert(
-        "🎉 Referral successful!\n\n" +
-        "+1 Lucky Spin"
-      );
-
-    }
-
-    save();
-
-    updateUI();
-
-  } catch (error) {
-
-    console.error(
-      "Referral processing error:",
-      error
-    );
-
-  }
-
 }
 
 
@@ -372,16 +231,10 @@ function updateUI() {
     coins:
       data.coins,
 
-    usdtBalance:
-      data.usdt.toFixed(2),
-
     xp:
       data.xp,
 
     level:
-      data.level,
-
-    levelLabel:
       data.level,
 
     streak:
@@ -390,14 +243,30 @@ function updateUI() {
     walletCoins:
       data.coins,
 
-    walletUSDT:
-      data.usdt.toFixed(2),
-
     shopCoins:
       data.coins,
 
-    leaderXP:
-      data.xp + " XP",
+    referralCount:
+      data.referralCount,
+
+    spinCount:
+      data.spinCount,
+
+    tokenBalance:
+      formatNumber(
+        data.tokenBalance
+      ),
+
+    usdtBalance:
+      data.usdtBalance.toFixed(2),
+
+    profileToken:
+      formatNumber(
+        data.tokenBalance
+      ),
+
+    profileUSDT:
+      data.usdtBalance.toFixed(2),
 
     profileLevel:
       data.level,
@@ -405,37 +274,14 @@ function updateUI() {
     profileStreak:
       data.streak,
 
-    profileCoins:
-      data.coins,
-
-    profileUSDT:
-      data.usdt.toFixed(2),
-
-    referralCount:
-      data.referralCount,
-
-    spinCount:
-      data.spins,
-
-    spinCoins:
-      data.coins,
-
-    spinUSDT:
-      data.usdt.toFixed(2),
-
-    referralSpins:
-      data.spins,
+    leaderXP:
+      data.xp + " XP",
 
     xpText:
       levelData.currentXP +
       " / " +
       levelData.neededXP +
-      " XP",
-
-    profilePremium:
-      data.premium
-        ? "Yes"
-        : "No"
+      " XP"
 
   };
 
@@ -456,6 +302,8 @@ function updateUI() {
     });
 
 
+  /* XP progress */
+
   const progress =
     document.getElementById(
       "levelProgress"
@@ -466,16 +314,15 @@ function updateUI() {
     progress.style.width =
       Math.min(
         100,
-
         (
           levelData.currentXP /
           levelData.neededXP
         ) * 100
-
       ) + "%";
-
   }
 
+
+  /* Referral */
 
   const referralLink =
     document.getElementById(
@@ -489,6 +336,8 @@ function updateUI() {
 
   }
 
+
+  /* Wallet */
 
   const walletStatus =
     document.getElementById(
@@ -538,22 +387,49 @@ function updateUI() {
   }
 
 
+  /* Premium */
+
   const premiumStatus =
     document.getElementById(
       "premiumStatus"
     );
 
-  if (premiumStatus) {
+  const profilePremium =
+    document.getElementById(
+      "profilePremium"
+    );
 
-    premiumStatus.textContent =
-      data.premium
-        ? "⭐ Premium Active"
-        : "Premium inactive";
+
+  if (data.premium) {
+
+    if (premiumStatus) {
+      premiumStatus.textContent =
+        "⭐ Premium Active";
+    }
+
+    if (profilePremium) {
+      profilePremium.textContent =
+        "Yes";
+    }
+
+  } else {
+
+    if (premiumStatus) {
+      premiumStatus.textContent =
+        "Premium inactive";
+    }
+
+    if (profilePremium) {
+      profilePremium.textContent =
+        "No";
+    }
 
   }
 
 
   renderTasks();
+
+  updateSpinButton();
 
   save();
 
@@ -561,108 +437,49 @@ function updateUI() {
 
 
 /* =========================================
-   COPY REFERRAL
+   FORMAT NUMBER
 ========================================= */
 
-async function copyReferralLink() {
+function formatNumber(number) {
 
-  const link =
-    getReferralLink();
-
-  if (!link) {
-
-    alert(
-      "Please open NovaDrop inside Telegram."
+  return Number(number || 0)
+    .toLocaleString(
+      "en-US"
     );
-
-    return;
-  }
-
-  try {
-
-    await navigator.clipboard
-      .writeText(link);
-
-    alert(
-      "✅ Referral link copied!"
-    );
-
-  } catch {
-
-    const input =
-      document.getElementById(
-        "referralLink"
-      );
-
-    if (input) {
-
-      input.focus();
-
-      input.select();
-
-      document.execCommand(
-        "copy"
-      );
-
-      alert(
-        "✅ Referral link copied!"
-      );
-
-    }
-
-  }
-
 }
 
 
 /* =========================================
-   SHARE
+   TASKS
 ========================================= */
 
-function shareReferral() {
+const TASKS = {
 
-  const link =
-    getReferralLink();
+  channel: {
+    title: "Join Channel",
+    xp: 100,
+    coins: 100
+  },
 
-  if (!link) {
+  invite: {
+    title: "Invite Friends",
+    xp: 50,
+    coins: 50
+  },
 
-    alert(
-      "Please open NovaDrop inside Telegram."
-    );
+  daily: {
+    title: "Daily Check-in",
+    xp: 10,
+    coins: 10
+  },
 
-    return;
+  wallet: {
+    title: "Connect TON Wallet",
+    xp: 100,
+    coins: 100
   }
 
-  const text =
-    "🚀 Join NovaDrop and earn Nova Tokens + Lucky Spins!";
-
-  const shareUrl =
-    "https://t.me/share/url?url=" +
-    encodeURIComponent(link) +
-    "&text=" +
-    encodeURIComponent(text);
-
-
-  if (
-    tg &&
-    typeof tg.openTelegramLink ===
-      "function"
-  ) {
-
-    tg.openTelegramLink(
-      shareUrl
-    );
-
-  } else {
-
-    window.open(
-      shareUrl,
-      "_blank"
-    );
-
-  }
-
-}
+};
 
 
 /* =========================================
@@ -676,16 +493,17 @@ function renderTasks() {
 
       const element =
         document.getElementById(
-          "task-" +
-          taskId
+          "task-" + taskId
         );
 
       if (!element) return;
+
 
       const button =
         element.querySelector(
           "button"
         );
+
 
       if (
         data.completedTasks
@@ -703,7 +521,6 @@ function renderTasks() {
 
           button.disabled =
             true;
-
         }
 
       }
@@ -717,17 +534,7 @@ function renderTasks() {
    COMPLETE TASK
 ========================================= */
 
-function completeTask(
-  taskId
-) {
-
-  if (taskId === "invite") {
-
-    shareReferral();
-
-    return;
-  }
-
+function completeTask(taskId) {
 
   const task =
     TASKS[taskId];
@@ -743,6 +550,14 @@ function completeTask(
     alert(
       "This task is already completed ✓"
     );
+
+    return;
+  }
+
+
+  if (taskId === "invite") {
+
+    shareReferral();
 
     return;
   }
@@ -772,17 +587,13 @@ function completeTask(
   }
 
 
-  data.xp +=
-    task.xp;
+  data.xp += task.xp;
 
-  data.coins +=
-    task.coins;
-
+  data.coins += task.coins;
 
   data.completedTasks.push(
     taskId
   );
-
 
   updateUI();
 
@@ -811,7 +622,6 @@ function claimStreak() {
     );
 
     return;
-
   }
 
 
@@ -862,8 +672,7 @@ function claimStreak() {
     );
 
 
-  data.coins +=
-    reward;
+  data.coins += reward;
 
 
   updateUI();
@@ -874,43 +683,909 @@ function claimStreak() {
     data.streak +
     " Day Streak!\n\n+" +
     reward +
-    " Nova"
+    " Coins"
   );
 
 }
 
 
 /* =========================================
-   🎡 LUCKY SPIN
+   🎡 DAILY SPIN
 ========================================= */
 
-const SPIN_REWARDS = [
+function getToday() {
 
-  {
-    type: "coins",
-    amount: 10,
-    text: "🪙 +10 Nova"
-  },
+  return new Date()
+    .toISOString()
+    .slice(0, 10);
 
-  {
-    type: "coins",
-    amount: 25,
-    text: "🪙 +25 Nova"
-  },
+}
 
-  {
-    type: "coins",
-    amount: 50,
-    text: "🪙 +50 Nova"
-  },
 
-  {
-    type: "coins",
-    amount: 100,
-    text: "🪙 +100 Nova"
-  },
+function checkDailySpin() {
 
-  {
-    type: "usdt",
-    amount: 0.01,
-    text: "💵 +0.01 US
+  const today =
+    getToday();
+
+
+  if (
+    data.lastDailySpinDate !==
+    today
+  ) {
+
+    data.spinCount += 1;
+
+    data.lastDailySpinDate =
+      today;
+
+    save();
+
+  }
+
+}
+
+
+/* =========================================
+   SPIN BUTTON
+========================================= */
+
+function updateSpinButton() {
+
+  const button =
+    document.getElementById(
+      "spinButton"
+    );
+
+  if (!button) return;
+
+
+  if (data.spinCount > 0) {
+
+    button.disabled = false;
+
+    button.textContent =
+      "🎡 SPIN";
+
+  } else {
+
+    button.disabled = true;
+
+    button.textContent =
+      "No Spins";
+
+  }
+
+}
+
+
+/* =========================================
+   🎡 SPIN WHEEL
+========================================= */
+
+function spinWheel() {
+
+  checkDailySpin();
+
+
+  if (
+    data.spinCount <= 0
+  ) {
+
+    alert(
+      "No spins available.\nInvite friends to earn more spins."
+    );
+
+    return;
+  }
+
+
+  data.spinCount--;
+
+
+  const rewards = [
+
+    {
+      name: "100 Token",
+      type: "token",
+      value: 100
+    },
+
+    {
+      name: "250 Token",
+      type: "token",
+      value: 250
+    },
+
+    {
+      name: "500 Token",
+      type: "token",
+      value: 500
+    },
+
+    {
+      name: "1,000 Token",
+      type: "token",
+      value: 1000
+    },
+
+    {
+      name: "0.10 USDT Demo",
+      type: "usdt",
+      value: 0.10
+    },
+
+    {
+      name: "0.50 USDT Demo",
+      type: "usdt",
+      value: 0.50
+    },
+
+    {
+      name: "1.00 USDT Demo",
+      type: "usdt",
+      value: 1.00
+    },
+
+    {
+      name: "25 Coins",
+      type: "coins",
+      value: 25
+    }
+
+  ];
+
+
+  const reward =
+    rewards[
+      Math.floor(
+        Math.random() *
+        rewards.length
+      )
+    ];
+
+
+  const wheel =
+    document.getElementById(
+      "spinWheel"
+    );
+
+
+  if (wheel) {
+
+    wheel.classList.remove(
+      "spin-animation"
+    );
+
+    void wheel.offsetWidth;
+
+    wheel.classList.add(
+      "spin-animation"
+    );
+
+  }
+
+
+  setTimeout(() => {
+
+    applySpinReward(
+      reward
+    );
+
+  }, 1800);
+
+
+  updateUI();
+
+}
+
+
+/* =========================================
+   APPLY SPIN REWARD
+========================================= */
+
+function applySpinReward(
+  reward
+) {
+
+  if (
+    reward.type ===
+    "token"
+  ) {
+
+    data.tokenBalance +=
+      reward.value;
+
+  }
+
+
+  if (
+    reward.type ===
+    "usdt"
+  ) {
+
+    data.usdtBalance +=
+      reward.value;
+
+  }
+
+
+  if (
+    reward.type ===
+    "coins"
+  ) {
+
+    data.coins +=
+      reward.value;
+
+  }
+
+
+  const result =
+    document.getElementById(
+      "spinResult"
+    );
+
+
+  if (result) {
+
+    result.textContent =
+      "🎉 You won: " +
+      reward.name;
+
+  }
+
+
+  save();
+
+  updateUI();
+
+
+  alert(
+    "🎉 Congratulations!\n\n" +
+    "You won " +
+    reward.name
+  );
+
+}
+
+
+/* =========================================
+   REFERRAL
+========================================= */
+
+function copyReferralLink() {
+
+  const link =
+    getReferralLink();
+
+
+  if (!link) {
+
+    alert(
+      "Please open NovaDrop inside Telegram."
+    );
+
+    return;
+  }
+
+
+  navigator.clipboard
+    .writeText(link)
+    .then(() => {
+
+      alert(
+        "✅ Referral link copied!"
+      );
+
+    })
+    .catch(() => {
+
+      const input =
+        document.getElementById(
+          "referralLink"
+        );
+
+      if (input) {
+
+        input.focus();
+
+        input.select();
+
+        document.execCommand(
+          "copy"
+        );
+
+        alert(
+          "✅ Referral link copied!"
+        );
+
+      }
+
+    });
+
+}
+
+
+/* =========================================
+   SHARE
+========================================= */
+
+function shareReferral() {
+
+  const link =
+    getReferralLink();
+
+
+  if (!link) {
+
+    alert(
+      "Please open NovaDrop inside Telegram."
+    );
+
+    return;
+  }
+
+
+  const text =
+    "🚀 Join NovaDrop and earn Coins + XP!";
+
+
+  const shareUrl =
+    "https://t.me/share/url?url=" +
+    encodeURIComponent(link) +
+    "&text=" +
+    encodeURIComponent(text);
+
+
+  if (
+    tg &&
+    typeof tg.openTelegramLink ===
+      "function"
+  ) {
+
+    tg.openTelegramLink(
+      shareUrl
+    );
+
+  } else {
+
+    window.open(
+      shareUrl,
+      "_blank"
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   PREMIUM DEMO
+========================================= */
+
+function activateDemoPremium() {
+
+  data.premium = true;
+
+  save();
+
+  updateUI();
+
+
+  alert(
+    "⭐ Premium Demo activated!\n\n" +
+    "This is a demo and does not charge TON."
+  );
+
+}
+
+
+/* =========================================
+   SHOP
+========================================= */
+
+function buyItem(
+  name,
+  price
+) {
+
+  if (
+    data.coins < price
+  ) {
+
+    alert(
+      "Not enough Coins 🪙"
+    );
+
+    return;
+  }
+
+
+  data.coins -= price;
+
+
+  data.purchases.push({
+
+    name,
+    price,
+
+    date:
+      new Date()
+        .toLocaleString()
+
+  });
+
+
+  updateUI();
+
+
+  alert(
+    name +
+    " purchased successfully! 🛍️"
+  );
+
+}
+
+
+/* =========================================
+   TON CONNECT
+========================================= */
+
+let tonConnectUI = null;
+
+
+function initTONConnect() {
+
+  if (
+    typeof TON_CONNECT_UI ===
+    "undefined"
+  ) {
+
+    console.error(
+      "TON Connect library not loaded."
+    );
+
+    return;
+  }
+
+
+  const button =
+    document.getElementById(
+      "ton-connect"
+    );
+
+
+  if (!button) return;
+
+
+  try {
+
+    tonConnectUI =
+      new TON_CONNECT_UI.TonConnectUI({
+
+        manifestUrl:
+          window.location.origin +
+          "/tonconnect-manifest.json",
+
+        buttonRootId:
+          "ton-connect"
+
+      });
+
+
+    tonConnectUI.onStatusChange(
+      async wallet => {
+
+        if (wallet) {
+
+          await onWalletConnected(
+            wallet
+          );
+
+        } else {
+
+          onWalletDisconnected();
+
+        }
+
+      }
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "TON Connect error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   WALLET CONNECTED
+========================================= */
+
+async function onWalletConnected(
+  wallet
+) {
+
+  const address =
+    wallet.account &&
+    wallet.account.address
+      ? wallet.account.address
+      : null;
+
+
+  if (!address) return;
+
+
+  const wasConnected =
+    data.walletAddress ===
+    address;
+
+
+  data.walletAddress =
+    address;
+
+
+  if (
+    !wasConnected &&
+    !data.completedTasks
+      .includes("wallet")
+  ) {
+
+    data.xp += 100;
+
+    data.coins += 100;
+
+    data.completedTasks.push(
+      "wallet"
+    );
+
+    alert(
+      "💎 TON Wallet Connected!\n\n" +
+      "+100 XP\n" +
+      "+100 Coins"
+    );
+
+  }
+
+
+  updateUI();
+
+}
+
+
+/* =========================================
+   WALLET DISCONNECTED
+========================================= */
+
+function onWalletDisconnected() {
+
+  data.walletAddress =
+    null;
+
+  updateUI();
+
+}
+
+
+/* =========================================
+   ADDRESS
+========================================= */
+
+function shortenAddress(
+  address
+) {
+
+  if (!address) return "";
+
+  if (address.length <= 14) {
+    return address;
+  }
+
+  return (
+    address.slice(0, 6) +
+    "..." +
+    address.slice(-6)
+  );
+
+}
+
+
+/* =========================================
+   REFERRAL SERVER SYNC
+========================================= */
+
+async function processReferral() {
+
+  if (
+    !tg ||
+    !tg.initData
+  ) {
+
+    return;
+  }
+
+
+  try {
+
+    const startParam =
+      getStartParameter();
+
+
+    const {
+      data: result,
+      error
+    } =
+      await supabaseClient
+        .functions
+        .invoke(
+          "process-referral",
+          {
+
+            body: {
+
+              initData:
+                tg.initData,
+
+              startParam
+
+            }
+
+          }
+        );
+
+
+    if (error) {
+
+      console.error(
+        "Referral error:",
+        error
+      );
+
+      return;
+    }
+
+
+    if (!result) return;
+
+
+    if (result.profile) {
+
+      const profile =
+        result.profile;
+
+
+      data.coins =
+        Number(
+          profile.coins
+        ) || data.coins;
+
+
+      data.xp =
+        Number(
+          profile.xp
+        ) || data.xp;
+
+
+      data.level =
+        Number(
+          profile.level
+        ) || data.level;
+
+
+      data.streak =
+        Number(
+          profile.streak
+        ) || data.streak;
+
+
+      data.referralCount =
+        Number(
+          profile.referral_count
+        ) || data.referralCount;
+
+
+      data.referredBy =
+        profile.referred_by_telegram_id ||
+        data.referredBy;
+
+    }
+
+
+    if (
+      result.referralRewarded
+    ) {
+
+      /*
+       * Successful referral:
+       * +1 Spin
+       */
+
+      data.spinCount += 1;
+
+      data.referralCount += 1;
+
+
+      alert(
+        "🎉 Successful Referral!\n\n" +
+        "+1 Spin"
+      );
+
+    }
+
+
+    save();
+
+    updateUI();
+
+
+  } catch (error) {
+
+    console.error(
+      "Referral error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+function scrollToTop() {
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+
+function scrollToWallet() {
+
+  const cards =
+    document.querySelectorAll(
+      ".card"
+    );
+
+  if (cards[1]) {
+
+    cards[1].scrollIntoView({
+      behavior: "smooth"
+    });
+
+  }
+
+}
+
+
+function scrollToSpin() {
+
+  const spin =
+    document.querySelector(
+      ".spin-card"
+    );
+
+  if (spin) {
+
+    spin.scrollIntoView({
+      behavior: "smooth"
+    });
+
+  }
+
+}
+
+
+function scrollToPremium() {
+
+  const premium =
+    document.querySelector(
+      ".premium-card"
+    );
+
+  if (premium) {
+
+    premium.scrollIntoView({
+      behavior: "smooth"
+    });
+
+  }
+
+}
+
+
+function scrollToProfile() {
+
+  const sections =
+    document.querySelectorAll(
+      ".card"
+    );
+
+  const last =
+    sections[
+      sections.length - 1
+    ];
+
+  if (last) {
+
+    last.scrollIntoView({
+      behavior: "smooth"
+    });
+
+  }
+
+}
+
+
+/* =========================================
+   RESET
+========================================= */
+
+function resetProgress() {
+
+  const confirmReset =
+    confirm(
+      "Reset all NovaDrop progress?"
+    );
+
+
+  if (!confirmReset) {
+    return;
+  }
+
+
+  data = {
+    ...DEFAULT_DATA
+  };
+
+
+  save();
+
+  updateUI();
+
+
+  alert(
+    "♻️ Progress reset successfully."
+  );
+
+}
+
+
+/* =========================================
+   START
+========================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    /*
+     * Give the user today's free spin.
+     */
+
+    checkDailySpin();
+
+    updateUI();
+
+    initTONConnect();
+
+    await processReferral();
+
+    updateUI();
+
+    console.log(
+      "🚀 NovaDrop ready!"
+    );
+
+  }
+);
