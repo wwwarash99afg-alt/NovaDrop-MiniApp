@@ -6,55 +6,439 @@
 body {
   margin: 0;
   background: #050816;
-  color: white;
+  color: #ffffff;
+  min-height: 100vh;
 }
 
 .app {
-  max-width: 420px;
+  width: 100%;
+  max-width: 430px;
   margin: auto;
-  padding: 20px;
+  padding: 18px;
+  padding-bottom: 95px;
 }
+
+/* =========================
+   HEADER
+========================= */
 
 .header {
   text-align: center;
-  padding: 25px;
+  padding: 25px 10px 20px;
 }
 
 .logo {
   width: 90px;
   height: 90px;
   border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  font-size: 55px;
+  background: #111827;
+  border: 2px solid #00eaff;
+  box-shadow: 0 0 25px rgba(0, 234, 255, 0.3);
 }
 
-h1 {
+.header h1 {
+  margin: 5px 0 10px;
   color: #00eaff;
-  font-size: 32px;
+  font-size: 34px;
+  font-weight: 800;
 }
+
+.header p {
+  margin: 0;
+  color: #d7d9e0;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+/* =========================
+   CARDS
+========================= */
 
 .card {
   background: #111827;
-  border: 1px solid #00eaff;
+  border: 1px solid #202b3d;
   border-radius: 18px;
-  padding: 20px;
-  margin-top: 15px;
-  box-shadow: 0 0 15px #00eaff;
+  padding: 18px;
+  margin: 15px 0;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.2);
 }
 
-.task {
-  background: #1f2937;
-  padding: 15px;
-  border-radius: 12px;
-  margin: 10px 0;
+.card h2 {
+  margin-top: 0;
 }
+
+/* =========================
+   LOGIN
+========================= */
+
+#authCard {
+  border: 1px solid rgba(0, 234, 255, 0.35);
+  box-shadow: 0 0 18px rgba(0, 234, 255, 0.12);
+}
+
+#authCard h2 {
+  color: #00eaff;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  margin: 7px 0;
+  border: 1px solid #2b374a;
+  border-radius: 12px;
+  background: #080d19;
+  color: #ffffff;
+  outline: none;
+  font-size: 15px;
+}
+
+input:focus {
+  border-color: #00eaff;
+  box-shadow: 0 0 8px rgba(0, 234, 255, 0.2);
+}
+
+/* =========================
+   BUTTONS
+========================= */
 
 button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
   border: none;
   border-radius: 12px;
+  padding: 12px 15px;
+  margin-top: 8px;
   background: #00eaff;
-  color: #000;
-  font-size: 16px;
+  color: #001014;
+  font-size: 15px;
   font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  box-shadow: 0 0 15px rgba(0, 234, 255, 0.5);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* =========================
+   POINTS
+========================= */
+
+.points-card {
+  background: #111827;
+  border: 1px solid rgba(0, 234, 255, 0.35);
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin: 10px 0 25px;
+  box-shadow: 0 0 18px rgba(0, 234, 255, 0.12);
+}
+
+.points-card h3 {
+  margin: 0 0 15px;
+  font-size: 21px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stat {
+  background: #080d19;
+  border: 1px solid #202b3d;
+  border-radius: 14px;
+  padding: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat span {
+  color: #aeb6c5;
+  font-size: 13px;
+}
+
+.stat strong {
+  color: #00eaff;
+  font-size: 23px;
+}
+
+.level-info {
+  display: flex;
+  justify-content: space-between;
+  margin: 18px 0 8px;
+  color: #b9c0cc;
+  font-size: 14px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: #080d19;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  background: #00eaff;
+  border-radius: 20px;
+  transition: width 0.4s ease;
+}
+
+/* =========================
+   STREAK
+========================= */
+
+.streak-card {
+  text-align: center;
+}
+
+.streak-card h2 {
+  color: #ffffff;
+}
+
+.streak-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #00eaff;
+  margin: 18px 0;
+}
+
+.streak-number span {
+  font-size: 42px;
+}
+
+/* =========================
+   TASK TITLE
+========================= */
+
+.app > h2 {
+  margin: 25px 0 15px;
+  font-size: 27px;
+}
+
+/* =========================
+   TASK CARDS
+========================= */
+
+.task-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  background: #111827;
+  border: 1px solid #202b3d;
+  border-radius: 18px;
+  padding: 18px;
+  margin: 14px 0;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.2);
+  transition: 0.2s;
+}
+
+.task-card > div {
+  flex: 1;
+}
+
+.task-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.task-card p {
+  margin: 0 0 12px;
+  color: #b9c0cc;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.task-card b {
+  color: #00eaff;
+  font-size: 16px;
+}
+
+.task-card button {
+  width: 95px;
+  min-width: 95px;
+  padding: 12px 10px;
+}
+
+.task-card.completed {
+  opacity: 0.65;
+  border-color: #294052;
+}
+
+.task-card.completed button {
+  background: #263445;
+  color: #aeb6c5;
+}
+
+/* =========================
+   WALLET
+========================= */
+
+.wallet-balance,
+.shop-balance {
+  font-size: 26px;
+  font-weight: bold;
+  color: #00eaff;
+  text-align: center;
+  padding: 15px;
+  background: #080d19;
+  border-radius: 14px;
+}
+
+/* =========================
+   SHOP
+========================= */
+
+.shop-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 0;
+  border-bottom: 1px solid #202b3d;
+}
+
+.shop-item:last-child {
+  border-bottom: none;
+}
+
+.shop-item strong {
+  display: block;
+  font-size: 16px;
+}
+
+.shop-item small {
+  display: block;
+  color: #8f9aaa;
+  margin-top: 5px;
+}
+
+.shop-item button {
+  white-space: nowrap;
+  margin: 0;
+}
+
+/* =========================
+   TRANSACTIONS
+========================= */
+
+#transactions {
+  color: #ffffff;
+}
+
+#transactions small {
+  font-size: 12px;
+}
+
+/* =========================
+   LEADERBOARD
+========================= */
+
+.leader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #080d19;
+  padding: 15px;
+  border-radius: 14px;
+}
+
+.leader strong {
+  color: #00eaff;
+}
+
+/* =========================
+   PROFILE
+========================= */
+
+.reset-card {
+  margin-bottom: 20px;
+}
+
+/* =========================
+   BOTTOM MENU
+========================= */
+
+.menu {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  justify-content: space-around;
+  gap: 5px;
+  padding: 10px 8px;
+  background: #0b1020;
+  border-top: 1px solid #202b3d;
+  z-index: 100;
+}
+
+.menu button {
+  width: 25%;
+  margin: 0;
+  padding: 8px 2px;
+  background: transparent;
+  color: #aeb6c5;
+  font-size: 12px;
+  font-weight: normal;
+  box-shadow: none;
+}
+
+.menu button:first-child {
+  color: #00eaff;
+}
+
+.menu button span {
+  display: block;
+  margin-top: 3px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 380px) {
+
+  .app {
+    padding: 14px;
+    padding-bottom: 95px;
+  }
+
+  .task-card {
+    padding: 14px;
+  }
+
+  .task-card h3 {
+    font-size: 16px;
+  }
+
+  .task-card button {
+    width: 80px;
+    min-width: 80px;
+  }
+
+  .header h1 {
+    font-size: 30px;
+  }
+
 }
