@@ -49,10 +49,14 @@
 
   <section class="card streak-card">
     <h2>🔥 Daily Streak</h2>
+
     <div class="streak-number">
       <span id="streak">0</span> days
     </div>
-    <button onclick="claimStreak()">Claim Daily Reward</button>
+
+    <button onclick="claimStreak()">
+      Claim Daily Reward
+    </button>
   </section>
 
   <h2>🎯 Tasks</h2>
@@ -63,7 +67,10 @@
       <p>Join NovaDrop Official.</p>
       <b>+100 XP • +100 Coins</b>
     </div>
-    <button onclick="completeTask('channel')">Start</button>
+
+    <button onclick="completeTask('channel')">
+      Start
+    </button>
   </div>
 
   <div id="task-invite" class="task-card">
@@ -72,7 +79,10 @@
       <p>Invite friends to NovaDrop.</p>
       <b>+50 XP • +50 Coins</b>
     </div>
-    <button onclick="completeTask('invite')">Invite</button>
+
+    <button onclick="completeTask('invite')">
+      Invite
+    </button>
   </div>
 
   <div id="task-daily" class="task-card">
@@ -81,7 +91,10 @@
       <p>Check in every day.</p>
       <b>+10 XP • +10 Coins</b>
     </div>
-    <button onclick="completeTask('daily')">Claim</button>
+
+    <button onclick="completeTask('daily')">
+      Claim
+    </button>
   </div>
 
   <div id="task-wallet" class="task-card">
@@ -90,6 +103,7 @@
       <p>Connect your TON wallet.</p>
       <b>+100 XP • +100 Coins</b>
     </div>
+
     <div id="ton-connect"></div>
   </div>
 
@@ -102,7 +116,9 @@
       <span id="walletCoins">0</span> 🪙
     </div>
 
-    <p id="walletStatus">Wallet not connected</p>
+    <p id="walletStatus">
+      Wallet not connected
+    </p>
 
     <p>
       Address:
@@ -119,7 +135,9 @@
       0.5 TON
     </div>
 
-    <p>Premium access for 30 days.</p>
+    <p>
+      Premium access for 30 days.
+    </p>
 
     <ul>
       <li>🚀 2× XP Boost</li>
@@ -151,7 +169,10 @@
         <strong>🎨 Avatar</strong>
         <small>Premium Avatar</small>
       </div>
-      <button onclick="buyItem('Avatar',100)">100 🪙</button>
+
+      <button onclick="buyItem('Avatar',100)">
+        100 🪙
+      </button>
     </div>
 
     <div class="shop-item">
@@ -159,7 +180,10 @@
         <strong>🏅 Badge</strong>
         <small>Special Badge</small>
       </div>
-      <button onclick="buyItem('Badge',150)">150 🪙</button>
+
+      <button onclick="buyItem('Badge',150)">
+        150 🪙
+      </button>
     </div>
 
     <div class="shop-item">
@@ -167,7 +191,10 @@
         <strong>🚀 XP Boost</strong>
         <small>Boost your progress</small>
       </div>
-      <button onclick="buyItem('XP Boost',200)">200 🪙</button>
+
+      <button onclick="buyItem('XP Boost',200)">
+        200 🪙
+      </button>
     </div>
   </section>
 
@@ -199,13 +226,6 @@
       Referrals:
       <strong id="referralCount">0</strong>
     </p>
-  </section>
-
-  <!-- TRANSACTIONS -->
-
-  <section class="card">
-    <h2>📜 Transactions</h2>
-    <div id="transactions"></div>
   </section>
 
   <!-- LEADERBOARD -->
@@ -247,13 +267,30 @@
 </div>
 
 <nav class="menu">
-  <button onclick="scrollToTop()">🏠<span>Home</span></button>
-  <button onclick="scrollToWallet()">💎<span>Wallet</span></button>
-  <button onclick="scrollToPremium()">⭐<span>Premium</span></button>
-  <button onclick="scrollToProfile()">👤<span>Profile</span></button>
+
+  <button onclick="scrollToTop()">
+    🏠
+    <span>Home</span>
+  </button>
+
+  <button onclick="scrollToWallet()">
+    💎
+    <span>Wallet</span>
+  </button>
+
+  <button onclick="scrollToPremium()">
+    ⭐
+    <span>Premium</span>
+  </button>
+
+  <button onclick="scrollToProfile()">
+    👤
+    <span>Profile</span>
+  </button>
+
 </nav>
 
 <script src="script.js"></script>
 
 </body>
-</html>
+  </html>
