@@ -1,14 +1,7 @@
 /* =========================================
    🚀 NOVADROP
    Telegram Mini App
-   Coins + XP + Level + Streak
-   Tasks + Transactions + Shop
-   TON Connect Wallet
-========================================= */
-
-
-/* =========================================
-   SUPABASE
+   Referral + TON Wallet + Tasks
 ========================================= */
 
 const SUPABASE_URL =
@@ -40,16 +33,12 @@ if (tg) {
 }
 
 
-/* =========================================
-   TELEGRAM USER
-========================================= */
+const telegramUser =
+  tg &&
+  tg.initDataUnsafe
+    ? tg.initDataUnsafe.user
+    : null;
 
-let telegramUser = null;
-
-if (tg && tg.initDataUnsafe) {
-  telegramUser =
-    tg.initDataUnsafe.user || null;
-}
 
 console.log(
   "🚀 NovaDrop Telegram version loaded!"
@@ -67,10 +56,67 @@ if (telegramUser) {
     telegramUser.username || "No username"
   );
 
-} else {
+}
 
-  console.log(
-    "Telegram user not detected."
+
+/* =========================================
+   REFERRAL
+========================================= */
+
+const BOT_USERNAME =
+  "NovaDropCoinBot";
+
+const REFERRAL_REWARD_XP =
+  50;
+
+const REFERRAL_REWARD_COINS =
+  50;
+
+
+function getReferralCode() {
+
+  if (!telegramUser) {
+    return null;
+  }
+
+  return String(
+    telegramUser.id
+  );
+
+}
+
+
+function getStartParameter() {
+
+  if (
+    !tg ||
+    !tg.initDataUnsafe
+  ) {
+    return null;
+  }
+
+  return (
+    tg.initDataUnsafe.start_param ||
+    null
+  );
+
+}
+
+
+function getReferralLink() {
+
+  const code =
+    getReferralCode();
+
+  if (!code) {
+    return "";
+  }
+
+  return (
+    "https://t.me/" +
+    BOT_USERNAME +
+    "?start=" +
+    code
   );
 
 }
@@ -131,14 +177,14 @@ const DEFAULT_DATA = {
 
   purchases: [],
 
-  walletAddress: null
+  walletAddress: null,
+
+  referralCount: 0,
+
+  referredBy: null
 
 };
 
-
-/* =========================================
-   LOAD LOCAL DATA
-========================================= */
 
 let data;
 
@@ -156,7 +202,7 @@ try {
       )
     );
 
-} catch (error) {
+} catch {
 
   data =
     JSON.parse(
@@ -169,7 +215,32 @@ try {
 
 
 /* =========================================
-   SAVE LOCAL
+   MAKE SURE NEW FIELDS EXIST
+========================================= */
+
+if (
+  typeof data.referralCount !==
+  "number"
+) {
+
+  data.referralCount = 0;
+
+}
+
+if (
+  !Object.prototype.hasOwnProperty.call(
+    data,
+    "referredBy"
+  )
+) {
+
+  data.referredBy = null;
+
+}
+
+
+/* =========================================
+   SAVE
 ========================================= */
 
 function save() {
@@ -183,14 +254,15 @@ function save() {
 
 
 /* =========================================
-   LEVEL SYSTEM
+   LEVEL
 ========================================= */
 
 function calculateLevel() {
 
   let level = 1;
 
-  let remainingXP = data.xp;
+  let remainingXP =
+    data.xp;
 
   let xpNeeded = 100;
 
@@ -199,7 +271,8 @@ function calculateLevel() {
     remainingXP >= xpNeeded
   ) {
 
-    remainingXP -= xpNeeded;
+    remainingXP -=
+      xpNeeded;
 
     level++;
 
@@ -211,7 +284,7 @@ function calculateLevel() {
 
   return {
 
-    level: level,
+    level,
 
     currentXP:
       remainingXP,
@@ -232,7 +305,6 @@ function updateUI() {
 
   const levelData =
     calculateLevel();
-
 
   data.level =
     levelData.level;
@@ -277,7 +349,10 @@ function updateUI() {
       levelData.currentXP +
       " / " +
       levelData.neededXP +
-      " XP"
+      " XP",
+
+    referralCount:
+      data.referralCount
 
   };
 
@@ -306,18 +381,15 @@ function updateUI() {
 
   if (progress) {
 
-    const percent =
-      (
-        levelData.currentXP /
-        levelData.neededXP
-      ) * 100;
-
-
     progress.style.width =
       Math.min(
         100,
-        percent
-      ) + "%";
+        (
+          levelData.currentXP /
+          levelData.neededXP
+        ) * 100
+      ) +
+      "%";
 
   }
 
@@ -343,11 +415,9 @@ function updateUI() {
 
     }
 
-
     if (connectedWallet) {
 
       connectedWallet.textContent =
-        "TON: " +
         shortenAddress(
           data.walletAddress
         );
@@ -363,13 +433,26 @@ function updateUI() {
 
     }
 
-
     if (connectedWallet) {
 
       connectedWallet.textContent =
         "";
 
     }
+
+  }
+
+
+  const referralLink =
+    document.getElementById(
+      "referralLink"
+    );
+
+
+  if (referralLink) {
+
+    referralLink.value =
+      getReferralLink();
 
   }
 
@@ -384,7 +467,118 @@ function updateUI() {
 
 
 /* =========================================
-   SHORTEN WALLET ADDRESS
+   COPY REFERRAL LINK
+========================================= */
+
+async function copyReferralLink() {
+
+  const link =
+    getReferralLink();
+
+
+  if (!link) {
+
+    alert(
+      "Telegram user not detected."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    await navigator.clipboard.writeText(
+      link
+    );
+
+    alert(
+      "✅ Referral link copied!"
+    );
+
+  } catch {
+
+    const input =
+      document.getElementById(
+        "referralLink"
+      );
+
+    if (input) {
+
+      input.select();
+
+      document.execCommand(
+        "copy"
+      );
+
+      alert(
+        "✅ Referral link copied!"
+      );
+
+    }
+
+  }
+
+}
+
+
+/* =========================================
+   SHARE REFERRAL
+========================================= */
+
+function shareReferral() {
+
+  const link =
+    getReferralLink();
+
+
+  if (!link) {
+
+    alert(
+      "Telegram user not detected."
+    );
+
+    return;
+
+  }
+
+
+  const text =
+    "🚀 Join NovaDrop and earn Coins + XP!";
+
+
+  if (
+    tg &&
+    typeof tg.openTelegramLink ===
+      "function"
+  ) {
+
+    tg.openTelegramLink(
+      "https://t.me/share/url?url=" +
+      encodeURIComponent(link) +
+      "&text=" +
+      encodeURIComponent(text)
+    );
+
+    return;
+
+  }
+
+
+  window.open(
+    "https://t.me/share/url?url=" +
+    encodeURIComponent(link) +
+    "&text=" +
+    encodeURIComponent(text),
+    "_blank"
+  );
+
+}
+
+
+/* =========================================
+   SHORTEN ADDRESS
 ========================================= */
 
 function shortenAddress(address) {
@@ -393,11 +587,9 @@ function shortenAddress(address) {
     return "";
   }
 
-
   if (address.length < 15) {
     return address;
   }
-
 
   return (
     address.slice(0, 6) +
@@ -439,7 +631,9 @@ function completeTask(taskId) {
 
   /* CHANNEL */
 
-  if (taskId === "channel") {
+  if (
+    taskId === "channel"
+  ) {
 
     window.open(
       "https://t.me/NovaDropOfficial",
@@ -451,9 +645,13 @@ function completeTask(taskId) {
 
   /* WALLET */
 
-  if (taskId === "wallet") {
+  if (
+    taskId === "wallet"
+  ) {
 
-    if (!data.walletAddress) {
+    if (
+      !data.walletAddress
+    ) {
 
       alert(
         "Please connect your TON Wallet first."
@@ -468,7 +666,6 @@ function completeTask(taskId) {
 
   data.xp +=
     task.xp;
-
 
   data.coins +=
     task.coins;
@@ -612,7 +809,9 @@ function claimStreak() {
   }
 
 
-  if (!data.lastStreakDate) {
+  if (
+    !data.lastStreakDate
+  ) {
 
     data.streak = 1;
 
@@ -622,7 +821,6 @@ function claimStreak() {
       new Date(
         data.lastStreakDate
       );
-
 
     const current =
       new Date(today);
@@ -729,11 +927,9 @@ function buyItem(
 
   data.purchases.push({
 
-    name:
-      name,
+    name,
 
-    price:
-      price,
+    price,
 
     date:
       new Date()
@@ -926,7 +1122,7 @@ async function saveToSupabase() {
 
 
     console.log(
-      "✅ NovaDrop data saved to Supabase!"
+      "✅ Data saved to Supabase!"
     );
 
   } catch (error) {
@@ -1040,10 +1236,6 @@ async function loadFromSupabase() {
     updateUI();
 
 
-    console.log(
-      "✅ NovaDrop data loaded from Supabase!"
-    );
-
   } catch (error) {
 
     console.error(
@@ -1060,12 +1252,9 @@ async function loadFromSupabase() {
    TON CONNECT
 ========================================= */
 
-let tonConnectUI = null;
+let tonConnectUI =
+  null;
 
-
-/* =========================================
-   INIT TON CONNECT
-========================================= */
 
 function initTONConnect() {
 
@@ -1142,7 +1331,7 @@ function initTONConnect() {
   } catch (error) {
 
     console.error(
-      "TON Connect initialization error:",
+      "TON Connect error:",
       error
     );
 
@@ -1167,13 +1356,7 @@ async function onWalletConnected(
 
 
   if (!address) {
-
-    console.error(
-      "Wallet address not found."
-    );
-
     return;
-
   }
 
 
@@ -1189,11 +1372,6 @@ async function onWalletConnected(
   updateUI();
 
 
-  /*
-     Give wallet reward
-     only once.
-  */
-
   if (
     !wasAlreadyConnected &&
     !data.completedTasks.includes(
@@ -1201,16 +1379,9 @@ async function onWalletConnected(
     )
   ) {
 
-    const task =
-      TASKS.wallet;
+    data.xp += 100;
 
-
-    data.xp +=
-      task.xp;
-
-
-    data.coins +=
-      task.coins;
+    data.coins += 100;
 
 
     data.completedTasks.push(
@@ -1224,10 +1395,10 @@ async function onWalletConnected(
         "earn",
 
       amount:
-        task.coins,
+        100,
 
       description:
-        task.title,
+        "Connect TON Wallet",
 
       date:
         new Date()
@@ -1247,17 +1418,7 @@ async function onWalletConnected(
       "+100 Coins"
     );
 
-  } else {
-
-    await saveToSupabase();
-
   }
-
-
-  console.log(
-    "💎 Connected wallet:",
-    address
-  );
 
 }
 
@@ -1271,60 +1432,7 @@ function onWalletDisconnected() {
   data.walletAddress =
     null;
 
-
   updateUI();
-
-
-  console.log(
-    "TON Wallet disconnected."
-  );
-
-}
-
-
-/* =========================================
-   DISCONNECT WALLET
-========================================= */
-
-async function disconnectTONWallet() {
-
-  if (!tonConnectUI) {
-    return;
-  }
-
-
-  try {
-
-    await tonConnectUI.disconnect();
-
-  } catch (error) {
-
-    console.error(
-      "TON disconnect error:",
-      error
-    );
-
-  }
-
-}
-
-
-/* =========================================
-   AUTH STATE
-========================================= */
-
-if (supabaseClient) {
-
-  supabaseClient.auth.onAuthStateChange(
-    event => {
-
-      console.log(
-        "Supabase Auth event:",
-        event
-      );
-
-    }
-  );
 
 }
 
