@@ -3,36 +3,75 @@
   font-family: Arial, sans-serif;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  color: #ffffff;
-
-  /* 🟢 USDT / Crypto Background */
+  color: #fff;
   background:
-    radial-gradient(circle at 15% 10%, rgba(38, 161, 123, 0.22), transparent 30%),
-    radial-gradient(circle at 85% 25%, rgba(0, 234, 170, 0.15), transparent 28%),
-    radial-gradient(circle at 50% 90%, rgba(38, 161, 123, 0.16), transparent 35%),
-    #030806;
-
-  background-attachment: fixed;
+    radial-gradient(circle at 20% 10%, rgba(247, 147, 26, .18), transparent 28%),
+    radial-gradient(circle at 85% 30%, rgba(255, 190, 60, .12), transparent 30%),
+    radial-gradient(circle at 50% 90%, rgba(247, 147, 26, .10), transparent 35%),
+    #030303;
+  position: relative;
 }
 
-/* =================================
-   APP
-================================= */
+/* ₿ Bitcoin background symbols */
+
+body::before {
+  content: "₿   ₿   ₿   ₿   ₿   ₿   ₿   ₿";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  font-size: 75px;
+  line-height: 2.2;
+  letter-spacing: 35px;
+
+  color: rgba(247, 147, 26, .045);
+
+  transform: rotate(-15deg) scale(1.2);
+
+  pointer-events: none;
+}
+
+/* Golden glow */
+
+body::after {
+  content: "";
+  position: fixed;
+  width: 280px;
+  height: 280px;
+
+  top: 15%;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background: rgba(247, 147, 26, .08);
+
+  filter: blur(80px);
+
+  border-radius: 50%;
+
+  z-index: -1;
+  pointer-events: none;
+}
 
 .app {
   width: 100%;
   max-width: 430px;
   margin: auto;
   padding: 18px;
-  padding-bottom: 100px;
+  padding-bottom: 105px;
 }
 
-/* =================================
+/* =========================
    HEADER
-================================= */
+========================= */
 
 .header {
   text-align: center;
@@ -42,6 +81,7 @@ body {
 .logo {
   width: 90px;
   height: 90px;
+
   border-radius: 50%;
 
   display: flex;
@@ -52,39 +92,45 @@ body {
 
   font-size: 55px;
 
-  background: rgba(8, 25, 19, 0.75);
+  background:
+    radial-gradient(
+      circle,
+      #ffb52e,
+      #f7931a 55%,
+      #8f4d00
+    );
 
-  border: 2px solid #26a17b;
+  border: 2px solid #f7931a;
 
   box-shadow:
-    0 0 20px rgba(38, 161, 123, 0.45),
-    0 0 50px rgba(38, 161, 123, 0.15);
+    0 0 20px rgba(247,147,26,.6),
+    0 0 55px rgba(247,147,26,.18);
 }
 
 .header h1 {
   margin: 5px 0 10px;
 
-  color: #26a17b;
+  color: #f7931a;
 
   font-size: 34px;
   font-weight: 800;
 
   text-shadow:
-    0 0 15px rgba(38, 161, 123, 0.55);
+    0 0 15px rgba(247,147,26,.55);
 }
 
 .header p {
   margin: 0;
 
-  color: #d5e4de;
+  color: #d5d5d5;
 
   font-size: 16px;
   line-height: 1.5;
 }
 
-/* =================================
+/* =========================
    CARDS
-================================= */
+========================= */
 
 .card,
 .points-card,
@@ -92,11 +138,11 @@ body {
   background:
     linear-gradient(
       135deg,
-      rgba(15, 35, 29, 0.78),
-      rgba(5, 15, 12, 0.72)
+      rgba(28,22,15,.88),
+      rgba(8,8,8,.82)
     );
 
-  border: 1px solid rgba(38, 161, 123, 0.28);
+  border: 1px solid rgba(247,147,26,.25);
 
   border-radius: 18px;
 
@@ -104,8 +150,8 @@ body {
   -webkit-backdrop-filter: blur(14px);
 
   box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 8px 30px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.04);
 }
 
 .card {
@@ -113,13 +159,9 @@ body {
   margin: 15px 0;
 }
 
-.card h2 {
-  margin-top: 0;
-}
-
-/* =================================
+/* =========================
    POINTS
-================================= */
+========================= */
 
 .points-card {
   padding: 18px 20px;
@@ -138,9 +180,9 @@ body {
 }
 
 .stat {
-  background: rgba(2, 10, 8, 0.7);
+  background: rgba(0,0,0,.65);
 
-  border: 1px solid rgba(38, 161, 123, 0.22);
+  border: 1px solid rgba(247,147,26,.18);
 
   border-radius: 14px;
 
@@ -152,21 +194,21 @@ body {
 }
 
 .stat span {
-  color: #a9bbb4;
+  color: #aaa;
   font-size: 13px;
 }
 
 .stat strong {
-  color: #26a17b;
+  color: #f7931a;
   font-size: 23px;
 
   text-shadow:
-    0 0 10px rgba(38, 161, 123, 0.45);
+    0 0 10px rgba(247,147,26,.5);
 }
 
-/* =================================
+/* =========================
    LEVEL
-================================= */
+========================= */
 
 .level-info {
   display: flex;
@@ -174,7 +216,8 @@ body {
 
   margin: 18px 0 8px;
 
-  color: #b7c8c1;
+  color: #aaa;
+
   font-size: 14px;
 }
 
@@ -182,9 +225,10 @@ body {
   width: 100%;
   height: 10px;
 
-  background: #06100d;
+  background: #080808;
 
   border-radius: 20px;
+
   overflow: hidden;
 }
 
@@ -192,19 +236,25 @@ body {
   width: 0%;
   height: 100%;
 
-  background: #26a17b;
+  background:
+    linear-gradient(
+      90deg,
+      #8f4d00,
+      #f7931a,
+      #ffd166
+    );
 
   border-radius: 20px;
 
   box-shadow:
-    0 0 12px rgba(38, 161, 123, 0.7);
+    0 0 14px rgba(247,147,26,.7);
 
-  transition: width 0.4s ease;
+  transition: width .4s ease;
 }
 
-/* =================================
+/* =========================
    BUTTONS
-================================= */
+========================= */
 
 button {
   border: none;
@@ -215,36 +265,41 @@ button {
 
   margin-top: 8px;
 
-  background: #26a17b;
+  background:
+    linear-gradient(
+      135deg,
+      #ffb52e,
+      #f7931a
+    );
 
-  color: #ffffff;
+  color: #160b00;
 
   font-size: 15px;
   font-weight: bold;
 
   cursor: pointer;
 
-  transition: 0.2s;
+  transition: .2s;
 }
 
 button:hover {
   box-shadow:
-    0 0 18px rgba(38, 161, 123, 0.55);
+    0 0 18px rgba(247,147,26,.55);
 }
 
 button:active {
-  transform: scale(0.96);
+  transform: scale(.96);
 }
 
 button:disabled {
-  opacity: 0.5;
+  opacity: .5;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-/* =================================
+/* =========================
    STREAK
-================================= */
+========================= */
 
 .streak-card {
   text-align: center;
@@ -252,24 +307,23 @@ button:disabled {
 
 .streak-number {
   font-size: 28px;
-
   font-weight: bold;
 
-  color: #26a17b;
+  color: #f7931a;
 
   margin: 18px 0;
 
   text-shadow:
-    0 0 12px rgba(38, 161, 123, 0.5);
+    0 0 12px rgba(247,147,26,.5);
 }
 
 .streak-number span {
   font-size: 42px;
 }
 
-/* =================================
+/* =========================
    TASKS
-================================= */
+========================= */
 
 .app > h2 {
   margin: 25px 0 15px;
@@ -288,13 +342,14 @@ button:disabled {
 
   margin: 14px 0;
 
-  transition: 0.2s;
+  transition: .2s;
 }
 
 .task-card:hover {
   transform: translateY(-2px);
 
-  border-color: rgba(38, 161, 123, 0.5);
+  border-color:
+    rgba(247,147,26,.5);
 }
 
 .task-card > div {
@@ -309,14 +364,15 @@ button:disabled {
 .task-card p {
   margin: 0 0 12px;
 
-  color: #aebeb8;
+  color: #aaa;
 
   font-size: 14px;
+
   line-height: 1.4;
 }
 
 .task-card b {
-  color: #26a17b;
+  color: #f7931a;
   font-size: 15px;
 }
 
@@ -326,17 +382,17 @@ button:disabled {
 }
 
 .task-card.completed {
-  opacity: 0.6;
+  opacity: .6;
 }
 
 .task-card.completed button {
-  background: #263a34;
-  color: #9eaaa6;
+  background: #29251f;
+  color: #aaa;
 }
 
-/* =================================
+/* =========================
    WALLET
-================================= */
+========================= */
 
 .wallet-balance,
 .shop-balance {
@@ -344,28 +400,29 @@ button:disabled {
 
   font-weight: bold;
 
-  color: #26a17b;
+  color: #f7931a;
 
   text-align: center;
 
   padding: 15px;
 
-  background: rgba(2, 10, 8, 0.75);
+  background: rgba(0,0,0,.7);
 
   border-radius: 14px;
 
-  border: 1px solid rgba(38, 161, 123, 0.2);
+  border: 1px solid rgba(247,147,26,.2);
 
   text-shadow:
-    0 0 12px rgba(38, 161, 123, 0.5);
+    0 0 12px rgba(247,147,26,.5);
 }
 
-/* =================================
+/* =========================
    PREMIUM
-================================= */
+========================= */
 
 .premium-card {
-  border-color: rgba(255, 215, 70, 0.3);
+  border-color:
+    rgba(247,147,26,.35);
 }
 
 .premium-price {
@@ -375,14 +432,14 @@ button:disabled {
 
   font-weight: bold;
 
-  color: #26a17b;
+  color: #f7931a;
 
   margin: 15px 0;
 }
 
-/* =================================
+/* =========================
    SHOP
-================================= */
+========================= */
 
 .shop-item {
   display: flex;
@@ -394,7 +451,8 @@ button:disabled {
 
   padding: 15px 0;
 
-  border-bottom: 1px solid rgba(38, 161, 123, 0.15);
+  border-bottom:
+    1px solid rgba(247,147,26,.15);
 }
 
 .shop-item:last-child {
@@ -409,7 +467,7 @@ button:disabled {
 .shop-item small {
   display: block;
 
-  color: #879991;
+  color: #888;
 
   margin-top: 5px;
 }
@@ -419,9 +477,9 @@ button:disabled {
   margin: 0;
 }
 
-/* =================================
-   REFERRAL
-================================= */
+/* =========================
+   INPUT
+========================= */
 
 input {
   width: 100%;
@@ -430,13 +488,14 @@ input {
 
   margin: 7px 0;
 
-  border: 1px solid rgba(38, 161, 123, 0.25);
+  border:
+    1px solid rgba(247,147,26,.25);
 
   border-radius: 12px;
 
-  background: rgba(2, 10, 8, 0.8);
+  background: rgba(0,0,0,.75);
 
-  color: #ffffff;
+  color: #fff;
 
   outline: none;
 
@@ -444,15 +503,15 @@ input {
 }
 
 input:focus {
-  border-color: #26a17b;
+  border-color: #f7931a;
 
   box-shadow:
-    0 0 10px rgba(38, 161, 123, 0.2);
+    0 0 10px rgba(247,147,26,.2);
 }
 
-/* =================================
+/* =========================
    LEADERBOARD
-================================= */
+========================= */
 
 .leader {
   display: flex;
@@ -460,7 +519,7 @@ input:focus {
   justify-content: space-between;
   align-items: center;
 
-  background: rgba(2, 10, 8, 0.7);
+  background: rgba(0,0,0,.65);
 
   padding: 15px;
 
@@ -468,12 +527,12 @@ input:focus {
 }
 
 .leader strong {
-  color: #26a17b;
+  color: #f7931a;
 }
 
-/* =================================
+/* =========================
    MENU
-================================= */
+========================= */
 
 .menu {
   position: fixed;
@@ -494,12 +553,13 @@ input:focus {
 
   padding: 10px 8px;
 
-  background: rgba(3, 12, 9, 0.94);
+  background: rgba(5,5,5,.95);
 
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
 
-  border-top: 1px solid rgba(38, 161, 123, 0.25);
+  border-top:
+    1px solid rgba(247,147,26,.25);
 
   z-index: 100;
 }
@@ -513,7 +573,7 @@ input:focus {
 
   background: transparent;
 
-  color: #8fa39b;
+  color: #888;
 
   font-size: 12px;
 
@@ -523,7 +583,7 @@ input:focus {
 }
 
 .menu button:first-child {
-  color: #26a17b;
+  color: #f7931a;
 }
 
 .menu button span {
@@ -531,15 +591,15 @@ input:focus {
   margin-top: 3px;
 }
 
-/* =================================
+/* =========================
    MOBILE
-================================= */
+========================= */
 
 @media (max-width: 380px) {
 
   .app {
     padding: 14px;
-    padding-bottom: 100px;
+    padding-bottom: 105px;
   }
 
   .task-card {
@@ -559,4 +619,8 @@ input:focus {
     font-size: 30px;
   }
 
-}
+  body::before {
+    font-size: 55px;
+    letter-spacing: 20px;
+  }
+  }
