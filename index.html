@@ -1,445 +1,741 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>NovaDrop</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 
-  <!-- Telegram -->
+  <!-- Telegram Mini App -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- TON Connect -->
-  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
+
 </head>
+
 
 <body>
 
-  <div class="app">
 
-    <!-- HEADER -->
-    <header class="header">
-
-      <div class="logo">
-        🚀
-      </div>
-
-      <h1>NovaDrop</h1>
-
-      <p>
-        Complete tasks, earn points and unlock rewards!
-      </p>
-
-    </header>
+<div class="app">
 
 
-    <!-- PROGRESS -->
-    <section class="points-card">
+  <!-- HEADER -->
 
-      <h3>⭐ Your Progress</h3>
+  <header class="header">
 
-      <div class="stats">
+    <div class="logo">
+      🚀
+    </div>
 
-        <div class="stat">
-          <span>🪙 Coins</span>
-          <strong id="coins">0</strong>
-        </div>
+    <h1>
+      NovaDrop
+    </h1>
 
-        <div class="stat">
-          <span>⚡ XP</span>
-          <strong id="xp">0</strong>
-        </div>
+    <p>
+      Complete tasks, earn points and unlock rewards!
+    </p>
 
-        <div class="stat">
-          <span>🏆 Level</span>
-          <strong id="level">1</strong>
-        </div>
+  </header>
 
-        <div class="stat">
-          <span>🔥 Streak</span>
-          <strong id="streak">0</strong>
-        </div>
 
-      </div>
 
-      <div class="level-info">
+  <!-- PROGRESS -->
+
+  <section class="points-card">
+
+    <h3>
+      ⭐ Your Progress
+    </h3>
+
+
+    <div class="stats">
+
+
+      <div class="stat">
 
         <span>
-          Level <b id="levelLabel">1</b>
+          🪙 Coins
         </span>
 
-        <span id="xpText">
-          0 / 100 XP
-        </span>
-
-      </div>
-
-      <div class="progress-bar">
-        <div
-          id="levelProgress"
-          class="progress-fill">
-        </div>
-      </div>
-
-    </section>
-
-
-    <!-- DAILY STREAK -->
-    <section class="card streak-card">
-
-      <h2>🔥 Daily Streak</h2>
-
-      <p>
-        Check in every day and increase your reward.
-      </p>
-
-      <div class="streak-number">
-
-        <span id="dailyStreak">
+        <strong id="coins">
           0
-        </span>
-
-        Days
-
-      </div>
-
-      <button onclick="claimStreak()">
-        🎁 Claim Daily Reward
-      </button>
-
-    </section>
-
-
-    <!-- TASKS -->
-    <h2>🔥 Tasks</h2>
-
-
-    <!-- CHANNEL -->
-    <section
-      id="task-channel"
-      class="task-card">
-
-      <div>
-
-        <h3>
-          📢 Join NovaDrop Channel
-        </h3>
-
-        <p>
-          Join our official Telegram channel
-        </p>
-
-        <b>
-          +100 XP • +100 Coins
-        </b>
-
-      </div>
-
-      <button onclick="completeTask('channel')">
-        +100
-      </button>
-
-    </section>
-
-
-    <!-- INVITE -->
-    <section
-      id="task-invite"
-      class="task-card">
-
-      <div>
-
-        <h3>
-          👥 Invite Friends
-        </h3>
-
-        <p>
-          Invite friends and earn more points
-        </p>
-
-        <b>
-          +50 XP • +50 Coins
-        </b>
-
-      </div>
-
-      <button onclick="completeTask('invite')">
-        +50
-      </button>
-
-    </section>
-
-
-    <!-- DAILY -->
-    <section
-      id="task-daily"
-      class="task-card">
-
-      <div>
-
-        <h3>
-          🎁 Daily Check-in
-        </h3>
-
-        <p>
-          Check in every day
-        </p>
-
-        <b>
-          +10 XP • +10 Coins
-        </b>
-
-      </div>
-
-      <button onclick="completeTask('daily')">
-        +10
-      </button>
-
-    </section>
-
-
-    <!-- TON WALLET -->
-    <section
-      id="task-wallet"
-      class="task-card">
-
-      <div>
-
-        <h3>
-          💎 Connect TON Wallet
-        </h3>
-
-        <p id="walletStatus">
-          Connect your TON wallet
-        </p>
-
-        <b>
-          +100 XP • +100 Coins
-        </b>
-
-      </div>
-
-      <div id="ton-connect"></div>
-
-    </section>
-
-
-    <!-- WALLET -->
-    <section class="card">
-
-      <h2>💰 Wallet</h2>
-
-      <p>
-        Your balance
-      </p>
-
-      <div class="wallet-balance">
-
-        🪙
-        <span id="walletCoins">
-          0
-        </span>
-        Coins
-
-      </div>
-
-      <p id="connectedWallet"
-         style="word-break:break-all;color:#8f9aaa;">
-      </p>
-
-    </section>
-
-
-    <!-- SHOP -->
-    <section class="card">
-
-      <h2>🛍️ Shop</h2>
-
-      <p>
-        Spend your Coins on special items.
-      </p>
-
-      <div class="shop-balance">
-
-        🪙
-        <span id="shopCoins">
-          0
-        </span>
-
-      </div>
-
-
-      <div class="shop-item">
-
-        <div>
-          <strong>😎 Avatar</strong>
-          <small>Special NovaDrop avatar</small>
-        </div>
-
-        <button onclick="buyItem('Avatar', 100)">
-          100 🪙
-        </button>
-
-      </div>
-
-
-      <div class="shop-item">
-
-        <div>
-          <strong>🏅 Badge</strong>
-          <small>Unlock a special badge</small>
-        </div>
-
-        <button onclick="buyItem('Badge', 200)">
-          200 🪙
-        </button>
-
-      </div>
-
-
-      <div class="shop-item">
-
-        <div>
-          <strong>⚡ XP Boost</strong>
-          <small>Special XP item</small>
-        </div>
-
-        <button onclick="buyItem('XP Boost', 300)">
-          300 🪙
-        </button>
-
-      </div>
-
-
-      <div class="shop-item">
-
-        <div>
-          <strong>💎 Mystery Item</strong>
-          <small>Exclusive NovaDrop item</small>
-        </div>
-
-        <button onclick="buyItem('Mystery Item', 500)">
-          500 🪙
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- TRANSACTIONS -->
-    <section class="card">
-
-      <h2>📜 Transactions</h2>
-
-      <div id="transactions">
-
-        <p style="color:#8f9aaa;">
-          No transactions yet.
-        </p>
-
-      </div>
-
-    </section>
-
-
-    <!-- LEADERBOARD -->
-    <section class="card">
-
-      <h2>🏆 Leaderboard</h2>
-
-      <div class="leader">
-
-        <span>👤 You</span>
-
-        <strong id="leaderXP">
-          0 XP
         </strong>
 
       </div>
 
-    </section>
+
+      <div class="stat">
+
+        <span>
+          ⚡ XP
+        </span>
+
+        <strong id="xp">
+          0
+        </strong>
+
+      </div>
 
 
-    <!-- PROFILE -->
-    <section class="card">
+      <div class="stat">
 
-      <h2>👤 Profile</h2>
+        <span>
+          🏆 Level
+        </span>
 
-      <p>
-        NovaPlayer
-      </p>
-
-      <p>
-        Level:
-        <strong id="profileLevel">
+        <strong id="level">
           1
         </strong>
-      </p>
 
-      <p>
-        Streak:
-        <strong id="profileStreak">
+      </div>
+
+
+      <div class="stat">
+
+        <span>
+          🔥 Streak
+        </span>
+
+        <strong id="streak">
           0
         </strong>
+
+      </div>
+
+
+    </div>
+
+
+    <div class="level-info">
+
+      <span>
+        Level
+        <b id="levelLabel">
+          1
+        </b>
+      </span>
+
+      <span id="xpText">
+        0 / 100 XP
+      </span>
+
+    </div>
+
+
+    <div class="progress-bar">
+
+      <div
+        id="levelProgress"
+        class="progress-fill"
+      ></div>
+
+    </div>
+
+
+  </section>
+
+
+
+  <!-- DAILY STREAK -->
+
+  <section class="card streak-card">
+
+    <h2>
+      🔥 Daily Streak
+    </h2>
+
+    <p>
+      Check in every day and increase your reward.
+    </p>
+
+
+    <div class="streak-number">
+
+      <span id="dailyStreak">
+        0
+      </span>
+
+      Days
+
+    </div>
+
+
+    <button
+      onclick="claimStreak()"
+    >
+      🎁 Claim Daily Reward
+    </button>
+
+  </section>
+
+
+
+  <!-- TASKS -->
+
+  <h2>
+    🔥 Tasks
+  </h2>
+
+
+
+  <!-- CHANNEL -->
+
+  <section
+    id="task-channel"
+    class="task-card"
+  >
+
+    <div>
+
+      <h3>
+        📢 Join NovaDrop Channel
+      </h3>
+
+      <p>
+        Join our official Telegram channel
       </p>
 
-    </section>
+      <b>
+        +100 XP • +100 Coins
+      </b>
 
-  </div>
+    </div>
 
 
-  <!-- BOTTOM MENU -->
-  <nav class="menu">
+    <button
+      onclick="completeTask('channel')"
+    >
+      +100
+    </button>
 
-    <button onclick="window.scrollTo({
-      top:0,
-      behavior:'smooth'
-    })">
-      🏠
-      <span>Home</span>
+  </section>
+
+
+
+  <!-- INVITE -->
+
+  <section
+    id="task-invite"
+    class="task-card"
+  >
+
+    <div>
+
+      <h3>
+        👥 Invite Friends
+      </h3>
+
+      <p>
+        Invite friends and earn more points
+      </p>
+
+      <b>
+        +50 XP • +50 Coins
+      </b>
+
+    </div>
+
+
+    <button
+      onclick="shareReferral()"
+    >
+      Invite
+    </button>
+
+  </section>
+
+
+
+  <!-- REFERRAL -->
+
+  <section class="card">
+
+    <h2>
+      👥 Invite Friends
+    </h2>
+
+    <p>
+      Share your personal NovaDrop referral link.
+    </p>
+
+
+    <div class="referral-box">
+
+      <input
+        id="referralLink"
+        type="text"
+        readonly
+        placeholder="Your referral link"
+      >
+
+
+      <button
+        onclick="copyReferralLink()"
+      >
+        📋 Copy
+      </button>
+
+    </div>
+
+
+    <button
+      onclick="shareReferral()"
+    >
+      🚀 Invite Friends
     </button>
 
 
-    <button onclick="
-      document.getElementById('task-channel')
+    <p>
+
+      Successful Invites:
+      <strong id="referralCount">
+        0
+      </strong>
+
+    </p>
+
+  </section>
+
+
+
+  <!-- DAILY -->
+
+  <section
+    id="task-daily"
+    class="task-card"
+  >
+
+    <div>
+
+      <h3>
+        🎁 Daily Check-in
+      </h3>
+
+      <p>
+        Check in every day
+      </p>
+
+      <b>
+        +10 XP • +10 Coins
+      </b>
+
+    </div>
+
+
+    <button
+      onclick="completeTask('daily')"
+    >
+      +10
+    </button>
+
+  </section>
+
+
+
+  <!-- WALLET TASK -->
+
+  <section
+    id="task-wallet"
+    class="task-card"
+  >
+
+    <div>
+
+      <h3>
+        💎 Connect TON Wallet
+      </h3>
+
+      <p>
+        Connect your TON wallet
+      </p>
+
+      <b>
+        +100 XP • +100 Coins
+      </b>
+
+      <p
+        id="walletStatus"
+      >
+        Connect your TON wallet
+      </p>
+
+      <small
+        id="connectedWallet"
+      ></small>
+
+    </div>
+
+
+    <div id="ton-connect"></div>
+
+  </section>
+
+
+
+  <!-- WALLET -->
+
+  <section class="card">
+
+    <h2>
+      💰 Wallet
+    </h2>
+
+    <p>
+      Your balance
+    </p>
+
+
+    <div class="wallet-balance">
+
+      🪙
+
+      <span id="walletCoins">
+        0
+      </span>
+
+      Coins
+
+    </div>
+
+  </section>
+
+
+
+  <!-- SHOP -->
+
+  <section class="card">
+
+    <h2>
+      🛍️ Shop
+    </h2>
+
+    <p>
+      Spend your Coins on special items.
+    </p>
+
+
+    <div class="shop-balance">
+
+      🪙
+
+      <span id="shopCoins">
+        0
+      </span>
+
+    </div>
+
+
+
+    <div class="shop-item">
+
+      <div>
+
+        <strong>
+          😎 Avatar
+        </strong>
+
+        <small>
+          Special NovaDrop avatar
+        </small>
+
+      </div>
+
+
+      <button
+        onclick="buyItem('Avatar', 100)"
+      >
+        100 🪙
+      </button>
+
+    </div>
+
+
+
+    <div class="shop-item">
+
+      <div>
+
+        <strong>
+          🏅 Badge
+        </strong>
+
+        <small>
+          Unlock a special badge
+        </small>
+
+      </div>
+
+
+      <button
+        onclick="buyItem('Badge', 200)"
+      >
+        200 🪙
+      </button>
+
+    </div>
+
+
+
+    <div class="shop-item">
+
+      <div>
+
+        <strong>
+          ⚡ XP Boost
+        </strong>
+
+        <small>
+          Special XP item
+        </small>
+
+      </div>
+
+
+      <button
+        onclick="buyItem('XP Boost', 300)"
+      >
+        300 🪙
+      </button>
+
+    </div>
+
+
+
+    <div class="shop-item">
+
+      <div>
+
+        <strong>
+          💎 Mystery Item
+        </strong>
+
+        <small>
+          Exclusive NovaDrop item
+        </small>
+
+      </div>
+
+
+      <button
+        onclick="buyItem('Mystery Item', 500)"
+      >
+        500 🪙
+      </button>
+
+    </div>
+
+
+  </section>
+
+
+
+  <!-- TRANSACTIONS -->
+
+  <section class="card">
+
+    <h2>
+      📜 Transactions
+    </h2>
+
+
+    <div id="transactions">
+
+      <p style="color:#8f9aaa;">
+        No transactions yet.
+      </p>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- LEADERBOARD -->
+
+  <section class="card">
+
+    <h2>
+      🏆 Leaderboard
+    </h2>
+
+
+    <div class="leader">
+
+      <span>
+        👤 You
+      </span>
+
+      <strong id="leaderXP">
+        0 XP
+      </strong>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- PROFILE -->
+
+  <section class="card">
+
+    <h2>
+      👤 Profile
+    </h2>
+
+
+    <p>
+      NovaPlayer
+    </p>
+
+
+    <p>
+
+      Level:
+
+      <strong id="profileLevel">
+        1
+      </strong>
+
+    </p>
+
+
+    <p>
+
+      Streak:
+
+      <strong id="profileStreak">
+        0
+      </strong>
+
+    </p>
+
+
+    <p>
+
+      Invites:
+
+      <strong id="referralCount">
+        0
+      </strong>
+
+    </p>
+
+  </section>
+
+
+</div>
+
+
+
+<!-- BOTTOM MENU -->
+
+<nav class="menu">
+
+
+  <button
+    onclick="
+      window.scrollTo({
+        top:0,
+        behavior:'smooth'
+      })
+    "
+  >
+
+    🏠
+
+    <span>
+      Home
+    </span>
+
+  </button>
+
+
+
+  <button
+    onclick="
+      document
+      .getElementById('task-channel')
       .scrollIntoView({
         behavior:'smooth'
-      })">
-      📋
-      <span>Tasks</span>
-    </button>
+      })
+    "
+  >
+
+    📋
+
+    <span>
+      Tasks
+    </span>
+
+  </button>
 
 
-    <button onclick="
-      document.getElementById('leaderXP')
+
+  <button
+    onclick="
+      document
+      .getElementById('leaderXP')
       .scrollIntoView({
         behavior:'smooth'
-      })">
-      🏆
-      <span>Leaderboard</span>
-    </button>
+      })
+    "
+  >
+
+    🏆
+
+    <span>
+      Leaderboard
+    </span>
+
+  </button>
 
 
-    <button onclick="
-      document.getElementById('profileLevel')
+
+  <button
+    onclick="
+      document
+      .getElementById('profileLevel')
       .scrollIntoView({
         behavior:'smooth'
-      })">
-      👤
-      <span>Profile</span>
-    </button>
+      })
+    "
+  >
 
-  </nav>
+    👤
+
+    <span>
+      Profile
+    </span>
+
+  </button>
 
 
-  <!-- JavaScript -->
-  <script src="script.js"></script>
+</nav>
+
+
+
+<!-- MAIN JAVASCRIPT -->
+
+<script src="script.js"></script>
+
 
 </body>
-</html>
+
+  </html>
