@@ -1,207 +1,671 @@
-* {
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-}
+<!DOCTYPE html>
+<html lang="en">
 
-body {
-  margin: 0;
-  background: #050816;
-  color: #ffffff;
-  min-height: 100vh;
-}
+<head>
 
-.app {
-  width: 100%;
-  max-width: 430px;
-  margin: auto;
-  padding: 18px;
-  padding-bottom: 95px;
-}
+  <meta charset="UTF-8">
 
-/* Header */
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-.header {
-  text-align: center;
-  padding: 25px 10px 20px;
-}
+  <title>NovaDrop</title>
 
-.logo {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  margin: 0 auto 12px;
-}
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 
-.header h1 {
-  margin: 5px 0 10px;
-  color: #00eaff;
-  font-size: 34px;
-  font-weight: 800;
-}
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-.header p {
-  margin: 0;
-  color: #d7d9e0;
-  font-size: 17px;
-  line-height: 1.5;
-}
+  <!-- Telegram Mini App -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-/* Points */
+</head>
 
-.points-card {
-  background: #111827;
-  border: 1px solid rgba(0, 234, 255, 0.35);
-  border-radius: 18px;
-  padding: 18px 20px;
-  margin: 10px 0 25px;
-  box-shadow: 0 0 18px rgba(0, 234, 255, 0.12);
-}
 
-.points-card h3 {
-  margin: 0 0 12px;
-  font-size: 21px;
-}
+<body>
 
-.points {
-  font-size: 22px;
-  font-weight: bold;
-}
 
-#points {
-  color: #00eaff;
-  font-size: 27px;
-}
+  <div class="app">
 
-/* Tasks title */
 
-.app > h2 {
-  margin: 10px 0 15px;
-  font-size: 27px;
-}
+    <!-- HEADER -->
 
-/* Task cards */
+    <header class="header">
 
-.task-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
+      <div class="logo">
+        🚀
+      </div>
 
-  background: #111827;
-  border: 1px solid #202b3d;
-  border-radius: 18px;
+      <h1>
+        NovaDrop
+      </h1>
 
-  padding: 18px;
-  margin: 14px 0;
+      <p>
+        Complete tasks, earn points and unlock rewards!
+      </p>
 
-  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.2);
-}
+    </header>
 
-.task-card > div {
-  flex: 1;
-}
 
-.task-card h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
-}
+    <!-- PROGRESS -->
 
-.task-card p {
-  margin: 0 0 12px;
-  color: #b9c0cc;
-  font-size: 14px;
-  line-height: 1.4;
-}
+    <section class="points-card">
 
-.task-card b {
-  color: #00eaff;
-  font-size: 16px;
-}
+      <h3>
+        ⭐ Your Progress
+      </h3>
 
-.task-card button {
-  width: 95px;
-  min-width: 95px;
-  padding: 12px 10px;
 
-  border: none;
-  border-radius: 12px;
+      <div class="stats">
 
-  background: #00eaff;
-  color: #001014;
 
-  font-size: 15px;
-  font-weight: bold;
+        <div class="stat">
 
-  cursor: pointer;
-  transition: 0.2s;
-}
+          <span>
+            🪙 Coins
+          </span>
 
-.task-card button:active {
-  transform: scale(0.95);
-}
+          <strong id="coins">
+            0
+          </strong>
 
-.task-card button:hover {
-  box-shadow: 0 0 15px rgba(0, 234, 255, 0.5);
-}
+        </div>
 
-/* Bottom menu */
 
-.menu {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+        <div class="stat">
 
-  width: 100%;
-  max-width: 430px;
+          <span>
+            ⚡ XP
+          </span>
 
-  display: flex;
-  justify-content: space-around;
-  gap: 5px;
+          <strong id="xp">
+            0
+          </strong>
 
-  padding: 10px 8px;
+        </div>
 
-  background: #0b1020;
-  border-top: 1px solid #202b3d;
 
-  z-index: 100;
-}
+        <div class="stat">
 
-.menu button {
-  width: 25%;
-  margin: 0;
-  padding: 8px 2px;
+          <span>
+            🏆 Level
+          </span>
 
-  background: transparent;
-  color: #aeb6c5;
+          <strong id="level">
+            1
+          </strong>
 
-  font-size: 12px;
-  font-weight: normal;
-}
+        </div>
 
-.menu button:first-child {
-  color: #00eaff;
-}
 
-/* Mobile */
+        <div class="stat">
 
-@media (max-width: 380px) {
-  .app {
-    padding: 14px;
-  }
+          <span>
+            🔥 Streak
+          </span>
 
-  .task-card {
-    padding: 14px;
-  }
+          <strong id="streak">
+            0
+          </strong>
 
-  .task-card h3 {
-    font-size: 16px;
-  }
+        </div>
 
-  .task-card button {
-    width: 80px;
-    min-width: 80px;
-  }
-}
+
+      </div>
+
+
+      <div class="level-info">
+
+        <span>
+          Level
+          <b id="levelLabel">
+            1
+          </b>
+        </span>
+
+        <span id="xpText">
+          0 / 100 XP
+        </span>
+
+      </div>
+
+
+      <div class="progress-bar">
+
+        <div
+          id="levelProgress"
+          class="progress-fill"
+        ></div>
+
+      </div>
+
+
+    </section>
+
+
+    <!-- DAILY STREAK -->
+
+    <section class="card streak-card">
+
+      <h2>
+        🔥 Daily Streak
+      </h2>
+
+      <p>
+        Check in every day and increase your reward.
+      </p>
+
+
+      <div class="streak-number">
+
+        <span id="dailyStreak">
+          0
+        </span>
+
+        Days
+
+      </div>
+
+
+      <button onclick="claimStreak()">
+
+        🎁 Claim Daily Reward
+
+      </button>
+
+
+    </section>
+
+
+    <!-- TASKS -->
+
+    <h2>
+      🔥 Tasks
+    </h2>
+
+
+    <!-- CHANNEL TASK -->
+
+    <section
+      id="task-channel"
+      class="task-card"
+    >
+
+      <div>
+
+        <h3>
+          📢 Join NovaDrop Channel
+        </h3>
+
+        <p>
+          Join our official Telegram channel
+        </p>
+
+        <b>
+          +100 XP • +100 Coins
+        </b>
+
+      </div>
+
+
+      <button
+        onclick="completeTask('channel')"
+      >
+        +100
+      </button>
+
+    </section>
+
+
+    <!-- INVITE TASK -->
+
+    <section
+      id="task-invite"
+      class="task-card"
+    >
+
+      <div>
+
+        <h3>
+          👥 Invite Friends
+        </h3>
+
+        <p>
+          Invite friends and earn more points
+        </p>
+
+        <b>
+          +50 XP • +50 Coins
+        </b>
+
+      </div>
+
+
+      <button
+        onclick="completeTask('invite')"
+      >
+        +50
+      </button>
+
+    </section>
+
+
+    <!-- DAILY TASK -->
+
+    <section
+      id="task-daily"
+      class="task-card"
+    >
+
+      <div>
+
+        <h3>
+          🎁 Daily Check-in
+        </h3>
+
+        <p>
+          Check in every day
+        </p>
+
+        <b>
+          +10 XP • +10 Coins
+        </b>
+
+      </div>
+
+
+      <button
+        onclick="completeTask('daily')"
+      >
+        +10
+      </button>
+
+    </section>
+
+
+    <!-- WALLET TASK -->
+
+    <section
+      id="task-wallet"
+      class="task-card"
+    >
+
+      <div>
+
+        <h3>
+          💎 Connect TON Wallet
+        </h3>
+
+        <p>
+          Connect your TON wallet
+        </p>
+
+        <b>
+          +100 XP • +100 Coins
+        </b>
+
+      </div>
+
+
+      <button
+        onclick="completeTask('wallet')"
+      >
+        +100
+      </button>
+
+    </section>
+
+
+    <!-- WALLET -->
+
+    <section class="card">
+
+      <h2>
+        💰 Wallet
+      </h2>
+
+      <p>
+        Your balance
+      </p>
+
+
+      <div class="wallet-balance">
+
+        🪙
+
+        <span id="walletCoins">
+          0
+        </span>
+
+        Coins
+
+      </div>
+
+    </section>
+
+
+    <!-- SHOP -->
+
+    <section class="card">
+
+      <h2>
+        🛍️ Shop
+      </h2>
+
+      <p>
+        Spend your Coins on special items.
+      </p>
+
+
+      <div class="shop-balance">
+
+        🪙
+
+        <span id="shopCoins">
+          0
+        </span>
+
+      </div>
+
+
+      <!-- AVATAR -->
+
+      <div class="shop-item">
+
+        <div>
+
+          <strong>
+            😎 Avatar
+          </strong>
+
+          <small>
+            Special NovaDrop avatar
+          </small>
+
+        </div>
+
+
+        <button
+          onclick="buyItem('Avatar', 100)"
+        >
+          100 🪙
+        </button>
+
+      </div>
+
+
+      <!-- BADGE -->
+
+      <div class="shop-item">
+
+        <div>
+
+          <strong>
+            🏅 Badge
+          </strong>
+
+          <small>
+            Unlock a special badge
+          </small>
+
+        </div>
+
+
+        <button
+          onclick="buyItem('Badge', 200)"
+        >
+          200 🪙
+        </button>
+
+      </div>
+
+
+      <!-- XP BOOST -->
+
+      <div class="shop-item">
+
+        <div>
+
+          <strong>
+            ⚡ XP Boost
+          </strong>
+
+          <small>
+            Special XP item
+          </small>
+
+        </div>
+
+
+        <button
+          onclick="buyItem('XP Boost', 300)"
+        >
+          300 🪙
+        </button>
+
+      </div>
+
+
+      <!-- MYSTERY -->
+
+      <div class="shop-item">
+
+        <div>
+
+          <strong>
+            💎 Mystery Item
+          </strong>
+
+          <small>
+            Exclusive NovaDrop item
+          </small>
+
+        </div>
+
+
+        <button
+          onclick="buyItem('Mystery Item', 500)"
+        >
+          500 🪙
+        </button>
+
+      </div>
+
+
+    </section>
+
+
+    <!-- TRANSACTIONS -->
+
+    <section class="card">
+
+      <h2>
+        📜 Transactions
+      </h2>
+
+
+      <div id="transactions">
+
+        <p style="color:#8f9aaa;">
+          No transactions yet.
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- LEADERBOARD -->
+
+    <section class="card">
+
+      <h2>
+        🏆 Leaderboard
+      </h2>
+
+
+      <div class="leader">
+
+        <span>
+          👤 You
+        </span>
+
+
+        <strong id="leaderXP">
+          0 XP
+        </strong>
+
+      </div>
+
+    </section>
+
+
+    <!-- PROFILE -->
+
+    <section class="card">
+
+      <h2>
+        👤 Profile
+      </h2>
+
+
+      <p>
+        <strong id="profileName">
+          NovaPlayer
+        </strong>
+      </p>
+
+
+      <p>
+
+        Level:
+
+        <strong id="profileLevel">
+          1
+        </strong>
+
+      </p>
+
+
+      <p>
+
+        Streak:
+
+        <strong id="profileStreak">
+          0
+        </strong>
+
+      </p>
+
+
+    </section>
+
+
+    <!-- SETTINGS -->
+
+    <section class="card reset-card">
+
+      <h2>
+        ⚙️ Settings
+      </h2>
+
+
+      <button onclick="resetProgress()">
+
+        🔄 Reset Progress
+
+      </button>
+
+    </section>
+
+
+  </div>
+
+
+  <!-- BOTTOM MENU -->
+
+  <nav class="menu">
+
+
+    <button
+      onclick="window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      })"
+    >
+
+      🏠
+
+      <span>
+        Home
+      </span>
+
+    </button>
+
+
+    <button
+      onclick="document
+        .getElementById('task-channel')
+        .scrollIntoView({
+          behavior: 'smooth'
+        })"
+    >
+
+      📋
+
+      <span>
+        Tasks
+      </span>
+
+    </button>
+
+
+    <button
+      onclick="document
+        .getElementById('leaderXP')
+        .scrollIntoView({
+          behavior: 'smooth'
+        })"
+    >
+
+      🏆
+
+      <span>
+        Leaderboard
+      </span>
+
+    </button>
+
+
+    <button
+      onclick="document
+        .getElementById('profileLevel')
+        .scrollIntoView({
+          behavior: 'smooth'
+        })"
+    >
+
+      👤
+
+      <span>
+        Profile
+      </span>
+
+    </button>
+
+
+  </nav>
+
+
+  <!-- MAIN JAVASCRIPT -->
+
+  <script src="script.js"></script>
+
+
+</body>
+
+        </html>
