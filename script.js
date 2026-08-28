@@ -1,7 +1,7 @@
 /* =========================================
    🚀 NOVADROP
    Telegram Mini App
-   Referral + TON Connect + Premium Demo
+   Referral + TON Connect + Lucky Spin
 ========================================= */
 
 const SUPABASE_URL =
@@ -44,8 +44,7 @@ const telegramUser =
    REFERRAL
 ========================================= */
 
-const BOT_USERNAME =
-  "NovaDropCoinBot";
+const BOT_USERNAME = "NovaDropCoinBot";
 
 function getStartParameter() {
   if (!tg) return null;
@@ -57,10 +56,7 @@ function getStartParameter() {
 }
 
 function getReferralLink() {
-
-  if (!telegramUser) {
-    return "";
-  }
+  if (!telegramUser) return "";
 
   return (
     "https://t.me/" +
@@ -74,29 +70,38 @@ function getReferralLink() {
 
 
 /* =========================================
-   DEFAULT DATA
+   DATA
 ========================================= */
 
 const DEFAULT_DATA = {
 
   coins: 0,
+
+  usdt: 0,
+
   xp: 0,
+
   level: 1,
 
   streak: 0,
+
   lastStreakDate: null,
 
   completedTasks: [],
-  transactions: [],
+
   purchases: [],
 
   walletAddress: null,
 
   referralCount: 0,
+
   referredBy: null,
 
-  premium: false,
-  premiumUntil: null
+  spins: 1,
+
+  lastDailySpin: null,
+
+  premium: false
 
 };
 
@@ -125,26 +130,40 @@ try {
 
 
 /* =========================================
-   DATA SAFETY
+   DATA MIGRATION
 ========================================= */
 
-if (!Array.isArray(data.completedTasks))
+if (!Array.isArray(data.completedTasks)) {
   data.completedTasks = [];
+}
 
-if (!Array.isArray(data.transactions))
-  data.transactions = [];
-
-if (!Array.isArray(data.purchases))
+if (!Array.isArray(data.purchases)) {
   data.purchases = [];
+}
 
-if (typeof data.referralCount !== "number")
+if (typeof data.coins !== "number") {
+  data.coins = 0;
+}
+
+if (typeof data.usdt !== "number") {
+  data.usdt = 0;
+}
+
+if (typeof data.xp !== "number") {
+  data.xp = 0;
+}
+
+if (typeof data.referralCount !== "number") {
   data.referralCount = 0;
+}
 
-if (typeof data.premium !== "boolean")
+if (typeof data.spins !== "number") {
+  data.spins = 1;
+}
+
+if (typeof data.premium !== "boolean") {
   data.premium = false;
-
-if (!("premiumUntil" in data))
-  data.premiumUntil = null;
+}
 
 
 /* =========================================
@@ -156,89 +175,6 @@ function save() {
   localStorage.setItem(
     "novadrop_data",
     JSON.stringify(data)
-  );
-
-}
-
-
-/* =========================================
-   PREMIUM STATUS
-========================================= */
-
-function isPremiumActive() {
-
-  if (!data.premium) {
-    return false;
-  }
-
-  if (!data.premiumUntil) {
-    return false;
-  }
-
-  const expiry =
-    new Date(
-      data.premiumUntil
-    ).getTime();
-
-  if (
-    Date.now() >= expiry
-  ) {
-
-    data.premium = false;
-    data.premiumUntil = null;
-
-    save();
-
-    return false;
-  }
-
-  return true;
-}
-
-
-/* =========================================
-   PREMIUM DEMO
-========================================= */
-
-function activateDemoPremium() {
-
-  const now =
-    new Date();
-
-  const expiry =
-    new Date(now);
-
-  expiry.setDate(
-    expiry.getDate() + 30
-  );
-
-  data.premium = true;
-
-  data.premiumUntil =
-    expiry.toISOString();
-
-  data.transactions.unshift({
-
-    type: "premium",
-
-    amount: 0,
-
-    description:
-      "Premium Demo Activated",
-
-    date:
-      new Date()
-        .toLocaleString()
-
-  });
-
-  save();
-
-  updateUI();
-
-  alert(
-    "⭐ Premium Demo Activated!\n\n" +
-    "Premium is active for 30 days."
   );
 
 }
@@ -260,12 +196,10 @@ function calculateLevel(
   let neededXP = 100;
 
   while (
-    remainingXP >=
-    neededXP
+    remainingXP >= neededXP
   ) {
 
-    remainingXP -=
-      neededXP;
+    remainingXP -= neededXP;
 
     level++;
 
@@ -289,18 +223,40 @@ function calculateLevel(
 
 
 /* =========================================
+   TASKS
+========================================= */
+
+const TASKS = {
+
+  channel: {
+    title: "Join Channel",
+    xp: 100,
+    coins: 100
+  },
+
+  daily: {
+    title: "Daily Check-in",
+    xp: 10,
+    coins: 10
+  },
+
+  wallet: {
+    title: "Connect TON Wallet",
+    xp: 100,
+    coins: 100
+  }
+
+};
+
+
+/* =========================================
    REFERRAL SERVER
 ========================================= */
 
 async function processReferral() {
 
-  if (
-    !tg ||
-    !tg.initData
-  ) {
-
+  if (!tg || !tg.initData) {
     return;
-
   }
 
   try {
@@ -317,33 +273,26 @@ async function processReferral() {
         .invoke(
           "process-referral",
           {
-
             body: {
-
               initData:
                 tg.initData,
 
               startParam
-
             }
-
           }
         );
 
     if (error) {
 
       console.error(
-        "Referral function error:",
+        "Referral error:",
         error
       );
 
       return;
-
     }
 
-    if (!result) {
-      return;
-    }
+    if (!result) return;
 
     if (result.profile) {
 
@@ -351,24 +300,16 @@ async function processReferral() {
         result.profile;
 
       data.coins =
-        Number(
-          profile.coins
-        ) || 0;
+        Number(profile.coins) || 0;
 
       data.xp =
-        Number(
-          profile.xp
-        ) || 0;
+        Number(profile.xp) || 0;
 
       data.level =
-        Number(
-          profile.level
-        ) || 1;
+        Number(profile.level) || 1;
 
       data.streak =
-        Number(
-          profile.streak
-        ) || 0;
+        Number(profile.streak) || 0;
 
       data.referralCount =
         Number(
@@ -378,45 +319,33 @@ async function processReferral() {
       data.referredBy =
         profile.referred_by_telegram_id ||
         null;
-
     }
 
-    if (
-      result.referralRewarded
-    ) {
 
-      data.transactions.unshift({
+    /*
+     * Successful referral:
+     * give one extra spin.
+     */
 
-        type:
-          "earn",
+    if (result.referralRewarded) {
 
-        amount:
-          50,
-
-        description:
-          "Referral Reward",
-
-        date:
-          new Date()
-            .toLocaleString()
-
-      });
+      data.spins += 1;
 
       alert(
         "🎉 Referral successful!\n\n" +
-        "+50 XP\n" +
-        "+50 Coins"
+        "+1 Lucky Spin"
       );
 
     }
 
     save();
+
     updateUI();
 
   } catch (error) {
 
     console.error(
-      "Referral error:",
+      "Referral processing error:",
       error
     );
 
@@ -426,7 +355,7 @@ async function processReferral() {
 
 
 /* =========================================
-   UPDATE UI
+   UI
 ========================================= */
 
 function updateUI() {
@@ -437,15 +366,22 @@ function updateUI() {
   data.level =
     levelData.level;
 
+
   const values = {
 
     coins:
       data.coins,
 
+    usdtBalance:
+      data.usdt.toFixed(2),
+
     xp:
       data.xp,
 
     level:
+      data.level,
+
+    levelLabel:
       data.level,
 
     streak:
@@ -454,11 +390,11 @@ function updateUI() {
     walletCoins:
       data.coins,
 
+    walletUSDT:
+      data.usdt.toFixed(2),
+
     shopCoins:
       data.coins,
-
-    dailyStreak:
-      data.streak,
 
     leaderXP:
       data.xp + " XP",
@@ -469,14 +405,37 @@ function updateUI() {
     profileStreak:
       data.streak,
 
+    profileCoins:
+      data.coins,
+
+    profileUSDT:
+      data.usdt.toFixed(2),
+
     referralCount:
       data.referralCount,
+
+    spinCount:
+      data.spins,
+
+    spinCoins:
+      data.coins,
+
+    spinUSDT:
+      data.usdt.toFixed(2),
+
+    referralSpins:
+      data.spins,
 
     xpText:
       levelData.currentXP +
       " / " +
       levelData.neededXP +
-      " XP"
+      " XP",
+
+    profilePremium:
+      data.premium
+        ? "Yes"
+        : "No"
 
   };
 
@@ -507,10 +466,12 @@ function updateUI() {
     progress.style.width =
       Math.min(
         100,
+
         (
           levelData.currentXP /
           levelData.neededXP
         ) * 100
+
       ) + "%";
 
   }
@@ -582,56 +543,17 @@ function updateUI() {
       "premiumStatus"
     );
 
-  const profilePremium =
-    document.getElementById(
-      "profilePremium"
-    );
+  if (premiumStatus) {
 
-
-  if (isPremiumActive()) {
-
-    const date =
-      new Date(
-        data.premiumUntil
-      ).toLocaleDateString();
-
-    if (premiumStatus) {
-
-      premiumStatus.textContent =
-        "⭐ Premium Active until " +
-        date;
-
-    }
-
-    if (profilePremium) {
-
-      profilePremium.textContent =
-        "⭐ Active";
-
-    }
-
-  } else {
-
-    if (premiumStatus) {
-
-      premiumStatus.textContent =
-        "Premium inactive";
-
-    }
-
-    if (profilePremium) {
-
-      profilePremium.textContent =
-        "No";
-
-    }
+    premiumStatus.textContent =
+      data.premium
+        ? "⭐ Premium Active"
+        : "Premium inactive";
 
   }
 
 
   renderTasks();
-
-  renderTransactions();
 
   save();
 
@@ -654,7 +576,6 @@ async function copyReferralLink() {
     );
 
     return;
-
   }
 
   try {
@@ -676,6 +597,7 @@ async function copyReferralLink() {
     if (input) {
 
       input.focus();
+
       input.select();
 
       document.execCommand(
@@ -694,7 +616,7 @@ async function copyReferralLink() {
 
 
 /* =========================================
-   SHARE REFERRAL
+   SHARE
 ========================================= */
 
 function shareReferral() {
@@ -709,11 +631,10 @@ function shareReferral() {
     );
 
     return;
-
   }
 
   const text =
-    "🚀 Join NovaDrop and earn Coins + XP!";
+    "🚀 Join NovaDrop and earn Nova Tokens + Lucky Spins!";
 
   const shareUrl =
     "https://t.me/share/url?url=" +
@@ -745,39 +666,6 @@ function shareReferral() {
 
 
 /* =========================================
-   TASKS
-========================================= */
-
-const TASKS = {
-
-  channel: {
-    title: "Join Channel",
-    xp: 100,
-    coins: 100
-  },
-
-  invite: {
-    title: "Invite Friends",
-    xp: 50,
-    coins: 50
-  },
-
-  daily: {
-    title: "Daily Check-in",
-    xp: 10,
-    coins: 10
-  },
-
-  wallet: {
-    title: "Connect TON Wallet",
-    xp: 100,
-    coins: 100
-  }
-
-};
-
-
-/* =========================================
    TASK RENDER
 ========================================= */
 
@@ -792,15 +680,12 @@ function renderTasks() {
           taskId
         );
 
-      if (!element) {
-        return;
-      }
+      if (!element) return;
 
       const button =
         element.querySelector(
           "button"
         );
-
 
       if (
         data.completedTasks
@@ -836,12 +721,19 @@ function completeTask(
   taskId
 ) {
 
+  if (taskId === "invite") {
+
+    shareReferral();
+
+    return;
+  }
+
+
   const task =
     TASKS[taskId];
 
-  if (!task) {
-    return;
-  }
+  if (!task) return;
+
 
   if (
     data.completedTasks
@@ -853,16 +745,6 @@ function completeTask(
     );
 
     return;
-
-  }
-
-
-  if (taskId === "invite") {
-
-    shareReferral();
-
-    return;
-
   }
 
 
@@ -885,57 +767,21 @@ function completeTask(
       );
 
       return;
-
     }
 
   }
 
 
-  let xpReward =
+  data.xp +=
     task.xp;
 
-  let coinReward =
-    task.coins;
-
-
-  /* Premium XP BOOST */
-
-  if (
-    isPremiumActive()
-  ) {
-
-    xpReward *= 2;
-
-  }
-
-
-  data.xp +=
-    xpReward;
-
   data.coins +=
-    coinReward;
+    task.coins;
 
 
   data.completedTasks.push(
     taskId
   );
-
-
-  data.transactions.unshift({
-
-    type: "earn",
-
-    amount:
-      coinReward,
-
-    description:
-      task.title,
-
-    date:
-      new Date()
-        .toLocaleString()
-
-  });
 
 
   updateUI();
@@ -992,9 +838,7 @@ function claimStreak() {
       );
 
 
-    if (
-      difference === 1
-    ) {
+    if (difference === 1) {
 
       data.streak++;
 
@@ -1011,42 +855,15 @@ function claimStreak() {
     today;
 
 
-  let reward =
+  const reward =
     Math.min(
       500,
       data.streak * 25
     );
 
 
-  if (
-    isPremiumActive()
-  ) {
-
-    reward *= 2;
-
-  }
-
-
   data.coins +=
     reward;
-
-
-  data.transactions.unshift({
-
-    type:
-      "earn",
-
-    amount:
-      reward,
-
-    description:
-      "Daily Streak Reward",
-
-    date:
-      new Date()
-        .toLocaleString()
-
-  });
 
 
   updateUI();
@@ -1057,488 +874,43 @@ function claimStreak() {
     data.streak +
     " Day Streak!\n\n+" +
     reward +
-    " Coins"
+    " Nova"
   );
 
 }
 
 
 /* =========================================
-   SHOP
+   🎡 LUCKY SPIN
 ========================================= */
 
-function buyItem(
-  name,
-  price
-) {
-
-  if (
-    data.coins < price
-  ) {
-
-    alert(
-      "Not enough Coins 🪙"
-    );
-
-    return;
-
-  }
-
-
-  data.coins -=
-    price;
-
-
-  data.purchases.push({
-
-    name,
-
-    price,
-
-    date:
-      new Date()
-        .toLocaleString()
-
-  });
-
-
-  data.transactions.unshift({
-
-    type:
-      "spend",
-
-    amount:
-      price,
-
-    description:
-      "Shop: " +
-      name,
-
-    date:
-      new Date()
-        .toLocaleString()
-
-  });
-
-
-  updateUI();
-
-
-  alert(
-    name +
-    " purchased successfully! 🛍️"
-  );
-
-}
-
-
-/* =========================================
-   TRANSACTIONS
-========================================= */
-
-function renderTransactions() {
-
-  const container =
-    document.getElementById(
-      "transactions"
-    );
-
-  if (!container) {
-    return;
-  }
-
-
-  if (
-    !data.transactions.length
-  ) {
-
-    container.innerHTML =
-      '<p style="color:#8f9aaa;">No transactions yet.</p>';
-
-    return;
-
-  }
-
-
-  container.innerHTML =
-    data.transactions
-      .slice(0, 20)
-      .map(transaction => {
-
-        const sign =
-          transaction.type ===
-          "spend"
-            ? "-"
-            : transaction.type ===
-              "earn"
-              ? "+"
-              : "";
-
-        return `
-          <div style="
-            padding:10px 0;
-            border-bottom:1px solid #202b3d;
-          ">
-
-            <strong>
-              ${transaction.description}
-            </strong>
-
-            <span style="
-              float:right;
-              color:#00eaff;
-            ">
-              ${sign}${transaction.amount} 🪙
-            </span>
-
-            <small style="
-              display:block;
-              color:#8f9aaa;
-              margin-top:4px;
-            ">
-              ${transaction.date}
-            </small>
-
-          </div>
-        `;
-
-      })
-      .join("");
-
-}
-
-
-/* =========================================
-   TON CONNECT
-========================================= */
-
-let tonConnectUI = null;
-
-
-function initTONConnect() {
-
-  if (
-    typeof TON_CONNECT_UI ===
-    "undefined"
-  ) {
-
-    console.error(
-      "TON Connect library not loaded."
-    );
-
-    return;
-
-  }
-
-
-  const button =
-    document.getElementById(
-      "ton-connect"
-    );
-
-  if (!button) {
-    return;
-  }
-
-
-  try {
-
-    tonConnectUI =
-      new TON_CONNECT_UI.TonConnectUI({
-
-        manifestUrl:
-          window.location.origin +
-          "/tonconnect-manifest.json",
-
-        buttonRootId:
-          "ton-connect"
-
-      });
-
-
-    tonConnectUI.onStatusChange(
-      async wallet => {
-
-        if (wallet) {
-
-          await onWalletConnected(
-            wallet
-          );
-
-        } else {
-
-          onWalletDisconnected();
-
-        }
-
-      }
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "TON Connect error:",
-      error
-    );
-
-  }
-
-}
-
-
-/* =========================================
-   WALLET CONNECTED
-========================================= */
-
-async function onWalletConnected(
-  wallet
-) {
-
-  const address =
-    wallet.account &&
-    wallet.account.address
-      ? wallet.account.address
-      : null;
-
-
-  if (!address) {
-    return;
-  }
-
-
-  const wasConnected =
-    data.walletAddress ===
-    address;
-
-
-  data.walletAddress =
-    address;
-
-
-  if (
-    !wasConnected &&
-    !data.completedTasks
-      .includes("wallet")
-  ) {
-
-    let xpReward = 100;
-
-    if (isPremiumActive()) {
-      xpReward *= 2;
-    }
-
-
-    data.xp +=
-      xpReward;
-
-    data.coins +=
-      100;
-
-
-    data.completedTasks.push(
-      "wallet"
-    );
-
-
-    data.transactions.unshift({
-
-      type:
-        "earn",
-
-      amount:
-        100,
-
-      description:
-        "Connect TON Wallet",
-
-      date:
-        new Date()
-          .toLocaleString()
-
-    });
-
-
-    alert(
-      "💎 TON Wallet Connected!\n\n" +
-      "+" +
-      xpReward +
-      " XP\n" +
-      "+100 Coins"
-    );
-
-  }
-
-
-  updateUI();
-
-}
-
-
-/* =========================================
-   WALLET DISCONNECTED
-========================================= */
-
-function onWalletDisconnected() {
-
-  data.walletAddress =
-    null;
-
-  updateUI();
-
-}
-
-
-/* =========================================
-   ADDRESS
-========================================= */
-
-function shortenAddress(
-  address
-) {
-
-  if (!address) {
-    return "";
-  }
-
-  if (
-    address.length <= 14
-  ) {
-
-    return address;
-
-  }
-
-  return (
-    address.slice(0, 6) +
-    "..." +
-    address.slice(-6)
-  );
-
-}
-
-
-/* =========================================
-   MENU
-========================================= */
-
-function scrollToTop() {
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-
-}
-
-function scrollToWallet() {
-
-  const element =
-    document.querySelector(
-      ".wallet-balance"
-    );
-
-  if (element) {
-
-    element.scrollIntoView({
-      behavior: "smooth"
-    });
-
-  }
-
-}
-
-function scrollToPremium() {
-
-  const element =
-    document.querySelector(
-      ".premium-card"
-    );
-
-  if (element) {
-
-    element.scrollIntoView({
-      behavior: "smooth"
-    });
-
-  }
-
-}
-
-function scrollToProfile() {
-
-  const buttons =
-    document.querySelectorAll(
-      ".card"
-    );
-
-  const element =
-    buttons[
-      buttons.length - 1
-    ];
-
-  if (element) {
-
-    element.scrollIntoView({
-      behavior: "smooth"
-    });
-
-  }
-
-}
-
-
-/* =========================================
-   RESET
-========================================= */
-
-function resetProgress() {
-
-  const confirmed =
-    confirm(
-      "Reset all NovaDrop progress?"
-    );
-
-  if (!confirmed) {
-    return;
-  }
-
-
-  data = {
-    ...DEFAULT_DATA
-  };
-
-
-  save();
-
-  updateUI();
-
-  alert(
-    "NovaDrop progress reset."
-  );
-
-}
-
-
-/* =========================================
-   START
-========================================= */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  async () => {
-
-    updateUI();
-
-    initTONConnect();
-
-    await processReferral();
-
-    updateUI();
-
-    console.log(
-      "🚀 NovaDrop ready!"
-    );
-
-  }
-);
+const SPIN_REWARDS = [
+
+  {
+    type: "coins",
+    amount: 10,
+    text: "🪙 +10 Nova"
+  },
+
+  {
+    type: "coins",
+    amount: 25,
+    text: "🪙 +25 Nova"
+  },
+
+  {
+    type: "coins",
+    amount: 50,
+    text: "🪙 +50 Nova"
+  },
+
+  {
+    type: "coins",
+    amount: 100,
+    text: "🪙 +100 Nova"
+  },
+
+  {
+    type: "usdt",
+    amount: 0.01,
+    text: "💵 +0.01 US
