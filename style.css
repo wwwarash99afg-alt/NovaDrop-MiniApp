@@ -5,20 +5,34 @@
 
 body {
   margin: 0;
-  background: #050816;
-  color: #ffffff;
   min-height: 100vh;
+  color: #ffffff;
+
+  /* 🟢 USDT / Crypto Background */
+  background:
+    radial-gradient(circle at 15% 10%, rgba(38, 161, 123, 0.22), transparent 30%),
+    radial-gradient(circle at 85% 25%, rgba(0, 234, 170, 0.15), transparent 28%),
+    radial-gradient(circle at 50% 90%, rgba(38, 161, 123, 0.16), transparent 35%),
+    #030806;
+
+  background-attachment: fixed;
 }
+
+/* =================================
+   APP
+================================= */
 
 .app {
   width: 100%;
   max-width: 430px;
   margin: auto;
   padding: 18px;
-  padding-bottom: 95px;
+  padding-bottom: 100px;
 }
 
-/* HEADER */
+/* =================================
+   HEADER
+================================= */
 
 .header {
   text-align: center;
@@ -29,83 +43,87 @@ body {
   width: 90px;
   height: 90px;
   border-radius: 50%;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   margin: 0 auto 12px;
+
   font-size: 55px;
-  background: #111827;
-  border: 2px solid #00eaff;
-  box-shadow: 0 0 25px rgba(0, 234, 255, 0.3);
+
+  background: rgba(8, 25, 19, 0.75);
+
+  border: 2px solid #26a17b;
+
+  box-shadow:
+    0 0 20px rgba(38, 161, 123, 0.45),
+    0 0 50px rgba(38, 161, 123, 0.15);
 }
 
 .header h1 {
   margin: 5px 0 10px;
-  color: #00eaff;
+
+  color: #26a17b;
+
   font-size: 34px;
   font-weight: 800;
+
+  text-shadow:
+    0 0 15px rgba(38, 161, 123, 0.55);
 }
 
 .header p {
   margin: 0;
-  color: #d7d9e0;
-  font-size: 17px;
+
+  color: #d5e4de;
+
+  font-size: 16px;
   line-height: 1.5;
 }
 
-/* CARDS */
+/* =================================
+   CARDS
+================================= */
+
+.card,
+.points-card,
+.task-card {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(15, 35, 29, 0.78),
+      rgba(5, 15, 12, 0.72)
+    );
+
+  border: 1px solid rgba(38, 161, 123, 0.28);
+
+  border-radius: 18px;
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
 
 .card {
-  background: #111827;
-  border: 1px solid #202b3d;
-  border-radius: 18px;
   padding: 18px;
   margin: 15px 0;
-  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.2);
 }
 
 .card h2 {
   margin-top: 0;
 }
 
-/* BUTTONS */
-
-button {
-  border: none;
-  border-radius: 12px;
-  padding: 12px 15px;
-  margin-top: 8px;
-  background: #00eaff;
-  color: #001014;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-button:hover {
-  box-shadow: 0 0 15px rgba(0, 234, 255, 0.5);
-}
-
-button:active {
-  transform: scale(0.96);
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* POINTS */
+/* =================================
+   POINTS
+================================= */
 
 .points-card {
-  background: #111827;
-  border: 1px solid rgba(0, 234, 255, 0.35);
-  border-radius: 18px;
   padding: 18px 20px;
   margin: 10px 0 25px;
-  box-shadow: 0 0 18px rgba(0, 234, 255, 0.12);
 }
 
 .points-card h3 {
@@ -120,37 +138,52 @@ button:disabled {
 }
 
 .stat {
-  background: #080d19;
-  border: 1px solid #202b3d;
+  background: rgba(2, 10, 8, 0.7);
+
+  border: 1px solid rgba(38, 161, 123, 0.22);
+
   border-radius: 14px;
+
   padding: 13px;
+
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
 .stat span {
-  color: #aeb6c5;
+  color: #a9bbb4;
   font-size: 13px;
 }
 
 .stat strong {
-  color: #00eaff;
+  color: #26a17b;
   font-size: 23px;
+
+  text-shadow:
+    0 0 10px rgba(38, 161, 123, 0.45);
 }
+
+/* =================================
+   LEVEL
+================================= */
 
 .level-info {
   display: flex;
   justify-content: space-between;
+
   margin: 18px 0 8px;
-  color: #b9c0cc;
+
+  color: #b7c8c1;
   font-size: 14px;
 }
 
 .progress-bar {
   width: 100%;
   height: 10px;
-  background: #080d19;
+
+  background: #06100d;
+
   border-radius: 20px;
   overflow: hidden;
 }
@@ -158,12 +191,60 @@ button:disabled {
 .progress-fill {
   width: 0%;
   height: 100%;
-  background: #00eaff;
+
+  background: #26a17b;
+
   border-radius: 20px;
+
+  box-shadow:
+    0 0 12px rgba(38, 161, 123, 0.7);
+
   transition: width 0.4s ease;
 }
 
-/* STREAK */
+/* =================================
+   BUTTONS
+================================= */
+
+button {
+  border: none;
+
+  border-radius: 12px;
+
+  padding: 12px 15px;
+
+  margin-top: 8px;
+
+  background: #26a17b;
+
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+button:hover {
+  box-shadow:
+    0 0 18px rgba(38, 161, 123, 0.55);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* =================================
+   STREAK
+================================= */
 
 .streak-card {
   text-align: center;
@@ -171,16 +252,24 @@ button:disabled {
 
 .streak-number {
   font-size: 28px;
+
   font-weight: bold;
-  color: #00eaff;
+
+  color: #26a17b;
+
   margin: 18px 0;
+
+  text-shadow:
+    0 0 12px rgba(38, 161, 123, 0.5);
 }
 
 .streak-number span {
   font-size: 42px;
 }
 
-/* TASKS */
+/* =================================
+   TASKS
+================================= */
 
 .app > h2 {
   margin: 25px 0 15px;
@@ -189,15 +278,23 @@ button:disabled {
 
 .task-card {
   display: flex;
+
   justify-content: space-between;
   align-items: center;
+
   gap: 15px;
-  background: #111827;
-  border: 1px solid #202b3d;
-  border-radius: 18px;
+
   padding: 18px;
+
   margin: 14px 0;
-  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.2);
+
+  transition: 0.2s;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(38, 161, 123, 0.5);
 }
 
 .task-card > div {
@@ -211,143 +308,93 @@ button:disabled {
 
 .task-card p {
   margin: 0 0 12px;
-  color: #b9c0cc;
+
+  color: #aebeb8;
+
   font-size: 14px;
   line-height: 1.4;
 }
 
 .task-card b {
-  color: #00eaff;
-  font-size: 16px;
+  color: #26a17b;
+  font-size: 15px;
 }
 
 .task-card button {
   width: 95px;
   min-width: 95px;
-  padding: 12px 10px;
 }
 
 .task-card.completed {
-  opacity: 0.65;
+  opacity: 0.6;
 }
 
-/* WALLET */
+.task-card.completed button {
+  background: #263a34;
+  color: #9eaaa6;
+}
+
+/* =================================
+   WALLET
+================================= */
 
 .wallet-balance,
 .shop-balance {
-  font-size: 23px;
+  font-size: 26px;
+
   font-weight: bold;
-  color: #00eaff;
+
+  color: #26a17b;
+
   text-align: center;
+
   padding: 15px;
-  background: #080d19;
+
+  background: rgba(2, 10, 8, 0.75);
+
   border-radius: 14px;
-  line-height: 2;
+
+  border: 1px solid rgba(38, 161, 123, 0.2);
+
+  text-shadow:
+    0 0 12px rgba(38, 161, 123, 0.5);
 }
 
-/* LUCKY SPIN */
-
-.spin-card {
-  text-align: center;
-  border-color: rgba(0, 234, 255, 0.35);
-  box-shadow: 0 0 20px rgba(0, 234, 255, 0.1);
-}
-
-.spin-card h2 {
-  color: #00eaff;
-}
-
-.spin-card > p {
-  color: #b9c0cc;
-}
-
-.spin-balance {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 7px;
-  margin: 15px 0;
-}
-
-.spin-balance div {
-  background: #080d19;
-  border: 1px solid #202b3d;
-  border-radius: 12px;
-  padding: 10px 4px;
-  font-size: 11px;
-  color: #aeb6c5;
-}
-
-.spin-balance strong {
-  display: block;
-  color: #00eaff;
-  font-size: 17px;
-  margin-top: 5px;
-}
-
-.wheel {
-  width: 190px;
-  height: 190px;
-  margin: 20px auto;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 90px;
-  background: #080d19;
-  border: 5px solid #00eaff;
-  box-shadow:
-    0 0 20px rgba(0, 234, 255, 0.35),
-    inset 0 0 25px rgba(0, 234, 255, 0.12);
-  transition: transform 3s cubic-bezier(0.15, 0.8, 0.2, 1);
-}
-
-.wheel.spinning {
-  transform: rotate(1440deg);
-}
-
-#spinButton {
-  width: 100%;
-  font-size: 18px;
-  padding: 15px;
-}
-
-#spinResult {
-  min-height: 25px;
-  color: #00eaff !important;
-  font-weight: bold;
-}
-
-/* PREMIUM */
+/* =================================
+   PREMIUM
+================================= */
 
 .premium-card {
-  border-color: rgba(255, 215, 0, 0.3);
+  border-color: rgba(255, 215, 70, 0.3);
 }
 
 .premium-price {
   text-align: center;
-  font-size: 28px;
+
+  font-size: 30px;
+
   font-weight: bold;
-  color: #ffd700;
-  background: #080d19;
-  padding: 15px;
-  border-radius: 14px;
+
+  color: #26a17b;
+
   margin: 15px 0;
 }
 
-.premium-card li {
-  margin: 10px 0;
-  color: #d7d9e0;
-}
-
-/* SHOP */
+/* =================================
+   SHOP
+================================= */
 
 .shop-item {
   display: flex;
+
   justify-content: space-between;
   align-items: center;
+
   gap: 10px;
+
   padding: 15px 0;
-  border-bottom: 1px solid #202b3d;
+
+  border-bottom: 1px solid rgba(38, 161, 123, 0.15);
 }
 
 .shop-item:last-child {
@@ -361,7 +408,9 @@ button:disabled {
 
 .shop-item small {
   display: block;
-  color: #8f9aaa;
+
+  color: #879991;
+
   margin-top: 5px;
 }
 
@@ -370,66 +419,111 @@ button:disabled {
   margin: 0;
 }
 
-/* REFERRAL */
+/* =================================
+   REFERRAL
+================================= */
 
 input {
   width: 100%;
+
   padding: 13px;
+
   margin: 7px 0;
-  border: 1px solid #2b374a;
+
+  border: 1px solid rgba(38, 161, 123, 0.25);
+
   border-radius: 12px;
-  background: #080d19;
+
+  background: rgba(2, 10, 8, 0.8);
+
   color: #ffffff;
+
   outline: none;
+
   font-size: 15px;
 }
 
-/* LEADERBOARD */
+input:focus {
+  border-color: #26a17b;
+
+  box-shadow:
+    0 0 10px rgba(38, 161, 123, 0.2);
+}
+
+/* =================================
+   LEADERBOARD
+================================= */
 
 .leader {
   display: flex;
+
   justify-content: space-between;
   align-items: center;
-  background: #080d19;
+
+  background: rgba(2, 10, 8, 0.7);
+
   padding: 15px;
+
   border-radius: 14px;
 }
 
 .leader strong {
-  color: #00eaff;
+  color: #26a17b;
 }
 
-/* BOTTOM MENU */
+/* =================================
+   MENU
+================================= */
 
 .menu {
   position: fixed;
+
   bottom: 0;
   left: 50%;
+
   transform: translateX(-50%);
+
   width: 100%;
   max-width: 430px;
+
   display: flex;
+
   justify-content: space-around;
+
   gap: 5px;
+
   padding: 10px 8px;
-  background: #0b1020;
-  border-top: 1px solid #202b3d;
+
+  background: rgba(3, 12, 9, 0.94);
+
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+
+  border-top: 1px solid rgba(38, 161, 123, 0.25);
+
   z-index: 100;
 }
 
 .menu button {
   width: 25%;
+
   margin: 0;
+
   padding: 8px 2px;
+
   background: transparent;
-  color: #aeb6c5;
+
+  color: #8fa39b;
+
   font-size: 12px;
+
   font-weight: normal;
+
   box-shadow: none;
 }
 
 .menu button:first-child {
-  color: #00eaff;
+  color: #26a17b;
 }
 
 .menu button span {
@@ -437,13 +531,15 @@ input {
   margin-top: 3px;
 }
 
-/* MOBILE */
+/* =================================
+   MOBILE
+================================= */
 
 @media (max-width: 380px) {
 
   .app {
     padding: 14px;
-    padding-bottom: 95px;
+    padding-bottom: 100px;
   }
 
   .task-card {
@@ -463,9 +559,4 @@ input {
     font-size: 30px;
   }
 
-  .wheel {
-    width: 165px;
-    height: 165px;
-    font-size: 75px;
-  }
-  }
+}
