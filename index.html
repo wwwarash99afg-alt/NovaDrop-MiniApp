@@ -1,78 +1,246 @@
 function spinWheel() {
 
-  if (spinning) return;
+  console.log("🎡 Spin started");
 
-  if (spins <= 0) {
-    showResult("❌ No spins available.<br>Claim your daily spin!");
+  /* جلوگیری از چند بار کلیک */
+  if (spinning) {
     return;
   }
 
+
+  /* بررسی تعداد اسپین */
+  if (Number(spins) <= 0) {
+
+    showResult(
+      "❌ No spins available.<br>Claim your daily spin!"
+    );
+
+    return;
+  }
+
+
+  /* پیدا کردن عناصر */
+  const button =
+    document.getElementById("spinBtn");
+
+  const wheel =
+    document.getElementById("wheel");
+
+  const result =
+    document.getElementById("result");
+
+
+  /* بررسی وجود چرخ */
+  if (!wheel) {
+
+    console.error(
+      "❌ Wheel not found!"
+    );
+
+    alert(
+      "Spin wheel not found. Check id='wheel' in HTML."
+    );
+
+    return;
+  }
+
+
+  /* شروع اسپین */
   spinning = true;
 
-  const button = document.getElementById("spinBtn");
-  const wheel = document.getElementById("wheel");
 
-  button.disabled = true;
+  if (button) {
 
-  document.getElementById("result").style.display = "none";
+    button.disabled = true;
 
-  // انتخاب جایزه
-  const prizeIndex = Math.floor(Math.random() * rewards.length);
-  const prize = rewards[prizeIndex];
+    button.textContent =
+      "🎡 SPINNING...";
 
-  // هر بخش 45 درجه است
-  const sectorAngle = 45;
+  }
 
-  // چرخش زیاد + توقف روی جایزه
-  const fullSpins = 8 + Math.floor(Math.random() * 5);
+
+  /* مخفی کردن نتیجه قبلی */
+  if (result) {
+
+    result.style.display =
+      "none";
+
+  }
+
+
+  /* انتخاب جایزه تصادفی */
+  const prizeIndex =
+    Math.floor(
+      Math.random() *
+      rewards.length
+    );
+
+
+  const prize =
+    rewards[prizeIndex];
+
+
+  console.log(
+    "🎁 Selected prize:",
+    prize
+  );
+
+
+  /* تعداد بخش‌های چرخ */
+  const sectorAngle =
+    360 / rewards.length;
+
+
+  /*
+   * مرکز بخش جایزه
+   * فلش در بالای چرخ قرار دارد
+   */
 
   const targetAngle =
     360 -
-    (prizeIndex * sectorAngle) -
-    (sectorAngle / 2);
+    (
+      prizeIndex *
+      sectorAngle
+    ) -
+    (
+      sectorAngle / 2
+    );
 
-  const currentAngle = rotation % 360;
 
+  /* تعداد دور کامل */
+  const fullSpins =
+    7 +
+    Math.floor(
+      Math.random() * 4
+    );
+
+
+  /* موقعیت فعلی چرخ */
+  const currentAngle =
+    rotation % 360;
+
+
+  /* محاسبه حرکت */
   let move =
-    targetAngle - currentAngle;
+    targetAngle -
+    currentAngle;
+
 
   if (move < 0) {
+
     move += 360;
+
   }
 
-  rotation += (fullSpins * 360) + move;
 
-  // اجبار مرورگر به ثبت حالت قبلی
-  wheel.style.transition = "none";
-  wheel.style.transform = `rotate(${rotation - ((fullSpins * 360) + move)}deg)`;
+  /* ذخیره زاویه قبلی */
+  const previousRotation =
+    rotation;
 
-  wheel.offsetHeight;
 
-  // شروع انیمیشن
+  /* زاویه نهایی */
+  rotation +=
+    (fullSpins * 360) +
+    move;
+
+
+  console.log(
+    "Previous:",
+    previousRotation
+  );
+
+  console.log(
+    "Final:",
+    rotation
+  );
+
+
+  /*
+   * حذف انیمیشن قبلی
+   */
+
+  wheel.style.transition =
+    "none";
+
+
+  /*
+   * تثبیت موقعیت قبلی
+   */
+
+  wheel.style.transform =
+    `rotate(${previousRotation}deg)`;
+
+
+  /*
+   * اجبار مرورگر برای ثبت
+   */
+
+  void wheel.offsetWidth;
+
+
+  /*
+   * شروع انیمیشن
+   */
+
   requestAnimationFrame(() => {
 
-    wheel.style.transition =
-      "transform 6s cubic-bezier(0.12, 0.8, 0.18, 1)";
+    requestAnimationFrame(() => {
 
-    wheel.style.transform =
-      `rotate(${rotation}deg)`;
+      wheel.style.transition =
+        "transform 5.5s cubic-bezier(.12,.8,.18,1)";
+
+
+      wheel.style.transform =
+        `rotate(${rotation}deg)`;
+
+    });
 
   });
 
-  // کم کردن یک Spin
+
+  /*
+   * کم کردن یک اسپین
+   */
+
   spins--;
 
   updateUI();
+
   saveData();
 
-  // پایان چرخش
+
+  /*
+   * پایان انیمیشن
+   */
+
   setTimeout(() => {
 
-    applyPrize(prize);
+    applyPrize(
+      prize
+    );
 
-    spinning = false;
-    button.disabled = false;
 
-  }, 6200);
+    spinning =
+      false;
+
+
+    if (button) {
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        spins > 0
+          ? "🎡 SPIN"
+          : "NO SPINS";
+
+    }
+
+
+    console.log(
+      "🎉 Spin finished"
+    );
+
+  }, 5600);
 
 }
