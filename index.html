@@ -900,4 +900,112 @@ function applyPrize(prize){
 
   updateUI();
 
-  save
+  saveData();
+
+}
+
+
+/* =========================
+   DAILY FREE SPIN
+========================= */
+
+function claimDaily(){
+
+  const today =
+    new Date().toDateString();
+
+
+  const lastClaim =
+    localStorage.getItem(
+      "novaLastDailyClaim"
+    );
+
+
+  if(lastClaim === today){
+
+    showResult(
+      "⏳ You already claimed today's reward!"
+    );
+
+    return;
+
+  }
+
+
+  spins += 1;
+
+
+  localStorage.setItem(
+    "novaLastDailyClaim",
+    today
+  );
+
+
+  saveData();
+
+  updateUI();
+
+
+  showResult(
+    "🎉 Daily Reward Claimed!<br>" +
+    "You received <b>1 Free Spin 🎟</b>"
+  );
+
+
+  document.getElementById(
+    "dailyText"
+  ).innerText =
+    "Daily reward claimed! Come back tomorrow.";
+
+
+  document.getElementById(
+    "dailyBtn"
+  ).disabled = true;
+
+}
+
+
+/* =========================
+   CHECK DAILY STATUS
+========================= */
+
+function checkDailyStatus(){
+
+  const today =
+    new Date().toDateString();
+
+
+  const lastClaim =
+    localStorage.getItem(
+      "novaLastDailyClaim"
+    );
+
+
+  if(lastClaim === today){
+
+    document.getElementById(
+      "dailyText"
+    ).innerText =
+      "Daily reward already claimed today.";
+
+    document.getElementById(
+      "dailyBtn"
+    ).disabled = true;
+
+  }
+
+}
+
+
+/* =========================
+   START APP
+========================= */
+
+updateUI();
+
+checkDailyStatus();
+
+</script>
+
+</body>
+  </html>
