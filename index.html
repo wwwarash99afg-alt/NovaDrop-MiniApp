@@ -1,36 +1,79 @@
+/* =========================================
+   🎡 SPIN SYSTEM
+========================================= */
+
+let wheelRotation = 0;
+let isSpinning = false;
+
+
+/* =========================================
+   🎡 SPIN WHEEL
+========================================= */
+
 function spinWheel() {
 
   console.log("🎡 Spin started");
 
+
   /* جلوگیری از چند بار کلیک */
-  if (spinning) {
+
+  if (isSpinning) {
     return;
   }
 
 
-  /* بررسی تعداد اسپین */
-  if (Number(spins) <= 0) {
+  /* آماده کردن اسپین روزانه */
 
-    showResult(
-      "❌ No spins available.<br>Claim your daily spin!"
+  prepareDailySpin();
+
+
+  /* بررسی تعداد اسپین */
+
+  if (Number(data.spinCount) <= 0) {
+
+    const result =
+      document.getElementById("result") ||
+      document.getElementById("spinResult");
+
+    if (result) {
+
+      result.innerHTML =
+        "❌ No spins available.<br>Come back tomorrow or claim a daily reward!";
+
+      result.style.display =
+        "block";
+
+    }
+
+    alert(
+      "❌ No spins available!"
     );
+
+    updateSpinButton();
 
     return;
   }
 
 
   /* پیدا کردن عناصر */
+
   const button =
-    document.getElementById("spinBtn");
+    document.getElementById("spinBtn") ||
+    document.getElementById("spinButton");
+
 
   const wheel =
-    document.getElementById("wheel");
+    document.getElementById("wheel") ||
+    document.getElementById("spinWheel");
+
 
   const result =
-    document.getElementById("result");
+    document.getElementById("result") ||
+    document.getElementById("spinResult");
 
 
   /* بررسی وجود چرخ */
+
   if (!wheel) {
 
     console.error(
@@ -38,15 +81,17 @@ function spinWheel() {
     );
 
     alert(
-      "Spin wheel not found. Check id='wheel' in HTML."
+      "❌ Spin wheel not found! Check HTML id='wheel'"
     );
 
     return;
+
   }
 
 
   /* شروع اسپین */
-  spinning = true;
+
+  isSpinning = true;
 
 
   if (button) {
@@ -60,6 +105,7 @@ function spinWheel() {
 
 
   /* مخفی کردن نتیجه قبلی */
+
   if (result) {
 
     result.style.display =
@@ -68,7 +114,63 @@ function spinWheel() {
   }
 
 
-  /* انتخاب جایزه تصادفی */
+  /* جوایز */
+
+  const rewards = [
+
+    {
+      name: "50 NOVA 🪙",
+      type: "token",
+      value: 50
+    },
+
+    {
+      name: "0.10 USDT 💵",
+      type: "usdt",
+      value: 0.10
+    },
+
+    {
+      name: "Mystery Gift 🎁",
+      type: "gift",
+      value: 50
+    },
+
+    {
+      name: "Bonus Spin ⭐",
+      type: "spin",
+      value: 1
+    },
+
+    {
+      name: "100 NOVA 🪙",
+      type: "token",
+      value: 100
+    },
+
+    {
+      name: "0.05 USDT 💵",
+      type: "usdt",
+      value: 0.05
+    },
+
+    {
+      name: "Mystery Gift 🎁",
+      type: "gift",
+      value: 100
+    },
+
+    {
+      name: "25 NOVA 🪙",
+      type: "token",
+      value: 25
+    }
+
+  ];
+
+
+  /* انتخاب جایزه */
+
   const prizeIndex =
     Math.floor(
       Math.random() *
@@ -86,28 +188,25 @@ function spinWheel() {
   );
 
 
-  /* تعداد بخش‌های چرخ */
+  /* هر بخش چرخ */
+
   const sectorAngle =
     360 / rewards.length;
 
 
   /*
-   * مرکز بخش جایزه
-   * فلش در بالای چرخ قرار دارد
-   */
+    فلش در بالای چرخ است
+    توقف روی وسط جایزه
+  */
 
   const targetAngle =
     360 -
-    (
-      prizeIndex *
-      sectorAngle
-    ) -
-    (
-      sectorAngle / 2
-    );
+    (prizeIndex * sectorAngle) -
+    (sectorAngle / 2);
 
 
-  /* تعداد دور کامل */
+  /* 7 تا 10 دور کامل */
+
   const fullSpins =
     7 +
     Math.floor(
@@ -115,12 +214,14 @@ function spinWheel() {
     );
 
 
-  /* موقعیت فعلی چرخ */
+  /* زاویه فعلی */
+
   const currentAngle =
-    rotation % 360;
+    ((wheelRotation % 360) + 360) % 360;
 
 
   /* محاسبه حرکت */
+
   let move =
     targetAngle -
     currentAngle;
@@ -133,54 +234,48 @@ function spinWheel() {
   }
 
 
-  /* ذخیره زاویه قبلی */
+  /* زاویه قبلی */
+
   const previousRotation =
-    rotation;
+    wheelRotation;
 
 
   /* زاویه نهایی */
-  rotation +=
+
+  wheelRotation +=
     (fullSpins * 360) +
     move;
 
 
   console.log(
-    "Previous:",
+    "🎡 Previous rotation:",
     previousRotation
   );
 
   console.log(
-    "Final:",
-    rotation
+    "🎡 Final rotation:",
+    wheelRotation
   );
 
 
-  /*
-   * حذف انیمیشن قبلی
-   */
+  /* حذف transition قبلی */
 
   wheel.style.transition =
     "none";
 
 
-  /*
-   * تثبیت موقعیت قبلی
-   */
+  /* تثبیت موقعیت قبلی */
 
   wheel.style.transform =
     `rotate(${previousRotation}deg)`;
 
 
-  /*
-   * اجبار مرورگر برای ثبت
-   */
+  /* اجبار مرورگر */
 
   void wheel.offsetWidth;
 
 
-  /*
-   * شروع انیمیشن
-   */
+  /* شروع انیمیشن */
 
   requestAnimationFrame(() => {
 
@@ -191,50 +286,37 @@ function spinWheel() {
 
 
       wheel.style.transform =
-        `rotate(${rotation}deg)`;
+        `rotate(${wheelRotation}deg)`;
 
     });
 
   });
 
 
-  /*
-   * کم کردن یک اسپین
-   */
+  /* کم کردن یک اسپین */
 
-  spins--;
+  data.spinCount--;
+
+
+  save();
 
   updateUI();
 
-  saveData();
 
-
-  /*
-   * پایان انیمیشن
-   */
+  /* پایان انیمیشن */
 
   setTimeout(() => {
 
-    applyPrize(
+    applySpinReward(
       prize
     );
 
 
-    spinning =
+    isSpinning =
       false;
 
 
-    if (button) {
-
-      button.disabled =
-        false;
-
-      button.textContent =
-        spins > 0
-          ? "🎡 SPIN"
-          : "NO SPINS";
-
-    }
+    updateSpinButton();
 
 
     console.log(
