@@ -12,10 +12,13 @@ const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_i-DXZ0D1j1kn1PxnCggsRA_TjWrDeuP";
 
 const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
+  window.supabase &&
+  window.supabase.createClient
+    ? window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      )
+    : null;
 
 
 /* =========================================
@@ -151,8 +154,16 @@ data.tokenBalance =
 data.usdtBalance =
   Number(data.usdtBalance) || 0;
 
-data.spinCount =
-  Number(data.spinCount) || 0;
+/* مهم: مقدار اولیه Spin */
+if (
+  data.spinCount === undefined ||
+  data.spinCount === null
+) {
+  data.spinCount = 1;
+} else {
+  data.spinCount =
+    Number(data.spinCount) || 0;
+}
 
 
 if (!Array.isArray(data.completedTasks)) {
@@ -187,6 +198,7 @@ function calculateLevel(
 ) {
 
   let level = 1;
+
   let remainingXP =
     Number(xp) || 0;
 
@@ -202,6 +214,7 @@ function calculateLevel(
 
     neededXP =
       level * 100;
+
   }
 
   return {
@@ -264,12 +277,23 @@ function updateUI() {
     spinCount:
       data.spinCount,
 
+    spins:
+      data.spinCount,
+
     tokenBalance:
       formatNumber(
         data.tokenBalance
       ),
 
+    nova:
+      formatNumber(
+        data.tokenBalance
+      ),
+
     usdtBalance:
+      data.usdtBalance.toFixed(2),
+
+    usdt:
       data.usdtBalance.toFixed(2),
 
     profileToken:
@@ -294,6 +318,7 @@ function updateUI() {
       " / " +
       levelData.neededXP +
       " XP"
+
   };
 
 
@@ -407,25 +432,33 @@ function updateUI() {
   if (data.premium) {
 
     if (premiumStatus) {
+
       premiumStatus.textContent =
         "⭐ Premium Active";
+
     }
 
     if (profilePremium) {
+
       profilePremium.textContent =
         "Yes";
+
     }
 
   } else {
 
     if (premiumStatus) {
+
       premiumStatus.textContent =
         "Premium inactive";
+
     }
 
     if (profilePremium) {
+
       profilePremium.textContent =
         "No";
+
     }
 
   }
@@ -544,6 +577,7 @@ function completeTask(taskId) {
     );
 
     return;
+
   }
 
 
@@ -552,6 +586,7 @@ function completeTask(taskId) {
     shareReferral();
 
     return;
+
   }
 
 
@@ -700,21 +735,16 @@ function prepareDailySpin() {
       .slice(0, 10);
 
 
-  /*
-   * First time:
-   * Give one free spin.
-   */
-
   if (
     data.lastDailySpinDate === null ||
     data.lastDailySpinDate === undefined
   ) {
 
-    data.spinCount =
-      Math.max(
-        data.spinCount,
-        1
-      );
+    if (data.spinCount < 1) {
+
+      data.spinCount = 1;
+
+    }
 
     data.lastDailySpinDate =
       today;
@@ -722,13 +752,9 @@ function prepareDailySpin() {
     save();
 
     return;
+
   }
 
-
-  /*
-   * New day:
-   * Give one additional free spin.
-   */
 
   if (
     data.lastDailySpinDate !==
@@ -748,17 +774,36 @@ function prepareDailySpin() {
 
 
 /* =========================================
+   🎡 SPIN SYSTEM
+========================================= */
+
+let wheelRotation = 0;
+let isSpinning = false;
+
+
+/* =========================================
    SPIN BUTTON
 ========================================= */
 
 function updateSpinButton() {
 
   const button =
-    document.getElementById(
-      "spinButton"
-    );
+    document.getElementById("spinBtn") ||
+    document.getElementById("spinButton");
 
   if (!button) return;
+
+
+  if (isSpinning) {
+
+    button.disabled = true;
+
+    button.textContent =
+      "🎡 SPINNING...";
+
+    return;
+
+  }
 
 
   if (data.spinCount > 0) {
@@ -773,7 +818,7 @@ function updateSpinButton() {
     button.disabled = true;
 
     button.textContent =
-      "No Spins";
+      "NO SPINS";
 
   }
 
@@ -791,10 +836,8 @@ function spinWheel() {
   );
 
 
-  /*
-   * Make sure daily spin
-   * has been prepared.
-   */
+  if (isSpinning) return;
+
 
   prepareDailySpin();
 
@@ -804,8 +847,29 @@ function spinWheel() {
   ) {
 
     alert(
-      "❌ No spins available.\n\n" +
-      "Come back tomorrow or invite a friend."
+      "❌ No spins available.\n\nCome back tomorrow!"
+    );
+
+    updateSpinButton();
+
+    return;
+
+  }
+
+
+  const wheel =
+    document.getElementById("wheel") ||
+    document.getElementById("spinWheel");
+
+
+  if (!wheel) {
+
+    console.error(
+      "❌ Spin wheel not found"
+    );
+
+    alert(
+      "❌ Spin wheel not found. Check HTML ID."
     );
 
     return;
@@ -813,105 +877,178 @@ function spinWheel() {
   }
 
 
-  data.spinCount--;
-
-  save();
-
-  updateSpinButton();
-
-
   const rewards = [
 
     {
-      name: "100 Token",
+      name: "50 NOVA 🪙",
       type: "token",
-      value: 100
+      value: 50
     },
 
     {
-      name: "250 Token",
-      type: "token",
-      value: 250
-    },
-
-    {
-      name: "500 Token",
-      type: "token",
-      value: 500
-    },
-
-    {
-      name: "1,000 Token",
-      type: "token",
-      value: 1000
-    },
-
-    {
-      name: "0.10 USDT Demo",
+      name: "0.10 USDT 💵",
       type: "usdt",
       value: 0.10
     },
 
     {
-      name: "0.50 USDT Demo",
-      type: "usdt",
-      value: 0.50
+      name: "Mystery Gift 🎁",
+      type: "gift",
+      value: 0
     },
 
     {
-      name: "1.00 USDT Demo",
-      type: "usdt",
-      value: 1.00
+      name: "Bonus Spin ⭐",
+      type: "spin",
+      value: 1
     },
 
     {
-      name: "25 Coins",
-      type: "coins",
+      name: "100 NOVA 🪙",
+      type: "token",
+      value: 100
+    },
+
+    {
+      name: "0.05 USDT 💵",
+      type: "usdt",
+      value: 0.05
+    },
+
+    {
+      name: "Mystery Gift 🎁",
+      type: "gift",
+      value: 0
+    },
+
+    {
+      name: "25 NOVA 🪙",
+      type: "token",
       value: 25
     }
 
   ];
 
 
-  const reward =
-    rewards[
+  const prizeIndex =
+    Math.floor(
+      Math.random() *
+      rewards.length
+    );
+
+
+  const prize =
+    rewards[prizeIndex];
+
+
+  isSpinning = true;
+
+
+  /*
+   * Use one spin
+   */
+
+  data.spinCount--;
+
+  save();
+
+  updateUI();
+
+
+  /*
+   * 8 sections
+   * Each section = 45deg
+   */
+
+  const sectorAngle = 45;
+
+
+  /*
+   * Pointer is fixed at top
+   */
+
+  const targetAngle =
+    360 -
+    (prizeIndex * sectorAngle) -
+    (sectorAngle / 2);
+
+
+  /*
+   * 6-8 full rotations
+   */
+
+  const fullRotations =
+    360 *
+    (
+      6 +
       Math.floor(
-        Math.random() *
-        rewards.length
+        Math.random() * 3
       )
-    ];
-
-
-  const wheel =
-    document.getElementById(
-      "spinWheel"
     );
 
 
-  if (wheel) {
+  /*
+   * Final rotation
+   */
 
-    wheel.classList.remove(
-      "spin-animation"
-    );
+  const currentPosition =
+    wheelRotation % 360;
 
-    void wheel.offsetWidth;
 
-    wheel.classList.add(
-      "spin-animation"
-    );
+  wheelRotation +=
+    fullRotations +
+    targetAngle -
+    currentPosition;
 
-  }
 
+  /*
+   * IMPORTANT:
+   * Force browser animation
+   */
+
+  wheel.style.transition =
+    "none";
+
+  wheel.style.transform =
+    `rotate(${wheelRotation - 5}deg)`;
+
+
+  requestAnimationFrame(
+    function () {
+
+      requestAnimationFrame(
+        function () {
+
+          wheel.style.transition =
+            "transform 5.5s cubic-bezier(.12,.8,.18,1)";
+
+          wheel.style.transform =
+            `rotate(${wheelRotation}deg)`;
+
+        }
+      );
+
+    }
+  );
+
+
+  /*
+   * Apply reward after wheel stops
+   */
 
   setTimeout(
     function () {
 
       applySpinReward(
-        reward
+        prize
       );
 
+      isSpinning = false;
+
+      updateSpinButton();
+
     },
-    1800
+    5600
   );
 
 }
@@ -921,54 +1058,66 @@ function spinWheel() {
    APPLY SPIN REWARD
 ========================================= */
 
-function applySpinReward(
-  reward
-) {
+function applySpinReward(reward) {
 
   if (
-    reward.type ===
-    "token"
+    reward.type === "token"
   ) {
 
     data.tokenBalance +=
-      reward.value;
+      Number(reward.value);
 
   }
 
 
-  if (
-    reward.type ===
-    "usdt"
+  else if (
+    reward.type === "usdt"
   ) {
 
     data.usdtBalance +=
-      reward.value;
+      Number(reward.value);
 
   }
 
 
-  if (
-    reward.type ===
-    "coins"
+  else if (
+    reward.type === "spin"
   ) {
 
-    data.coins +=
-      reward.value;
+    data.spinCount +=
+      Number(reward.value);
+
+  }
+
+
+  else if (
+    reward.type === "gift"
+  ) {
+
+    data.coins += 50;
 
   }
 
 
   const result =
-    document.getElementById(
-      "spinResult"
-    );
+    document.getElementById("result") ||
+    document.getElementById("spinResult");
+
+
+  const message =
+    "🎉 Congratulations!<br>" +
+    "You won <b>" +
+    reward.name +
+    "</b>";
 
 
   if (result) {
 
-    result.textContent =
-      "🎉 You won: " +
-      reward.name;
+    result.innerHTML =
+      message;
+
+    result.style.display =
+      "block";
 
   }
 
@@ -983,6 +1132,142 @@ function applySpinReward(
     "You won " +
     reward.name
   );
+
+}
+
+
+/* =========================================
+   DAILY REWARD BUTTON
+========================================= */
+
+function claimDaily() {
+
+  const today =
+    new Date()
+      .toISOString()
+      .slice(0, 10);
+
+
+  const lastClaim =
+    localStorage.getItem(
+      "nova_daily_reward"
+    );
+
+
+  if (lastClaim === today) {
+
+    alert(
+      "⏳ You already claimed today's reward!"
+    );
+
+    return;
+
+  }
+
+
+  data.spinCount += 1;
+
+
+  localStorage.setItem(
+    "nova_daily_reward",
+    today
+  );
+
+
+  save();
+
+  updateUI();
+
+
+  const result =
+    document.getElementById("result");
+
+  if (result) {
+
+    result.innerHTML =
+      "🎉 Daily Reward Claimed!<br>" +
+      "You received <b>1 Free Spin 🎟</b>";
+
+    result.style.display =
+      "block";
+
+  }
+
+
+  const dailyText =
+    document.getElementById(
+      "dailyText"
+    );
+
+  const dailyBtn =
+    document.getElementById(
+      "dailyBtn"
+    );
+
+
+  if (dailyText) {
+
+    dailyText.textContent =
+      "Daily reward claimed! Come back tomorrow.";
+
+  }
+
+
+  if (dailyBtn) {
+
+    dailyBtn.disabled = true;
+
+  }
+
+}
+
+
+/* =========================================
+   CHECK DAILY STATUS
+========================================= */
+
+function checkDailyStatus() {
+
+  const today =
+    new Date()
+      .toISOString()
+      .slice(0, 10);
+
+
+  const lastClaim =
+    localStorage.getItem(
+      "nova_daily_reward"
+    );
+
+
+  if (lastClaim === today) {
+
+    const dailyText =
+      document.getElementById(
+        "dailyText"
+      );
+
+    const dailyBtn =
+      document.getElementById(
+        "dailyBtn"
+      );
+
+
+    if (dailyText) {
+
+      dailyText.textContent =
+        "Daily reward already claimed today.";
+
+    }
+
+
+    if (dailyBtn) {
+
+      dailyBtn.disabled = true;
+
+    }
+
+  }
 
 }
 
@@ -1158,8 +1443,7 @@ function buyItem(
   }
 
 
-  data.coins -=
-    price;
+  data.coins -= price;
 
 
   data.purchases.push({
@@ -1201,7 +1485,7 @@ function initTONConnect() {
     "undefined"
   ) {
 
-    console.error(
+    console.log(
       "TON Connect library not loaded."
     );
 
@@ -1371,7 +1655,8 @@ async function processReferral() {
 
   if (
     !tg ||
-    !tg.initData
+    !tg.initData ||
+    !supabaseClient
   ) {
 
     return;
@@ -1464,11 +1749,6 @@ async function processReferral() {
 
     }
 
-
-    /*
-     * Every successful referral
-     * gives one additional spin.
-     */
 
     if (
       result.referralRewarded
@@ -1614,10 +1894,6 @@ function resetProgress() {
   };
 
 
-  /*
-   * Give first free spin again.
-   */
-
   data.spinCount = 1;
 
 
@@ -1646,24 +1922,14 @@ document.addEventListener(
     );
 
 
-    /*
-     * Prepare today's free spin.
-     */
-
     prepareDailySpin();
-
 
     updateUI();
 
+    checkDailyStatus();
 
     initTONConnect();
 
-
-    /*
-     * Referral is optional.
-     * If Supabase function fails,
-     * the app continues working.
-     */
 
     await processReferral();
 
