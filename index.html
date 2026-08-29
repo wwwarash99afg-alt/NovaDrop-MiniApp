@@ -1,328 +1,1086 @@
-/* =========================================
-   🎡 SPIN SYSTEM
-========================================= */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
 
-let wheelRotation = 0;
-let isSpinning = false;
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <title>NovaDrop</title>
+
+  <!-- Telegram Mini App -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #07111f;
+      --card: #101d2d;
+      --card-dark: #0b1726;
+      --line: #20344b;
+
+      --text: #f4f8ff;
+      --muted: #91a1b7;
+
+      --cyan: #28d9e9;
+      --green: #48df9a;
+      --yellow: #ffd166;
+    }
 
 
-/* =========================================
-   🎡 SPIN WHEEL
-========================================= */
-
-function spinWheel() {
-
-  console.log("🎡 Spin started");
+    html {
+      scroll-behavior: smooth;
+    }
 
 
-  /* جلوگیری از چند بار کلیک */
+    body {
 
-  if (isSpinning) {
-    return;
-  }
+      margin: 0;
 
+      min-height: 100vh;
 
-  /* آماده کردن اسپین روزانه */
+      color: var(--text);
 
-  prepareDailySpin();
+      font-family:
+        Arial,
+        sans-serif;
 
+      background:
 
-  /* بررسی تعداد اسپین */
+        radial-gradient(
+          circle at 20% 0%,
+          rgba(40,217,233,.13),
+          transparent 28%
+        ),
 
-  if (Number(data.spinCount) <= 0) {
+        radial-gradient(
+          circle at 90% 20%,
+          rgba(72,223,154,.06),
+          transparent 25%
+        ),
 
-    const result =
-      document.getElementById("result") ||
-      document.getElementById("spinResult");
-
-    if (result) {
-
-      result.innerHTML =
-        "❌ No spins available.<br>Come back tomorrow or claim a daily reward!";
-
-      result.style.display =
-        "block";
+        linear-gradient(
+          180deg,
+          #07111f,
+          #081421
+        );
 
     }
 
-    alert(
-      "❌ No spins available!"
-    );
 
-    updateSpinButton();
+    .app {
 
-    return;
-  }
+      width: 100%;
 
+      max-width: 480px;
 
-  /* پیدا کردن عناصر */
+      margin: auto;
 
-  const button =
-    document.getElementById("spinBtn") ||
-    document.getElementById("spinButton");
+      padding:
+        18px
+        16px
+        100px;
 
-
-  const wheel =
-    document.getElementById("wheel") ||
-    document.getElementById("spinWheel");
-
-
-  const result =
-    document.getElementById("result") ||
-    document.getElementById("spinResult");
-
-
-  /* بررسی وجود چرخ */
-
-  if (!wheel) {
-
-    console.error(
-      "❌ Wheel not found!"
-    );
-
-    alert(
-      "❌ Spin wheel not found! Check HTML id='wheel'"
-    );
-
-    return;
-
-  }
-
-
-  /* شروع اسپین */
-
-  isSpinning = true;
-
-
-  if (button) {
-
-    button.disabled = true;
-
-    button.textContent =
-      "🎡 SPINNING...";
-
-  }
-
-
-  /* مخفی کردن نتیجه قبلی */
-
-  if (result) {
-
-    result.style.display =
-      "none";
-
-  }
-
-
-  /* جوایز */
-
-  const rewards = [
-
-    {
-      name: "50 NOVA 🪙",
-      type: "token",
-      value: 50
-    },
-
-    {
-      name: "0.10 USDT 💵",
-      type: "usdt",
-      value: 0.10
-    },
-
-    {
-      name: "Mystery Gift 🎁",
-      type: "gift",
-      value: 50
-    },
-
-    {
-      name: "Bonus Spin ⭐",
-      type: "spin",
-      value: 1
-    },
-
-    {
-      name: "100 NOVA 🪙",
-      type: "token",
-      value: 100
-    },
-
-    {
-      name: "0.05 USDT 💵",
-      type: "usdt",
-      value: 0.05
-    },
-
-    {
-      name: "Mystery Gift 🎁",
-      type: "gift",
-      value: 100
-    },
-
-    {
-      name: "25 NOVA 🪙",
-      type: "token",
-      value: 25
     }
 
-  ];
 
+    /* =========================
+       HEADER
+    ========================= */
 
-  /* انتخاب جایزه */
+    .top {
 
-  const prizeIndex =
-    Math.floor(
-      Math.random() *
-      rewards.length
-    );
+      display: flex;
 
+      align-items: center;
 
-  const prize =
-    rewards[prizeIndex];
+      justify-content: space-between;
 
+      padding:
+        10px
+        0
+        22px;
 
-  console.log(
-    "🎁 Selected prize:",
-    prize
-  );
+    }
 
 
-  /* هر بخش چرخ */
+    .brand {
 
-  const sectorAngle =
-    360 / rewards.length;
+      display: flex;
 
+      align-items: center;
 
-  /*
-    فلش در بالای چرخ است
-    توقف روی وسط جایزه
-  */
+      gap: 11px;
 
-  const targetAngle =
-    360 -
-    (prizeIndex * sectorAngle) -
-    (sectorAngle / 2);
+    }
 
 
-  /* 7 تا 10 دور کامل */
+    .logo {
 
-  const fullSpins =
-    7 +
-    Math.floor(
-      Math.random() * 4
-    );
+      width: 48px;
 
+      height: 48px;
 
-  /* زاویه فعلی */
+      border-radius: 16px;
 
-  const currentAngle =
-    ((wheelRotation % 360) + 360) % 360;
+      display: grid;
 
+      place-items: center;
 
-  /* محاسبه حرکت */
+      font-size: 25px;
 
-  let move =
-    targetAngle -
-    currentAngle;
+      background:
 
+        linear-gradient(
+          135deg,
+          #2ce5f4,
+          #147dce
+        );
 
-  if (move < 0) {
+      box-shadow:
+        0 0 24px
+        rgba(40,217,233,.25);
 
-    move += 360;
+    }
 
-  }
 
+    .brand h1 {
 
-  /* زاویه قبلی */
+      margin: 0;
 
-  const previousRotation =
-    wheelRotation;
+      font-size: 22px;
 
+      font-weight: 800;
 
-  /* زاویه نهایی */
+    }
 
-  wheelRotation +=
-    (fullSpins * 360) +
-    move;
 
+    .brand p {
 
-  console.log(
-    "🎡 Previous rotation:",
-    previousRotation
-  );
+      margin:
+        4px
+        0
+        0;
 
-  console.log(
-    "🎡 Final rotation:",
-    wheelRotation
-  );
+      font-size: 12px;
 
+      color: var(--muted);
 
-  /* حذف transition قبلی */
+    }
 
-  wheel.style.transition =
-    "none";
 
+    .avatar {
 
-  /* تثبیت موقعیت قبلی */
+      width: 44px;
 
-  wheel.style.transform =
-    `rotate(${previousRotation}deg)`;
+      height: 44px;
 
+      border-radius: 50%;
 
-  /* اجبار مرورگر */
+      display: grid;
 
-  void wheel.offsetWidth;
+      place-items: center;
 
+      background: #17283b;
 
-  /* شروع انیمیشن */
+      border:
+        1px
+        solid
+        var(--line);
 
-  requestAnimationFrame(() => {
+      font-size: 20px;
 
-    requestAnimationFrame(() => {
+    }
 
-      wheel.style.transition =
-        "transform 5.5s cubic-bezier(.12,.8,.18,1)";
 
+    /* =========================
+       HERO CARD
+    ========================= */
 
-      wheel.style.transform =
-        `rotate(${wheelRotation}deg)`;
+    .hero {
 
-    });
+      background:
 
-  });
+        linear-gradient(
+          145deg,
+          #13263b,
+          #0d1928
+        );
 
+      border:
+        1px
+        solid
+        #24445b;
 
-  /* کم کردن یک اسپین */
+      border-radius: 24px;
 
-  data.spinCount--;
+      padding: 22px;
 
+      margin-bottom: 16px;
 
-  save();
+      box-shadow:
+        0 12px 40px
+        rgba(0,0,0,.18);
 
-  updateUI();
+    }
 
 
-  /* پایان انیمیشن */
+    .hero small {
 
-  setTimeout(() => {
+      color: var(--muted);
 
-    applySpinReward(
-      prize
-    );
+      font-size: 13px;
 
+    }
 
-    isSpinning =
-      false;
 
+    .balance {
 
-    updateSpinButton();
+      font-size: 42px;
 
+      font-weight: 800;
 
-    console.log(
-      "🎉 Spin finished"
-    );
+      margin:
+        8px
+        0;
 
-  }, 5600);
+      letter-spacing: -1px;
 
-}
+    }
+
+
+    .balance span {
+
+      font-size: 18px;
+
+      color: var(--cyan);
+
+    }
+
+
+    .substats {
+
+      display: grid;
+
+      grid-template-columns:
+        1fr
+        1fr;
+
+      gap: 10px;
+
+      margin-top: 18px;
+
+    }
+
+
+    .mini {
+
+      background:
+        rgba(5,12,22,.5);
+
+      border:
+        1px
+        solid
+        var(--line);
+
+      border-radius: 16px;
+
+      padding: 13px;
+
+    }
+
+
+    .mini small {
+
+      display: block;
+
+      margin-bottom: 7px;
+
+      color: var(--muted);
+
+    }
+
+
+    .mini b {
+
+      font-size: 18px;
+
+    }
+
+
+    /* =========================
+       LEVEL
+    ========================= */
+
+    .level {
+
+      margin-top: 20px;
+
+    }
+
+
+    .level-row {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      margin-bottom: 8px;
+
+      font-size: 13px;
+
+      color: var(--muted);
+
+    }
+
+
+    .bar {
+
+      height: 9px;
+
+      background: #07111d;
+
+      border-radius: 30px;
+
+      overflow: hidden;
+
+    }
+
+
+    .fill {
+
+      width: 0%;
+
+      height: 100%;
+
+      border-radius: 30px;
+
+      background:
+
+        linear-gradient(
+          90deg,
+          #24cfe0,
+          #58e8b1
+        );
+
+      transition:
+        width
+        .4s
+        ease;
+
+    }
+
+
+    /* =========================
+       QUICK ACTIONS
+    ========================= */
+
+    .quick {
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(3,1fr);
+
+      gap: 10px;
+
+      margin-bottom: 24px;
+
+    }
+
+
+    .quick button {
+
+      border:
+        1px
+        solid
+        var(--line);
+
+      border-radius: 17px;
+
+      padding: 14px 7px;
+
+      background: var(--card);
+
+      color: var(--text);
+
+      cursor: pointer;
+
+      font-size: 12px;
+
+    }
+
+
+    .quick-icon {
+
+      display: block;
+
+      font-size: 23px;
+
+      margin-bottom: 6px;
+
+    }
+
+
+    /* =========================
+       SECTION
+    ========================= */
+
+    .section {
+
+      margin-bottom: 25px;
+
+    }
+
+
+    .section-head {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      margin-bottom: 12px;
+
+    }
+
+
+    .section-head h2 {
+
+      margin: 0;
+
+      font-size: 20px;
+
+    }
+
+
+    .section-head span {
+
+      color: var(--cyan);
+
+      font-size: 13px;
+
+    }
+
+
+    /* =========================
+       TASKS
+    ========================= */
+
+    .task {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 13px;
+
+      padding: 15px;
+
+      margin-bottom: 10px;
+
+      background: var(--card);
+
+      border:
+        1px
+        solid
+        var(--line);
+
+      border-radius: 19px;
+
+    }
+
+
+    .task-icon {
+
+      width: 48px;
+
+      height: 48px;
+
+      flex-shrink: 0;
+
+      display: grid;
+
+      place-items: center;
+
+      border-radius: 15px;
+
+      background: var(--card-dark);
+
+      font-size: 23px;
+
+    }
+
+
+    .task-info {
+
+      flex: 1;
+
+    }
+
+
+    .task-info h3 {
+
+      margin: 0 0 5px;
+
+      font-size: 15px;
+
+    }
+
+
+    .task-info p {
+
+      margin: 0;
+
+      color: var(--muted);
+
+      font-size: 12px;
+
+    }
+
+
+    .reward {
+
+      color: var(--green);
+
+      font-weight: bold;
+
+      font-size: 12px;
+
+      margin-top: 5px !important;
+
+    }
+
+
+    .task button {
+
+      border: none;
+
+      border-radius: 12px;
+
+      padding:
+        10px
+        13px;
+
+      background: var(--cyan);
+
+      color: #06131d;
+
+      font-weight: bold;
+
+      cursor: pointer;
+
+    }
+
+
+    .task.completed {
+
+      opacity: .65;
+
+      border-color:
+        rgba(72,223,154,.3);
+
+    }
+
+
+    .task.completed button {
+
+      background:
+        rgba(72,223,154,.18);
+
+      color: var(--green);
+
+    }
+
+
+    /* =========================
+       DAILY
+    ========================= */
+
+    .daily-card {
+
+      padding: 20px;
+
+      border-radius: 22px;
+
+      background:
+
+        linear-gradient(
+          135deg,
+          rgba(40,217,233,.12),
+          rgba(72,223,154,.07)
+        );
+
+      border:
+        1px
+        solid
+        rgba(40,217,233,.25);
+
+    }
+
+
+    .daily-top {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      gap: 15px;
+
+    }
+
+
+    .daily-top h3 {
+
+      margin: 0 0 7px;
+
+    }
+
+
+    .daily-top p {
+
+      margin: 0;
+
+      color: var(--muted);
+
+      font-size: 13px;
+
+    }
+
+
+    .daily-icon {
+
+      font-size: 38px;
+
+    }
+
+
+    .claim-btn {
+
+      width: 100%;
+
+      margin-top: 18px;
+
+      padding: 14px;
+
+      border: none;
+
+      border-radius: 15px;
+
+      background:
+
+        linear-gradient(
+          135deg,
+          #28d9e9,
+          #34b9dd
+        );
+
+      color: #06131d;
+
+      font-size: 15px;
+
+      font-weight: bold;
+
+      cursor: pointer;
+
+    }
+
+
+    .claim-btn:disabled {
+
+      opacity: .5;
+
+    }
+
+
+    /* =========================
+       REFERRAL
+    ========================= */
+
+    .referral {
+
+      padding: 20px;
+
+      border-radius: 22px;
+
+      background: var(--card);
+
+      border:
+        1px
+        solid
+        var(--line);
+
+    }
+
+
+    .referral h3 {
+
+      margin-top: 0;
+
+    }
+
+
+    .referral p {
+
+      color: var(--muted);
+
+      font-size: 13px;
+
+      line-height: 1.5;
+
+    }
+
+
+    .referral-row {
+
+      display: flex;
+
+      gap: 9px;
+
+      margin-top: 14px;
+
+    }
+
+
+    .referral input {
+
+      flex: 1;
+
+      min-width: 0;
+
+      border:
+        1px
+        solid
+        var(--line);
+
+      background: var(--card-dark);
+
+      color: var(--muted);
+
+      padding: 12px;
+
+      border-radius: 12px;
+
+      outline: none;
+
+    }
+
+
+    .copy-btn {
+
+      border: none;
+
+      border-radius: 12px;
+
+      padding:
+        0
+        15px;
+
+      background: var(--cyan);
+
+      font-weight: bold;
+
+      cursor: pointer;
+
+    }
+
+
+    /* =========================
+       WALLET
+    ========================= */
+
+    .wallet-card {
+
+      padding: 20px;
+
+      border-radius: 22px;
+
+      background: var(--card);
+
+      border:
+        1px
+        solid
+        var(--line);
+
+    }
+
+
+    .wallet-top {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+    }
+
+
+    .wallet-top h3 {
+
+      margin: 0;
+
+    }
+
+
+    .wallet-status {
+
+      margin-top: 12px;
+
+      padding: 12px;
+
+      border-radius: 13px;
+
+      background: var(--card-dark);
+
+      color: var(--muted);
+
+      font-size: 13px;
+
+    }
+
+
+    .connect-btn {
+
+      width: 100%;
+
+      margin-top: 13px;
+
+      padding: 14px;
+
+      border: none;
+
+      border-radius: 14px;
+
+      background: #0088cc;
+
+      color: white;
+
+      font-weight: bold;
+
+      cursor: pointer;
+
+    }
+
+
+    /* =========================
+       BOTTOM NAV
+    ========================= */
+
+    .bottom-nav {
+
+      position: fixed;
+
+      bottom: 0;
+
+      left: 50%;
+
+      transform:
+        translateX(-50%);
+
+      width: 100%;
+
+      max-width: 480px;
+
+      display: flex;
+
+      justify-content: space-around;
+
+      padding:
+        10px
+        6px
+        18px;
+
+      background:
+        rgba(8,20,33,.96);
+
+      backdrop-filter:
+        blur(15px);
+
+      border-top:
+        1px
+        solid
+        var(--line);
+
+      z-index: 100;
+
+    }
+
+
+    .nav-item {
+
+      flex: 1;
+
+      text-align: center;
+
+      color: var(--muted);
+
+      font-size: 11px;
+
+      cursor: pointer;
+
+    }
+
+
+    .nav-item span {
+
+      display: block;
+
+      font-size: 21px;
+
+      margin-bottom: 4px;
+
+    }
+
+
+    .nav-item.active {
+
+      color: var(--cyan);
+
+    }
+
+
+    @media(max-width:360px) {
+
+      .balance {
+
+        font-size: 36px;
+
+      }
+
+      .task {
+
+        padding: 12px;
+
+      }
+
+      .task-icon {
+
+        width: 42px;
+
+        height: 42px;
+
+      }
+
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+  <!-- HEADER -->
+
+  <header class="top">
+
+    <div class="brand">
+
+      <div class="logo">
+        🚀
+      </div>
+
+      <div>
+
+        <h1>
+          NovaDrop
+        </h1>
+
+        <p id="welcomeText">
+          Your earning journey
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="avatar">
+      👤
+    </div>
+
+  </header>
+
+
+
+  <!-- HERO -->
+
+  <section class="hero">
+
+    <small>
+      TOTAL BALANCE
+    </small>
+
+
+    <div class="balance">
+
+      <span id="coins">
+        0
+      </span>
+
+      <span>
+        NOVA
+      </span>
+
+    </div>
+
+
+    <div class="substats">
+
+      <div class="mini">
+
+        <small>
+          Level
+        </small>
+
+        <b>
+          Lv. <span id="level">1</span>
+        </b>
+
+      </div>
+
+
+      <div class="mini">
+
+        <small>
+          Total XP
+        </small>
+
+        <b>
+          <span id="xp">0</span> XP
+        </b>
+
+      </div>
+
+    </div>
+
+
+    <div class="level">
+
+      <div class="level-row">
+
+        <span>
+          Progress
+        </span>
+
+        <span id="xpText">
+          0 / 100 XP
+        </span>
+
+      </div>
+
+
+      <div class="bar">
