@@ -1,8 +1,12 @@
 /* =========================================
    🚀 NOVADROP
    Telegram Mini App
-   Spin + Token + USDT Demo
-   TON Connect + Referral
+   Fixed Spin System
+========================================= */
+
+
+/* =========================================
+   SUPABASE
 ========================================= */
 
 const SUPABASE_URL =
@@ -51,9 +55,7 @@ const telegramUser =
 const BOT_USERNAME = "NovaDropCoinBot";
 
 function getStartParameter() {
-  if (!tg) return null;
-
-  return tg.initDataUnsafe.start_param || null;
+  return tg?.initDataUnsafe?.start_param || null;
 }
 
 function getReferralLink() {
@@ -72,7 +74,7 @@ function getReferralLink() {
 
 
 /* =========================================
-   DATA
+   DEFAULT DATA
 ========================================= */
 
 const DEFAULT_DATA = {
@@ -101,26 +103,29 @@ const DEFAULT_DATA = {
 };
 
 
+/* =========================================
+   LOAD DATA
+========================================= */
+
 let data;
 
 try {
 
   const saved =
-    localStorage.getItem(
-      "novadrop_data"
-    );
+    localStorage.getItem("novadrop_data");
 
-  data =
-    saved
-      ? JSON.parse(saved)
-      : { ...DEFAULT_DATA };
+  data = saved
+    ? {
+        ...DEFAULT_DATA,
+        ...JSON.parse(saved)
+      }
+    : {
+        ...DEFAULT_DATA
+      };
 
 } catch (error) {
 
-  console.error(
-    "Data loading error:",
-    error
-  );
+  console.error("Load error:", error);
 
   data = {
     ...DEFAULT_DATA
@@ -133,38 +138,22 @@ try {
    REPAIR DATA
 ========================================= */
 
-data.coins =
-  Number(data.coins) || 0;
+data.coins = Number(data.coins) || 0;
+data.xp = Number(data.xp) || 0;
+data.level = Number(data.level) || 1;
+data.streak = Number(data.streak) || 0;
+data.referralCount = Number(data.referralCount) || 0;
+data.tokenBalance = Number(data.tokenBalance) || 0;
+data.usdtBalance = Number(data.usdtBalance) || 0;
 
-data.xp =
-  Number(data.xp) || 0;
-
-data.level =
-  Number(data.level) || 1;
-
-data.streak =
-  Number(data.streak) || 0;
-
-data.referralCount =
-  Number(data.referralCount) || 0;
-
-data.tokenBalance =
-  Number(data.tokenBalance) || 0;
-
-data.usdtBalance =
-  Number(data.usdtBalance) || 0;
-
-/* مهم: مقدار اولیه Spin */
 if (
   data.spinCount === undefined ||
   data.spinCount === null
 ) {
   data.spinCount = 1;
 } else {
-  data.spinCount =
-    Number(data.spinCount) || 0;
+  data.spinCount = Number(data.spinCount) || 0;
 }
-
 
 if (!Array.isArray(data.completedTasks)) {
   data.completedTasks = [];
@@ -198,10 +187,7 @@ function calculateLevel(
 ) {
 
   let level = 1;
-
-  let remainingXP =
-    Number(xp) || 0;
-
+  let remainingXP = Number(xp) || 0;
   let neededXP = 100;
 
   while (
@@ -239,6 +225,41 @@ function formatNumber(number) {
 
 
 /* =========================================
+   GET SPIN ELEMENTS
+========================================= */
+
+function getSpinWheel() {
+
+  return (
+    document.getElementById("wheel") ||
+    document.getElementById("spinWheel") ||
+    document.querySelector(".spin-wheel")
+  );
+
+}
+
+function getSpinButton() {
+
+  return (
+    document.getElementById("spinBtn") ||
+    document.getElementById("spinButton") ||
+    document.querySelector("[onclick='spinWheel()']")
+  );
+
+}
+
+function getSpinResult() {
+
+  return (
+    document.getElementById("result") ||
+    document.getElementById("spinResult") ||
+    document.querySelector(".spin-result")
+  );
+
+}
+
+
+/* =========================================
    UI
 ========================================= */
 
@@ -253,23 +274,17 @@ function updateUI() {
 
   const values = {
 
-    coins:
-      data.coins,
+    coins: data.coins,
 
-    xp:
-      data.xp,
+    xp: data.xp,
 
-    level:
-      data.level,
+    level: data.level,
 
-    streak:
-      data.streak,
+    streak: data.streak,
 
-    walletCoins:
-      data.coins,
+    walletCoins: data.coins,
 
-    shopCoins:
-      data.coins,
+    shopCoins: data.coins,
 
     referralCount:
       data.referralCount,
@@ -291,10 +306,14 @@ function updateUI() {
       ),
 
     usdtBalance:
-      data.usdtBalance.toFixed(2),
+      Number(
+        data.usdtBalance
+      ).toFixed(2),
 
     usdt:
-      data.usdtBalance.toFixed(2),
+      Number(
+        data.usdtBalance
+      ).toFixed(2),
 
     profileToken:
       formatNumber(
@@ -302,7 +321,9 @@ function updateUI() {
       ),
 
     profileUSDT:
-      data.usdtBalance.toFixed(2),
+      Number(
+        data.usdtBalance
+      ).toFixed(2),
 
     profileLevel:
       data.level,
@@ -370,6 +391,25 @@ function updateUI() {
   }
 
 
+  updateWalletUI();
+
+  updatePremiumUI();
+
+  renderTasks();
+
+  updateSpinButton();
+
+  save();
+
+}
+
+
+/* =========================================
+   WALLET UI
+========================================= */
+
+function updateWalletUI() {
+
   const walletStatus =
     document.getElementById(
       "walletStatus"
@@ -417,6 +457,14 @@ function updateUI() {
 
   }
 
+}
+
+
+/* =========================================
+   PREMIUM UI
+========================================= */
+
+function updatePremiumUI() {
 
   const premiumStatus =
     document.getElementById(
@@ -462,13 +510,6 @@ function updateUI() {
     }
 
   }
-
-
-  renderTasks();
-
-  updateSpinButton();
-
-  save();
 
 }
 
@@ -522,16 +563,12 @@ function renderTasks() {
 
       if (!element) return;
 
-
       const button =
-        element.querySelector(
-          "button"
-        );
+        element.querySelector("button");
 
 
       if (
-        data.completedTasks
-          .includes(taskId)
+        data.completedTasks.includes(taskId)
       ) {
 
         element.classList.add(
@@ -568,8 +605,7 @@ function completeTask(taskId) {
 
 
   if (
-    data.completedTasks
-      .includes(taskId)
+    data.completedTasks.includes(taskId)
   ) {
 
     alert(
@@ -619,9 +655,7 @@ function completeTask(taskId) {
 
   data.coins += task.coins;
 
-  data.completedTasks.push(
-    taskId
-  );
+  data.completedTasks.push(taskId);
 
   save();
 
@@ -643,8 +677,7 @@ function claimStreak() {
 
 
   if (
-    data.lastStreakDate ===
-    today
+    data.lastStreakDate === today
   ) {
 
     alert(
@@ -703,9 +736,7 @@ function claimStreak() {
     );
 
 
-  data.coins +=
-    reward;
-
+  data.coins += reward;
 
   save();
 
@@ -724,7 +755,16 @@ function claimStreak() {
 
 
 /* =========================================
-   🎡 DAILY SPIN
+   🎡 SPIN SYSTEM
+========================================= */
+
+let wheelRotation = 0;
+
+let isSpinning = false;
+
+
+/* =========================================
+   PREPARE DAILY SPIN
 ========================================= */
 
 function prepareDailySpin() {
@@ -735,19 +775,14 @@ function prepareDailySpin() {
       .slice(0, 10);
 
 
-  if (
-    data.lastDailySpinDate === null ||
-    data.lastDailySpinDate === undefined
-  ) {
-
-    if (data.spinCount < 1) {
-
-      data.spinCount = 1;
-
-    }
+  if (!data.lastDailySpinDate) {
 
     data.lastDailySpinDate =
       today;
+
+    if (data.spinCount < 1) {
+      data.spinCount = 1;
+    }
 
     save();
 
@@ -757,8 +792,7 @@ function prepareDailySpin() {
 
 
   if (
-    data.lastDailySpinDate !==
-    today
+    data.lastDailySpinDate !== today
   ) {
 
     data.spinCount += 1;
@@ -774,24 +808,23 @@ function prepareDailySpin() {
 
 
 /* =========================================
-   🎡 SPIN SYSTEM
-========================================= */
-
-let wheelRotation = 0;
-let isSpinning = false;
-
-
-/* =========================================
-   SPIN BUTTON
+   UPDATE SPIN BUTTON
 ========================================= */
 
 function updateSpinButton() {
 
   const button =
-    document.getElementById("spinBtn") ||
-    document.getElementById("spinButton");
+    getSpinButton();
 
-  if (!button) return;
+  if (!button) {
+
+    console.warn(
+      "Spin button not found"
+    );
+
+    return;
+
+  }
 
 
   if (isSpinning) {
@@ -826,25 +859,31 @@ function updateSpinButton() {
 
 
 /* =========================================
-   🎡 SPIN WHEEL
+   🎡 SPIN WHEEL - FIXED
 ========================================= */
 
 function spinWheel() {
 
   console.log(
-    "🎡 Spin clicked"
+    "🎡 Spin function started"
   );
 
 
-  if (isSpinning) return;
+  if (isSpinning) {
+
+    console.log(
+      "Already spinning"
+    );
+
+    return;
+
+  }
 
 
   prepareDailySpin();
 
 
-  if (
-    Number(data.spinCount) <= 0
-  ) {
+  if (data.spinCount <= 0) {
 
     alert(
       "❌ No spins available.\n\nCome back tomorrow!"
@@ -858,18 +897,17 @@ function spinWheel() {
 
 
   const wheel =
-    document.getElementById("wheel") ||
-    document.getElementById("spinWheel");
+    getSpinWheel();
 
 
   if (!wheel) {
 
-    console.error(
-      "❌ Spin wheel not found"
+    alert(
+      "❌ Spin wheel not found!\nCheck HTML ID."
     );
 
-    alert(
-      "❌ Spin wheel not found. Check HTML ID."
+    console.error(
+      "Expected ID: wheel or spinWheel"
     );
 
     return;
@@ -877,7 +915,21 @@ function spinWheel() {
   }
 
 
+  /* 8 REWARDS */
+
   const rewards = [
+
+    {
+      name: "25 NOVA 🪙",
+      type: "token",
+      value: 25
+    },
+
+    {
+      name: "0.05 USDT 💵",
+      type: "usdt",
+      value: 0.05
+    },
 
     {
       name: "50 NOVA 🪙",
@@ -886,19 +938,7 @@ function spinWheel() {
     },
 
     {
-      name: "0.10 USDT 💵",
-      type: "usdt",
-      value: 0.10
-    },
-
-    {
-      name: "Mystery Gift 🎁",
-      type: "gift",
-      value: 0
-    },
-
-    {
-      name: "Bonus Spin ⭐",
+      name: "Bonus Spin 🎟",
       type: "spin",
       value: 1
     },
@@ -910,25 +950,27 @@ function spinWheel() {
     },
 
     {
-      name: "0.05 USDT 💵",
+      name: "0.10 USDT 💵",
       type: "usdt",
-      value: 0.05
+      value: 0.10
     },
 
     {
       name: "Mystery Gift 🎁",
       type: "gift",
-      value: 0
+      value: 50
     },
 
     {
-      name: "25 NOVA 🪙",
+      name: "250 NOVA 🪙",
       type: "token",
-      value: 25
+      value: 250
     }
 
   ];
 
+
+  /* RANDOM PRIZE */
 
   const prizeIndex =
     Math.floor(
@@ -941,114 +983,151 @@ function spinWheel() {
     rewards[prizeIndex];
 
 
+  console.log(
+    "Prize:",
+    prize
+  );
+
+
   isSpinning = true;
 
 
-  /*
-   * Use one spin
-   */
+  /* REMOVE ONE SPIN */
 
   data.spinCount--;
 
   save();
 
-  updateUI();
+  updateSpinButton();
+
+
+  /* CLEAR RESULT */
+
+  const result =
+    getSpinResult();
+
+  if (result) {
+
+    result.innerHTML =
+      "🎡 Spinning...";
+
+  }
+
+
+  /* 8 SECTORS */
+
+  const sectorAngle =
+    360 / rewards.length;
 
 
   /*
-   * 8 sections
-   * Each section = 45deg
-   */
+    Center of winning sector.
+    Pointer assumed at TOP.
+  */
 
-  const sectorAngle = 45;
-
-
-  /*
-   * Pointer is fixed at top
-   */
-
-  const targetAngle =
-    360 -
-    (prizeIndex * sectorAngle) -
+  const sectorCenter =
+    (prizeIndex * sectorAngle) +
     (sectorAngle / 2);
 
 
   /*
-   * 6-8 full rotations
-   */
+    Target rotation
+  */
 
-  const fullRotations =
+  const target =
+    360 - sectorCenter;
+
+
+  /*
+    7-10 FULL ROTATIONS
+  */
+
+  const extraRotations =
     360 *
     (
-      6 +
+      7 +
       Math.floor(
-        Math.random() * 3
+        Math.random() * 4
       )
     );
 
 
   /*
-   * Final rotation
-   */
+    CURRENT NORMALIZED ROTATION
+  */
 
-  const currentPosition =
+  const current =
     wheelRotation % 360;
 
 
+  /*
+    CALCULATE FINAL ROTATION
+  */
+
+  let delta =
+    target - current;
+
+
+  if (delta < 0) {
+
+    delta += 360;
+
+  }
+
+
   wheelRotation +=
-    fullRotations +
-    targetAngle -
-    currentPosition;
+    extraRotations +
+    delta;
 
 
   /*
-   * IMPORTANT:
-   * Force browser animation
-   */
+    IMPORTANT:
+    Reset transition
+  */
 
   wheel.style.transition =
     "none";
 
-  wheel.style.transform =
-    `rotate(${wheelRotation - 5}deg)`;
 
+  /*
+    Force reflow
+  */
+
+  wheel.offsetHeight;
+
+
+  /*
+    Start animation
+  */
 
   requestAnimationFrame(
-    function () {
+    () => {
 
-      requestAnimationFrame(
-        function () {
+      wheel.style.transition =
+        "transform 5s cubic-bezier(0.12, 0.8, 0.18, 1)";
 
-          wheel.style.transition =
-            "transform 5.5s cubic-bezier(.12,.8,.18,1)";
-
-          wheel.style.transform =
-            `rotate(${wheelRotation}deg)`;
-
-        }
-      );
+      wheel.style.transform =
+        `rotate(${wheelRotation}deg)`;
 
     }
   );
 
 
   /*
-   * Apply reward after wheel stops
-   */
+    WAIT FOR ANIMATION
+  */
 
   setTimeout(
-    function () {
+    () => {
 
-      applySpinReward(
-        prize
-      );
+      applySpinReward(prize);
 
       isSpinning = false;
 
       updateSpinButton();
 
     },
-    5600
+    5100
   );
 
 }
@@ -1058,7 +1137,9 @@ function spinWheel() {
    APPLY SPIN REWARD
 ========================================= */
 
-function applySpinReward(reward) {
+function applySpinReward(
+  reward
+) {
 
   if (
     reward.type === "token"
@@ -1094,30 +1175,22 @@ function applySpinReward(reward) {
     reward.type === "gift"
   ) {
 
-    data.coins += 50;
+    data.coins +=
+      Number(reward.value);
 
   }
 
 
   const result =
-    document.getElementById("result") ||
-    document.getElementById("spinResult");
-
-
-  const message =
-    "🎉 Congratulations!<br>" +
-    "You won <b>" +
-    reward.name +
-    "</b>";
+    getSpinResult();
 
 
   if (result) {
 
     result.innerHTML =
-      message;
-
-    result.style.display =
-      "block";
+      "🎉 You won: <b>" +
+      reward.name +
+      "</b>";
 
   }
 
@@ -1128,8 +1201,7 @@ function applySpinReward(reward) {
 
 
   alert(
-    "🎉 Congratulations!\n\n" +
-    "You won " +
+    "🎉 Congratulations!\n\nYou won " +
     reward.name
   );
 
@@ -1137,7 +1209,7 @@ function applySpinReward(reward) {
 
 
 /* =========================================
-   DAILY REWARD BUTTON
+   DAILY FREE SPIN
 ========================================= */
 
 function claimDaily() {
@@ -1180,16 +1252,13 @@ function claimDaily() {
 
 
   const result =
-    document.getElementById("result");
+    getSpinResult();
 
   if (result) {
 
     result.innerHTML =
       "🎉 Daily Reward Claimed!<br>" +
       "You received <b>1 Free Spin 🎟</b>";
-
-    result.style.display =
-      "block";
 
   }
 
@@ -1273,7 +1342,7 @@ function checkDailyStatus() {
 
 
 /* =========================================
-   REFERRAL COPY
+   REFERRAL
 ========================================= */
 
 function copyReferralLink() {
@@ -1335,9 +1404,7 @@ function fallbackCopy(text) {
 
   input.select();
 
-  document.execCommand(
-    "copy"
-  );
+  document.execCommand("copy");
 
   alert(
     "✅ Referral link copied!"
@@ -1346,15 +1413,10 @@ function fallbackCopy(text) {
 }
 
 
-/* =========================================
-   SHARE REFERRAL
-========================================= */
-
 function shareReferral() {
 
   const link =
     getReferralLink();
-
 
   if (!link) {
 
@@ -1401,7 +1463,7 @@ function shareReferral() {
 
 
 /* =========================================
-   PREMIUM DEMO
+   PREMIUM
 ========================================= */
 
 function activateDemoPremium() {
@@ -1412,10 +1474,8 @@ function activateDemoPremium() {
 
   updateUI();
 
-
   alert(
-    "⭐ Premium Demo activated!\n\n" +
-    "Demo only — no TON payment was made."
+    "⭐ Premium Demo activated!"
   );
 
 }
@@ -1449,6 +1509,7 @@ function buyItem(
   data.purchases.push({
 
     name,
+
     price,
 
     date:
@@ -1536,7 +1597,6 @@ function initTONConnect() {
       }
     );
 
-
   } catch (error) {
 
     console.error(
@@ -1549,28 +1609,20 @@ function initTONConnect() {
 }
 
 
-/* =========================================
-   WALLET CONNECTED
-========================================= */
-
 async function onWalletConnected(
   wallet
 ) {
 
   const address =
-    wallet &&
-    wallet.account &&
-    wallet.account.address
-      ? wallet.account.address
-      : null;
+    wallet?.account?.address ||
+    null;
 
 
   if (!address) return;
 
 
   const wasConnected =
-    data.walletAddress ===
-    address;
+    data.walletAddress === address;
 
 
   data.walletAddress =
@@ -1579,8 +1631,7 @@ async function onWalletConnected(
 
   if (
     !wasConnected &&
-    !data.completedTasks
-      .includes("wallet")
+    !data.completedTasks.includes("wallet")
   ) {
 
     data.xp += 100;
@@ -1593,9 +1644,7 @@ async function onWalletConnected(
 
 
     alert(
-      "💎 TON Wallet Connected!\n\n" +
-      "+100 XP\n" +
-      "+100 Coins"
+      "💎 TON Wallet Connected!\n\n+100 XP\n+100 Coins"
     );
 
   }
@@ -1608,14 +1657,9 @@ async function onWalletConnected(
 }
 
 
-/* =========================================
-   WALLET DISCONNECTED
-========================================= */
-
 function onWalletDisconnected() {
 
-  data.walletAddress =
-    null;
+  data.walletAddress = null;
 
   save();
 
@@ -1623,10 +1667,6 @@ function onWalletDisconnected() {
 
 }
 
-
-/* =========================================
-   ADDRESS
-========================================= */
 
 function shortenAddress(
   address
@@ -1643,140 +1683,6 @@ function shortenAddress(
     "..." +
     address.slice(-6)
   );
-
-}
-
-
-/* =========================================
-   REFERRAL SERVER
-========================================= */
-
-async function processReferral() {
-
-  if (
-    !tg ||
-    !tg.initData ||
-    !supabaseClient
-  ) {
-
-    return;
-
-  }
-
-
-  try {
-
-    const startParam =
-      getStartParameter();
-
-
-    const response =
-      await supabaseClient
-        .functions
-        .invoke(
-          "process-referral",
-          {
-
-            body: {
-
-              initData:
-                tg.initData,
-
-              startParam
-
-            }
-
-          }
-        );
-
-
-    const result =
-      response.data;
-
-    const error =
-      response.error;
-
-
-    if (error) {
-
-      console.error(
-        "Referral error:",
-        error
-      );
-
-      return;
-
-    }
-
-
-    if (!result) return;
-
-
-    if (result.profile) {
-
-      const profile =
-        result.profile;
-
-
-      data.coins =
-        Number(
-          profile.coins
-        ) || data.coins;
-
-
-      data.xp =
-        Number(
-          profile.xp
-        ) || data.xp;
-
-
-      data.level =
-        Number(
-          profile.level
-        ) || data.level;
-
-
-      data.streak =
-        Number(
-          profile.streak
-        ) || data.streak;
-
-
-      data.referralCount =
-        Number(
-          profile.referral_count
-        ) || data.referralCount;
-
-    }
-
-
-    if (
-      result.referralRewarded
-    ) {
-
-      data.spinCount += 1;
-
-      alert(
-        "🎉 Successful Referral!\n\n" +
-        "+1 Spin"
-      );
-
-    }
-
-
-    save();
-
-    updateUI();
-
-
-  } catch (error) {
-
-    console.error(
-      "Referral exception:",
-      error
-    );
-
-  }
 
 }
 
@@ -1806,7 +1712,7 @@ function scrollToWallet() {
 
     wallet.closest(
       ".card"
-    ).scrollIntoView({
+    )?.scrollIntoView({
       behavior: "smooth"
     });
 
@@ -1817,36 +1723,22 @@ function scrollToWallet() {
 
 function scrollToSpin() {
 
-  const spin =
-    document.querySelector(
-      ".spin-card"
-    );
-
-  if (spin) {
-
-    spin.scrollIntoView({
-      behavior: "smooth"
-    });
-
-  }
+  document.querySelector(
+    ".spin-card"
+  )?.scrollIntoView({
+    behavior: "smooth"
+  });
 
 }
 
 
 function scrollToPremium() {
 
-  const premium =
-    document.querySelector(
-      ".premium-card"
-    );
-
-  if (premium) {
-
-    premium.scrollIntoView({
-      behavior: "smooth"
-    });
-
-  }
+  document.querySelector(
+    ".premium-card"
+  )?.scrollIntoView({
+    behavior: "smooth"
+  });
 
 }
 
@@ -1859,9 +1751,7 @@ function scrollToProfile() {
     );
 
   const last =
-    cards[
-      cards.length - 1
-    ];
+    cards[cards.length - 1];
 
   if (last) {
 
@@ -1874,72 +1764,4 @@ function scrollToProfile() {
 }
 
 
-/* =========================================
-   RESET
-========================================= */
-
-function resetProgress() {
-
-  const confirmed =
-    confirm(
-      "Reset all NovaDrop progress?"
-    );
-
-
-  if (!confirmed) return;
-
-
-  data = {
-    ...DEFAULT_DATA
-  };
-
-
-  data.spinCount = 1;
-
-
-  save();
-
-  updateUI();
-
-
-  alert(
-    "♻️ Progress reset successfully."
-  );
-
-}
-
-
-/* =========================================
-   START
-========================================= */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  async function () {
-
-    console.log(
-      "🚀 NovaDrop starting..."
-    );
-
-
-    prepareDailySpin();
-
-    updateUI();
-
-    checkDailyStatus();
-
-    initTONConnect();
-
-
-    await processReferral();
-
-
-    updateUI();
-
-
-    console.log(
-      "🚀 NovaDrop ready!"
-    );
-
-  }
-);
+/*
